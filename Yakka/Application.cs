@@ -42,10 +42,7 @@ namespace Yakka
                 await threadCreationTask;
                 await testDurationTask;
             }
-            catch (TaskCanceledException) 
-            {
-                // todo Logging
-            }
+            catch (TaskCanceledException) { }
             catch (OperationCanceledException) { }
             catch (AggregateException e) when (e.InnerExceptions.All(x => x is TaskCanceledException || x is OperationCanceledException)) { }
             finally

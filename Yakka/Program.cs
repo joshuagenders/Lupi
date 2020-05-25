@@ -1,9 +1,7 @@
 ﻿using CommandLine;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using YamlDotNet.Serialization;
 
 namespace Yakka
 {
@@ -17,7 +15,6 @@ namespace Yakka
         private static async Task MainAsync(string[] args)
         {
             var cts = new CancellationTokenSource();
-            //todo requests scenario support -> input config file as yaml/json
             await Parser.Default
                 .ParseArguments<Options>(args)
                 .WithParsedAsync(async o =>

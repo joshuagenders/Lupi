@@ -53,17 +53,6 @@ namespace Yakka
                     break;
                 }
             }
-            //thread allocator loops around and continuously cleans up old threads and creates new as required
-            //instead of exiting -> wait in loop for signals to add threads up to max threads
-            //todo -> a thread with a callback when it completes to update its status so it can be removed from thread array
-            //maybe adds an I'm finished to a concurrent queue for the thread allocator to process
-            //also todo, change thread list to concurrentbag or dict
-
-            //OR
-            // detect when rps behind (tokens in semaphore growing, make tasks await thread control when complete so keep track of count (diff shouldn't grow))
-            // have a helper thread array with a max size
-            //can span a test thread with a max iteration count
-            //if the thread spends more than x time awaiting execution it kills itself and signals back
             DebugHelper.Write($"start threads complete");
         }
 
