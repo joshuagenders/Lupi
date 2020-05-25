@@ -26,9 +26,10 @@ namespace Yakka
                         throw new ArgumentException("Error reading configuration file. Result was null.");
                     }
 
+                    var plugin = new Plugin(config);
                     var threadControl = new ThreadControl(config);
-                    var testAdapter = new Runner();
-                    var threadAllocator = new ThreadAllocator(testAdapter, threadControl);
+                    var testRunner = new Runner(plugin, config);
+                    var threadAllocator = new ThreadAllocator(testRunner, threadControl);
                     var app = new Application(threadAllocator, threadControl, config);
                     await app.Run(cts.Token);
                 });

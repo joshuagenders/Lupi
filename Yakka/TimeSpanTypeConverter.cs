@@ -6,7 +6,7 @@ using YamlDotNet.Serialization;
 
 namespace Yakka
 {
-    public class TimeStringTypeConverter : IYamlTypeConverter
+    public class TimeSpanTypeConverter : IYamlTypeConverter
     {
         private static Regex TimeStringRegex = new Regex(@"^(?!$)(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$", RegexOptions.Compiled);
 

@@ -57,7 +57,7 @@ namespace Yakka
         public static double GetPhaseTotalThroughput(this Phase phase) =>
            phase.Tps > 0
                ? phase.Duration.TotalMilliseconds * phase.Tps / 1000
-               : phase.Duration.TotalMilliseconds * (phase.ToTps - phase.FromTps) / 2 / 1000 
+               : phase.Duration.TotalMilliseconds * Math.Abs(phase.ToTps - phase.FromTps) / 2 / 1000 
                     + phase.Duration.TotalMilliseconds * phase.FromTps / 1000;
 
         public static double GetPhaseThroughput(this Phase phase, int millisecondsEllapsed)
@@ -72,7 +72,7 @@ namespace Yakka
             }
             else if (phase.FromTps < phase.ToTps)
             {
-                return (millisecondsEllapsed * (phase.ToTps - phase.FromTps)) / 2 + millisecondsEllapsed * phase.FromTps / 1000;
+                return (millisecondsEllapsed * (phase.ToTps - phase.FromTps)) / 2 / 1000 + millisecondsEllapsed * phase.FromTps / 1000;
             }
             else
             {
@@ -86,20 +86,26 @@ namespace Yakka
 
         public static int TotalAllowedRequestsToNow(this List<Phase> phases, int millisecondsEllapsed)
         {
-            var totalTime = 0;
-            var totalRequests = 0d;
-            Phase currentPhase = null;
-            foreach (var phase in phases)
-            {
-                if (millisecondsEllapsed > totalTime + phase.Duration.TotalMilliseconds)
+            var currentPhase = phases.Select(
+                (p, i) => new
                 {
-                    break;
-                }
-                totalTime += Convert.ToInt32(phase.Duration.TotalMilliseconds);
-                totalRequests += phase.GetPhaseTotalThroughput();
-                currentPhase = phase;
+                    Phase = p,
+                    PhaseStart = phases.Where((x, n) => i < n)
+                                       .Sum(x => x.Duration.TotalMilliseconds),
+                    PhaseStartTps = phases.Where((x, n) => i < n)
+                                       .Sum(x => x.GetPhaseTotalThroughput()),
+                })
+                .Where(s => s.PhaseStart < millisecondsEllapsed && s.Phase.Duration.TotalMilliseconds + s.PhaseStart > millisecondsEllapsed)
+                .FirstOrDefault();
+            if (currentPhase == null)
+            {
+                DebugHelper.Write("Could not determine current phase");
+                return 0;
             }
-            return Convert.ToInt32(totalRequests + currentPhase?.GetPhaseThroughput(millisecondsEllapsed - totalTime) ?? 0);
+            var millisecondsThroughPhase = Convert.ToInt32(millisecondsEllapsed - currentPhase.PhaseStart);
+            var allowedRequests = Convert.ToInt32(currentPhase.PhaseStartTps + currentPhase.Phase.GetPhaseThroughput(millisecondsThroughPhase));
+
+            return allowedRequests;
         }
     }
 }

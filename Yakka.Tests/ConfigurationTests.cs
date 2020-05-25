@@ -10,6 +10,9 @@ namespace Yakka.Tests
         public void WhenConfigurationStringIsParsed_ThenConfigIsDeserialised()
         {
             //todo
+            //parses timespans
+            //builds phases correctly
+            //applies validation - required fields
         }
     }
 }

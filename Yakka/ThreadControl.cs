@@ -8,6 +8,7 @@ namespace Yakka
     {
         private readonly SemaphoreSlim _taskExecution;
         private readonly SemaphoreSlim _taskIncrement;
+        private readonly Config _config;
 
         private bool _enabled { get; set; }
         public double _throughput { get; }
@@ -21,6 +22,7 @@ namespace Yakka
         {
             _taskExecution = new SemaphoreSlim(0);
             _taskIncrement = new SemaphoreSlim(1);
+            _config = config;
             _throughput = config.Throughput.Tps;
             _iterations = config.Throughput.Iterations;
             _rampUpSeconds = Convert.ToInt32(config.Concurrency.RampUp.TotalSeconds);
@@ -57,33 +59,33 @@ namespace Yakka
             return isCompleted;
         }
 
-        private int TotalAllowedRequestsToNow(int millisecondsEllapsed)
-        {
-            if (millisecondsEllapsed <= 0 || _throughput <= 0) { 
-                return 0;
-            }
-            double totalRpsToNow;
-            var secondsEllapsed = Convert.ToInt32(millisecondsEllapsed / 1000);
-            DebugHelper.Write($"calculating tokens, seconds ellapsed {secondsEllapsed}");
-            if (_rampUpSeconds > 0)
-            {
-                if (secondsEllapsed > _rampUpSeconds)
-                {
-                    totalRpsToNow = (_throughput * _rampUpSeconds / 2)
-                        + (secondsEllapsed - _rampUpSeconds) * _throughput;
-                }
-                else
-                {
-                    totalRpsToNow = (_throughput * millisecondsEllapsed) / 1000 / 2;
-                }
-            }
-            else
-            {
-                totalRpsToNow = (_throughput * millisecondsEllapsed) / 1000;
-            }
-            DebugHelper.Write($"total allowed requests to now {totalRpsToNow}");
-            return Convert.ToInt32(totalRpsToNow);
-        }
+        // private int TotalAllowedRequestsToNow(int millisecondsEllapsed)
+        // {
+        //     if (millisecondsEllapsed <= 0 || _throughput <= 0) { 
+        //         return 0;
+        //     }
+        //     double totalRpsToNow;
+        //     var secondsEllapsed = Convert.ToInt32(millisecondsEllapsed / 1000);
+        //     DebugHelper.Write($"calculating tokens, seconds ellapsed {secondsEllapsed}");
+        //     if (_rampUpSeconds > 0)
+        //     {
+        //         if (secondsEllapsed > _rampUpSeconds)
+        //         {
+        //             totalRpsToNow = (_throughput * _rampUpSeconds / 2)
+        //                 + (secondsEllapsed - _rampUpSeconds) * _throughput;
+        //         }
+        //         else
+        //         {
+        //             totalRpsToNow = (_throughput * millisecondsEllapsed) / 1000 / 2;
+        //         }
+        //     }
+        //     else
+        //     {
+        //         totalRpsToNow = (_throughput * millisecondsEllapsed) / 1000;
+        //     }
+        //     DebugHelper.Write($"total allowed requests to now {totalRpsToNow}");
+        //     return Convert.ToInt32(totalRpsToNow);
+        // }
 
         public async Task ReleaseTokens(DateTime startTime, CancellationToken ct)
         {
@@ -96,7 +98,7 @@ namespace Yakka
             while (!IsTestComplete(endTime, tokensReleased) && !ct.IsCancellationRequested)
             {
                 var millisecondsEllapsed = Convert.ToInt32(DateTime.UtcNow.Subtract(startTime).TotalMilliseconds);
-                var tokensToNow = TotalAllowedRequestsToNow(millisecondsEllapsed);
+                var tokensToNow = _config.Throughput.Phases.TotalAllowedRequestsToNow(millisecondsEllapsed);
 
                 if (tokensToNow > tokensReleased)
                 {

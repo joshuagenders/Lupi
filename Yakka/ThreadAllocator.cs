@@ -7,14 +7,14 @@ namespace Yakka
 {
     public class ThreadAllocator : IThreadAllocator
     {
-        private readonly IRunner _testAdapter;
+        private readonly IRunner _runner;
         private readonly IThreadControl _threadControl;
         private readonly List<Task> _tasks;
 
-        public ThreadAllocator(IRunner testAdapter, IThreadControl threadControl)
+        public ThreadAllocator(IRunner runner, IThreadControl threadControl)
         {
             _tasks = new List<Task>();
-            _testAdapter = testAdapter;
+            _runner = runner;
             _threadControl = threadControl;
         }
 
@@ -53,6 +53,7 @@ namespace Yakka
                     break;
                 }
             }
+
             DebugHelper.Write($"start threads complete");
         }
 
@@ -78,7 +79,7 @@ namespace Yakka
                 if (!ct.IsCancellationRequested && !testCompleted)
                 {
                     DebugHelper.Write($"test not complete - run nunit");
-                    _testAdapter.RunTest(threadName);
+                    _runner.RunTest(threadName);
                     DebugHelper.Write($"nunit run complete");
                 }
             }

@@ -14,16 +14,20 @@ namespace Yakka
         public Test Test { get; set; } = new Test();
         public bool ThroughputEnabled => 
             Throughput != null 
-            && (Throughput.Tps > 0 || Throughput.Phases.Any());
+            && (Throughput.Tps > 0 || Throughput.Phases.Any(p => p.ToTps > 0 || p.FromTps > 0 || p.Tps > 0));
 
         public static async Task<Config> GetConfigFromFile(string filepath)
         {
             var configText = await File.ReadAllTextAsync(filepath);
             var deserializer = new DeserializerBuilder()
-                .WithTypeConverter(new TimeStringTypeConverter())
+                .WithTypeConverter(new TimeSpanTypeConverter())
                 .Build();
 
             var config = deserializer.Deserialize<Config>(configText);
+            if (!config.Throughput.Phases.Any())
+            {
+                config.Throughput.Phases = config.BuildStandardThroughputPhases();
+            }
             return config;
         }
     }

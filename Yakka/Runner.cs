@@ -1,17 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Yakka
 {
     public class Runner : IRunner
     {
-        //todo how to handle async in adapter
+        public Config _config { get; }
+        public Plugin _plugin { get; }
+        public Runner(Plugin plugin, Config config)
+        {
+            _config = config;
+            _plugin = plugin;
+        }
+
+        public void RunSetup()
+        {
+
+        }
+
         public void RunTest(string threadName)
         {
+            //todo how to handle async in runner
             throw new NotImplementedException();
+        }
+
+        public void RunTeardown()
+        {
+
         }
     }
 
