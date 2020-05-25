@@ -9,23 +9,24 @@ Yakka supports a plugin system for loading and executing code from compatible DL
 ## Configuration
 ```yaml
 test:
-    AssemblyPath: path/to/my.dll
-    SingleTestClassInstance: true
-    TestClass: MyNamespace.MyClass # optional if method name is unique in the assembly
-    TestMethod: MyMethod
-    AssemblySetupClass: MyNamespace.SetupClass
-    AssemblySetupMethod: Init
-    AssemblyTeardownClass: MyNamespace.TeardownClass
-    AssemblyTeardownMethod: Teardown
+    assemblyPath: path/to/my.dll
+    singleTestClassInstance: true
+    testClass: MyNamespace.MyClass # optional if method name is unique in the assembly
+    testMethod: MyMethod
+    assemblySetupClass: MyNamespace.SetupClass
+    assemblySetupMethod: Init
+    assemblyTeardownClass: MyNamespace.TeardownClass
+    assemblyTeardownMethod: Teardown
 concurrency:
     threads: 10 
-    ramp-up: 2
+    rampUp: 2m
     openWorkload: true # (can add additional threads when throughput is not met)
-    maxConcurrency: 15 # requires open workload
+    maxConcurrency: 1500 # requires open workload
 throughput:
     tps: 20
-    ramp-up: 20s
-    ramp-down: 2m
+    rampUp: 20s
+    holdFor: 10m
+    rampDown: 2m
     phases:
     -   # rampup
         duration: 10s

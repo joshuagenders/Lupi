@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Yakka
 {
@@ -19,8 +20,14 @@ namespace Yakka
         public static async Task<Config> GetConfigFromFile(string filepath)
         {
             var configText = await File.ReadAllTextAsync(filepath);
+            return GetConfigFromString(configText);
+        }
+
+        public static Config GetConfigFromString(string configText)
+        {
             var deserializer = new DeserializerBuilder()
                 .WithTypeConverter(new TimeSpanTypeConverter())
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
             var config = deserializer.Deserialize<Config>(configText);
@@ -62,12 +69,15 @@ namespace Yakka
         public double ToTps { get; set; }
     }
 
-    public class Test {
+    public class Test 
+    {
         public string AssemblyPath { get; set; }
         public bool SingleTestClassInstance { get; set; }
         public string TestClass { get; set; }
-        public string TestMethod { get; set; } //fully namespaced
-        public string AssemblySetupMethod { get; set; } //fully namespaced, by default search for signature public static Startup(IContainerBuilder)
-        public string AssemblyTeardownMethod { get; set; } //fully namespaced, by default do nothing
+        public string TestMethod { get; set; }
+        public string AssemblySetupClass { get; set; }
+        public string AssemblySetupMethod { get; set; } 
+        public string AssemblyTeardownClass { get; set; }
+        public string AssemblyTeardownMethod { get; set; }
     }
 }

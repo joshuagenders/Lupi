@@ -8,7 +8,7 @@ namespace Yakka
 {
     public class TimeSpanTypeConverter : IYamlTypeConverter
     {
-        private static Regex TimeStringRegex = new Regex(@"^(?!$)(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$", RegexOptions.Compiled);
+        private static Regex TimeStringRegex = new Regex(@"^(?!$)(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?(?:(\d+)ms)?$", RegexOptions.Compiled);
 
         public bool Accepts(Type type)
         {
@@ -35,10 +35,11 @@ namespace Yakka
                 d = ParseGroup(parsed.Groups[1].Value),
                 h = ParseGroup(parsed.Groups[2].Value),
                 m = ParseGroup(parsed.Groups[3].Value),
-                s = ParseGroup(parsed.Groups[4].Value)
+                s = ParseGroup(parsed.Groups[4].Value),
+                ms = ParseGroup(parsed.Groups[5].Value)
             };
 
-            return new TimeSpan(values.d, values.h, values.m, values.s);
+            return new TimeSpan(values.d, values.h, values.m, values.s, values.ms);
         }
 
         private static string SuffixNumber(string prefix, int number) => 
