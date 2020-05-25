@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -33,15 +34,29 @@ namespace Yakka
             return builder;
         }
 
+        //todo -> also pass to startup class if matching siignature / configured
         public IContainer GetIocContainer() => 
             GetIocBuilder().Build();
 
+        public object GetInstance(string className)
+        {
+            var c = GetClass(className);
+            if (c == null)
+            {
+                return null;
+            }
+            return GetIocContainer().Resolve(c);
+        }
+
+        public Type GetClass(string className) => 
+            _assembly.GetTypes().Where(t => t.FullName.Equals(className)).FirstOrDefault();
+
         public MethodInfo GetMethod(string classFullName, string method)
         {
-            var c = _assembly.GetTypes().Where(t => t.FullName.Equals(classFullName));
-            if (c.Any())
+            var c = GetClass(classFullName);
+            if (c != null)
             {
-                var m = c.First().GetMethods().Where(m => m.Name.Equals(method));
+                var m = c.GetMethods().Where(m => m.Name.Equals(method));
                 return m.FirstOrDefault();
             }
             return null;

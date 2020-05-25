@@ -33,6 +33,32 @@ OR
 can span a test thread with a max iteration count
 if the thread spends more than x time awaiting execution it kills itself and signals back
 
+OR
+ run thread allocation the same as throughput tokens ->
+ constant loop, adjust to current thread rate, signalling mechanism via TaskExecutionRequest to kill threads
+
+--
+How threads should behave
+await execution token 
+should execute?
+  yes - execute
+  try and take from kill queue
+   success -> exit
+
+How allocation should behave
+how many threads should I have right now
+ - too many then queue kill token
+ - not enough then spawn
+
+'how many threads should I have right now'
+  'configured' -> ramp up, hold, ramp down
+  dynamic -> requires throughput. options:
+    'detect'
+    - if iteration count is behind tps
+    - if no threads awaiting execution semaphore
+    - if execution sempaphore grows for x periods (10?)
+    'calculate'
+    - calculate likely required thread count + delta based on moving average response times
 
 # Logging
 

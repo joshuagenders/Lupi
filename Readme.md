@@ -20,21 +20,22 @@ test:
 concurrency:
     threads: 10 
     rampUp: 2m
-    openWorkload: true # (can add additional threads when throughput is not met)
+    openWorkload: true # i.e. can add additional threads when throughput is not met
+    minConcurrency: 3 # requires open workload
     maxConcurrency: 1500 # requires open workload
 throughput:
     tps: 20
     rampUp: 20s
     holdFor: 10m
     rampDown: 2m
-    phases:
+    phases:  # mutually exclusive to other throughput parameters. do not provide both phases AND tps, rampUp, holdFor or rampDown
     -   # rampup
-        duration: 10s
-        tps: 10
-    -   
         duration: 2m
         from: 10
         to: 20
+    -
+        duration: 10s
+        tps: 20
     -   # rampdown
         duration: 20s
         from: 20
