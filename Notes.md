@@ -37,13 +37,13 @@ Parsed and passed into test method
 
 ```gherkin
 Given the default address http://blazedemo.com
-and header Accept = Application/Json
-when 10 users arrive
-at 0 to 20 requests per second
-over 30 seconds
-and then 10 users
-at 20 requests per second hold
-then the average response time is 200ms
+And header Accept = Application/Json
+When 10 users arrive
+At 0 to 20 requests per second
+Over 30 seconds
+And then 10 users
+At 20 requests per second hold
+Then the average response time is 200ms
 ```
 
 ```gherkin
