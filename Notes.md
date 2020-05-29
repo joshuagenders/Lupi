@@ -7,6 +7,7 @@ plugin and DI pattern design
 
 # Method inputs and returns
 Timers, CancellationToken, registered interfaces, complex objects with default constructor
+anything returned sent to listeners, including timers which override the reported ellapsed time value
 
 # Listener support
  - Listeners automatically registered and invoked on test result
@@ -33,12 +34,14 @@ Parsed and passed into test method
 # Maybe - Gherkin syntax support
  - because I can
 
+```gherkin
 when I GET http://blazedemo.com
 with header Accept = Application/Json
 and ramp up for 1 minute to 10 threads
 and ramp up for 1 minute to 20 RPS
 and then I hold at 20 RPS for 5 minutes
 then the average response time is 200ms
+```
 
 # Maybe - Attribute Framework
 test attributes
