@@ -31,15 +31,35 @@ Thread-safe implementations of datasources, making scope access and lifetime obv
    - raw line reader
 Parsed and passed into test method
 
-# Maybe - Gherkin syntax support
+# Maybe - Gherkin syntax support - requests scenario
  - because I can
+ - nuget?
 
 ```gherkin
-when I GET http://blazedemo.com
-with header Accept = Application/Json
-and ramp up for 1 minute to 10 threads
-and ramp up for 1 minute to 20 RPS
-and then I hold at 20 RPS for 5 minutes
+Given the default address http://blazedemo.com
+and header Accept = Application/Json
+when 10 users arrive
+at 0 to 20 requests per second
+over 30 seconds
+and then 10 users
+at 20 requests per second hold
+then the average response time is 200ms
+```
+
+```gherkin
+Given the default address http://blazedemo.com
+when users request 0.5 to 0.1 requests per second over 1 minute
+and then I request 1 to 20 times per second for for 1 minute
+and then I request 20 times per second for for 5 minutes
+then the failure rate is below 2 percent
+```
+
+```gherkin
+Given the default address http://blazedemo.com
+and header Accept = Application/Json
+and think time of 1 second
+when 10 users arrive over 30 seconds
+and then 10 users hold for 5 minutes
 then the average response time is 200ms
 ```
 
