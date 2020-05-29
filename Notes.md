@@ -48,19 +48,19 @@ then the average response time is 200ms
 
 ```gherkin
 Given the default address http://blazedemo.com
-when users request 0.5 to 0.1 requests per second over 1 minute
-and then I request 1 to 20 times per second for for 1 minute
-and then I request 20 times per second for for 5 minutes
-then the failure rate is below 2 percent
+When users request 0.5 to 0.1 requests per second over 1 minute
+And Then I request 1 to 20 times per second for for 1 minute
+And Then I request 20 times per second for for 5 minutes
+Then the failure rate is below 2 percent
 ```
 
 ```gherkin
 Given the default address http://blazedemo.com
-and header Accept = Application/Json
-and think time of 1 second
-when 10 users arrive over 30 seconds
-and then 10 users hold for 5 minutes
-then the average response time is 200ms
+And header Accept = Application/Json
+And think time of 1 second
+When 10 users arrive over 30 seconds
+And then 10 users hold for 5 minutes
+Then the average response time is 200ms
 ```
 
 # Maybe - Attribute Framework
