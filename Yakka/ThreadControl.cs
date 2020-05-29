@@ -121,7 +121,7 @@ namespace Yakka
                         _taskExecution.Release(tokensToRelease);
                     }
                 }
-                await Task.Delay(TimeSpan.FromMilliseconds(100), ct); //todo configure
+                await Task.Delay(_config.Engine.TokenGenerationInterval, ct);
             }
         }
 
@@ -194,7 +194,7 @@ namespace Yakka
                     }
                 }
                 DebugHelper.Write($"thread allocation loop complete. thread count {_tasks.Count}");
-                await Task.Delay(TimeSpan.FromMilliseconds(200));
+                await Task.Delay(_config.Engine.ThreadAllocationInterval);
             }
         }
 

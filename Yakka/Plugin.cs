@@ -34,6 +34,7 @@ namespace Yakka
             }
             else
             {
+                //todo method inputs -> timers, cancellation tokens, registered assembly interfaces
                 if (_config.Test.SingleTestClassInstance)
                 {
                     _classMethodSingleton = GetInstance(_config.Test.TestClass);

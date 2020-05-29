@@ -10,12 +10,15 @@ namespace Yakka {
     {
         private readonly ConcurrentQueue<TestResult> _results;
         private readonly List<ITestResultListener> _listeners;
+        private readonly Config _config;
+
         public bool TestCompleted { get; set; }
 
-        public TestResultPublisher()
+        public TestResultPublisher(Config config)
         {
             _results = new ConcurrentQueue<TestResult>();
             _listeners = new List<ITestResultListener>();
+            _config = config;
         }
 
         public void Publish(TestResult result) =>
@@ -35,7 +38,7 @@ namespace Yakka {
                 }
                 if (!_results.Any() && !TestCompleted)
                 {
-                    await Task.Delay(TimeSpan.FromMilliseconds(250));
+                    await Task.Delay(_config.Engine.ResultPublishingInterval);
                 }
             }
         }

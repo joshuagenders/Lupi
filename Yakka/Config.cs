@@ -13,6 +13,8 @@ namespace Yakka
         public Concurrency Concurrency { get; set; } = new Concurrency();
         public Throughput Throughput { get; set; } = new Throughput();
         public Test Test { get; set; } = new Test();
+
+        public Engine Engine { get; set; } = new Engine();
         public bool ThroughputEnabled => 
             Throughput != null 
             && (Throughput.Tps > 0 || Throughput.Phases.Any(p => p.ToTps > 0 || p.FromTps > 0 || p.Tps > 0));
@@ -93,5 +95,12 @@ namespace Yakka
         public string AssemblySetupMethod { get; set; } 
         public string AssemblyTeardownClass { get; set; }
         public string AssemblyTeardownMethod { get; set; }
+    }
+
+    public class Engine
+    {
+        public TimeSpan TokenGenerationInterval { get; set; } = TimeSpan.FromMilliseconds(100);
+        public TimeSpan ResultPublishingInterval { get; set; } = TimeSpan.FromMilliseconds(250);
+        public TimeSpan ThreadAllocationInterval { get; set; } = TimeSpan.FromMilliseconds(150);
     }
 }

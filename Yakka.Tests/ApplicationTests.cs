@@ -129,6 +129,31 @@ namespace Yakka.Tests
             plugin.Calls.Should().Be(iterations);
         }
 
+        [Theory]
+        [InlineAutoMoqData(0, 1, 0, 4)]
+        [InlineAutoMoqData(0, 0.8, 0, 4)]
+        [InlineAutoMoqData(0, 2, 0, 3)]
+        [InlineAutoMoqData(0, 20, 0, 4)]
+        [InlineAutoMoqData(0, 1, 2, 4)]
+        [InlineAutoMoqData(0, 0.8, 2, 5)]
+        [InlineAutoMoqData(0, 2, 2, 2)]
+        public async Task WhenOpenWorkload_ThenRPSIsNotExceeded(
+            int concurrency,
+            double throughput,
+            int rampUpSeconds,
+            int holdForSeconds)
+        {
+            var plugin = new PluginFake();
+            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, plugin, openWorkload: true);
+            
+            var expectedTotal = throughput * holdForSeconds +
+              (rampUpSeconds * throughput / 2);
+
+            plugin.Calls.Should().BeInRange(
+                Convert.ToInt32(expectedTotal - throughput), 
+                Convert.ToInt32(expectedTotal));
+        }
+
         private async Task RunApp(
             int concurrency,
             double throughput,
