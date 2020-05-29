@@ -38,7 +38,7 @@ namespace Yakka
 
                     var plugin = new Plugin(config);
                     var threadControl = new ThreadControl(config, plugin);
-                    var app = new Application(threadControl, config);
+                    var app = new Application(threadControl);
                     await app.Run(cts.Token);
                 });
         }

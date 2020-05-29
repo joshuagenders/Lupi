@@ -35,7 +35,7 @@ namespace Yakka.Tests
             var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations);
             var cts = new CancellationTokenSource();
             var threadControl = new ThreadControl(config, plugin.Object);
-            var app = new Application(threadControl, config);
+            var app = new Application(threadControl);
 
             cts.CancelAfter(TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds + 2));
             await app.Run(cts.Token);
@@ -113,18 +113,35 @@ namespace Yakka.Tests
                 Times.Between(Convert.ToInt32(expectedTotal - tps), Convert.ToInt32(expectedTotal), Moq.Range.Inclusive));
         }
 
+        [Theory]
+        [InlineAutoMoqData(0, 20, 0, 3, 25)]
+        [InlineAutoMoqData(0, 300, 2, 2, 100)]
+        [InlineAutoMoqData(0, 300, 0, 5, 100)]
+        public async Task WhenMoreIterationsThanSingleThreadAllows_ThenThreadsAdapt(
+            int concurrency,
+            double throughput,
+            int rampUpSeconds,
+            int holdForSeconds,
+            int iterations)
+        {
+            var plugin = new PluginFake();
+            await RunApp(concurrency, throughput, iterations, rampUpSeconds, holdForSeconds, plugin, openWorkload: true);
+            plugin.Calls.Should().Be(iterations);
+        }
+
         private async Task RunApp(
             int concurrency,
             double throughput,
             int iterations,
             int rampUpSeconds,
             int holdForSeconds,
-            IPlugin plugin)
+            IPlugin plugin,
+            bool openWorkload = false)
         {
             var cts = new CancellationTokenSource();
-            var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations);
+            var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations, openWorkload);
             var threadControl = new ThreadControl(config, plugin);
-            var app = new Application(threadControl, config);
+            var app = new Application(threadControl);
 
             cts.CancelAfter(TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds + 1));
             await app.Run(cts.Token);
@@ -135,14 +152,15 @@ namespace Yakka.Tests
             double throughput,
             int rampUpSeconds,
             int holdForSeconds,
-            int iterations)
+            int iterations,
+            bool openWorkload = false)
         {
             var config = new Config
             {
                 Concurrency = new Concurrency
                 {
                     Threads = concurrency,
-                    RampUp = TimeSpan.FromSeconds(rampUpSeconds)                    
+                    RampUp = TimeSpan.FromSeconds(rampUpSeconds)
                 },
                 Throughput = new Throughput
                 {
@@ -154,6 +172,10 @@ namespace Yakka.Tests
             };
             config.Throughput.Phases = config.BuildStandardThroughputPhases();
             config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
+            if (openWorkload)
+            {
+                config.Concurrency.OpenWorkload = true;
+            }
             return config;
         }
 

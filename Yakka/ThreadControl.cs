@@ -55,13 +55,6 @@ namespace Yakka
 
         private async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
         {
-            DebugHelper.Write($"task execution request start");
-            if (_enabled)
-            {
-                DebugHelper.Write($"task execution enabled, waiting");
-                await _taskExecution.WaitAsync(ct);
-                DebugHelper.Write($"waiting complete");
-            }
             int iterations; //todo use long throughout
             try
             {
@@ -72,6 +65,14 @@ namespace Yakka
             {
                 _taskIncrement.Release();
             }
+            DebugHelper.Write($"task execution request start");
+            if (_enabled)
+            {
+                DebugHelper.Write($"task execution enabled, waiting");
+                await _taskExecution.WaitAsync(ct);
+                DebugHelper.Write($"waiting complete");
+            }
+            
 
             if (_taskKill.TryDequeue(out var result))
             {
@@ -80,7 +81,7 @@ namespace Yakka
 
             DebugHelper.Write($"executions {iterations}");
             var isCompleted = IsTestComplete(startTime, iterations);
-            DebugHelper.Write($"is test completed {isCompleted}");
+            DebugHelper.Write($"is test completed {isCompleted} {iterations} {_iterations}");
             return isCompleted;
         }
 
@@ -168,7 +169,7 @@ namespace Yakka
                     var growth = (tokensToNow - lastTotalTokens) - (executionsToNow - lastExecutionRequestCount);
                     if (growth > 0)
                     {
-                        DebugHelper.Write("token growth occured");
+                        DebugHelper.Write($"token growth occured {growth}");
                         AdjustThreads(startTime, growth, ct);
                     }
                     lastExecutionRequestCount = executionsToNow;
@@ -229,6 +230,7 @@ namespace Yakka
                 else
                 {
                     DebugHelper.Write($"thread complete {threadName}");
+                    break;
                 }
                 if (!RequestTaskContinuedExecution())
                 {
