@@ -3,11 +3,11 @@
 ## Assembly loading
 plugin and DI pattern design 
   - autofac with optional builder interface
-  look for a particular static method signature similar to asp.net
+  - look for a particular static method signature similar to asp.net
 
 # Method inputs and returns
-Timers, CancellationToken, registered interfaces, complex objects with default constructor
-anything returned sent to listeners, including timers which override the reported ellapsed time value
+- Timers, CancellationToken, registered interfaces, complex objects with default constructor
+- anything returned sent to listeners, including timers which override the reported ellapsed time value
 
 # Listener support
  - Listeners automatically registered and invoked on test result
@@ -16,11 +16,52 @@ anything returned sent to listeners, including timers which override the reporte
  - Console listener
  - Aggregating listener (means listeners will need to be stateful)
 
+
 # Logging
 
+# Examples
+## use cases
+I want open / closed workload
+I don't care about threads
+I don't care about throughput control, just concurrency
+Setup / teardown
+Dependencies
+Enriching results with return values and timers
+burst load
+ramp up / ramp down
+complex phases
+
+
 # Exit Conditions
-failure rate/percentage
-failure count
+- requires aggregator listener
+- failure rate/percentage
+- failure count
+- latency over x average / max in y period
+
+# todo
+ - features above
+ - more unit testing
+ - test with local grafana
+ - test actual examples
+ - update docs and examples as required
+ - review licenses
+ - publish repo and nuget packages
+ - write blog post(s?)
+
+# Maybe - Docker image
+- create docker compose / container image
+- publish image
+
+# Maybe - "Requests" scenario generation
+- browser, browser emulator and http client options
+- think about how to manage scope and what to support
+- look at roslyn compilation
+- look at all jmeter node types + what youd typically use beanshell for
+- plus what you'd normally write in locust
+  - things like when to clear/set cookies
+  - actions to perform on screen
+- maybe allow js scripts and assertions through puppeteer
+- is there a nice page object pattern in yaml? is that taurus 'scenarios'
 
 # Maybe - Datasources
 Thread-safe implementations of datasources, making scope access and lifetime obvious
