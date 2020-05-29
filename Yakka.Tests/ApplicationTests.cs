@@ -34,12 +34,10 @@ namespace Yakka.Tests
         {
             var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations);
             var cts = new CancellationTokenSource();
-            var threadControl = new ThreadControl(config);
-            var runner = new Runner(plugin.Object, threadControl);
-            var threadAllocator = new ThreadAllocator(runner, threadControl);
-            var app = new Application(threadAllocator, threadControl, config);
+            var threadControl = new ThreadControl(config, plugin.Object);
+            var app = new Application(threadControl, config);
 
-            cts.CancelAfter(TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds + 1));
+            cts.CancelAfter(TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds + 2));
             await app.Run(cts.Token);
             // why this fails I have no idea
             //await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, runner.Object);
@@ -85,6 +83,7 @@ namespace Yakka.Tests
             var plugin = new PluginFake();
             await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, plugin);
             plugin.Calls.Should().BeLessThan(iterations);
+            plugin.Calls.Should().BeGreaterThan(0);
         }
 
         [Theory]
@@ -124,10 +123,8 @@ namespace Yakka.Tests
         {
             var cts = new CancellationTokenSource();
             var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations);
-            var threadControl = new ThreadControl(config);
-            var runner = new Runner(plugin, threadControl);
-            var threadAllocator = new ThreadAllocator(runner, threadControl);
-            var app = new Application(threadAllocator, threadControl, config);
+            var threadControl = new ThreadControl(config, plugin);
+            var app = new Application(threadControl, config);
 
             cts.CancelAfter(TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds + 1));
             await app.Run(cts.Token);
@@ -145,7 +142,7 @@ namespace Yakka.Tests
                 Concurrency = new Concurrency
                 {
                     Threads = concurrency,
-                    RampUp = TimeSpan.FromSeconds(rampUpSeconds)
+                    RampUp = TimeSpan.FromSeconds(rampUpSeconds)                    
                 },
                 Throughput = new Throughput
                 {
@@ -156,6 +153,7 @@ namespace Yakka.Tests
                 }
             };
             config.Throughput.Phases = config.BuildStandardThroughputPhases();
+            config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
             return config;
         }
 

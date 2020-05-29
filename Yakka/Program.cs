@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,11 +27,18 @@ namespace Yakka
                         throw new ArgumentException("Error reading configuration file. Result was null.");
                     }
 
+                    if (!config.Concurrency.Phases.Any())
+                    {
+                        config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
+                    }
+                    if (!config.Throughput.Phases.Any())
+                    {
+                        config.Throughput.Phases = config.BuildStandardThroughputPhases();
+                    }
+
                     var plugin = new Plugin(config);
-                    var threadControl = new ThreadControl(config);
-                    var testRunner = new Runner(plugin, threadControl);
-                    var threadAllocator = new ThreadAllocator(testRunner, threadControl);
-                    var app = new Application(threadAllocator, threadControl, config);
+                    var threadControl = new ThreadControl(config, plugin);
+                    var app = new Application(threadControl, config);
                     await app.Run(cts.Token);
                 });
         }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,8 +9,11 @@ namespace Yakka
     public class ThreadControl : IThreadControl
     {
         private readonly SemaphoreSlim _taskExecution;
+        private readonly ConcurrentQueue<bool> _taskKill;
         private readonly SemaphoreSlim _taskIncrement;
         private readonly Config _config;
+        private readonly IPlugin _plugin;
+        private readonly List<Task> _tasks;
 
         private bool _enabled { get; set; }
         public double _throughput { get; }
@@ -18,11 +23,16 @@ namespace Yakka
 
         private int _executionRequestCount;
 
-        public ThreadControl(Config config)
+        private int _tokensToNow { get; set; }
+
+        public ThreadControl(Config config, IPlugin plugin)
         {
+            _config = config;
+            _plugin = plugin;
             _taskExecution = new SemaphoreSlim(0);
             _taskIncrement = new SemaphoreSlim(1);
-            _config = config;
+            _taskKill = new ConcurrentQueue<bool>();
+            _tasks = new List<Task>();
             _throughput = config.Throughput.Tps;
             _iterations = config.Throughput.Iterations;
             _rampUpSeconds = Convert.ToInt32(config.Concurrency.RampUp.TotalSeconds);
@@ -31,7 +41,19 @@ namespace Yakka
             _executionRequestCount = 0;
         }
 
-        public async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
+        public bool RequestTaskContinuedExecution()
+        {
+            if (_config.ThroughputEnabled)
+            {
+                if (_taskKill.TryDequeue(out var result))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
         {
             DebugHelper.Write($"task execution request start");
             if (_enabled)
@@ -40,7 +62,7 @@ namespace Yakka
                 await _taskExecution.WaitAsync(ct);
                 DebugHelper.Write($"waiting complete");
             }
-            int iterations;
+            int iterations; //todo use long throughout
             try
             {
                 await _taskIncrement.WaitAsync(ct);
@@ -48,44 +70,19 @@ namespace Yakka
             }
             finally
             {
-                if (_taskIncrement.CurrentCount <= 0)
-                {
-                    _taskIncrement.Release();
-                }
+                _taskIncrement.Release();
             }
-            DebugHelper.Write($"iterations {iterations}");
-            var isCompleted = IsTestComplete(EndTime(startTime, _rampUpSeconds, _holdForSeconds), iterations);
+
+            if (_taskKill.TryDequeue(out var result))
+            {
+                return false;
+            }
+
+            DebugHelper.Write($"executions {iterations}");
+            var isCompleted = IsTestComplete(startTime, iterations);
             DebugHelper.Write($"is test completed {isCompleted}");
             return isCompleted;
         }
-
-        // private int TotalAllowedRequestsToNow(int millisecondsEllapsed)
-        // {
-        //     if (millisecondsEllapsed <= 0 || _throughput <= 0) { 
-        //         return 0;
-        //     }
-        //     double totalRpsToNow;
-        //     var secondsEllapsed = Convert.ToInt32(millisecondsEllapsed / 1000);
-        //     DebugHelper.Write($"calculating tokens, seconds ellapsed {secondsEllapsed}");
-        //     if (_rampUpSeconds > 0)
-        //     {
-        //         if (secondsEllapsed > _rampUpSeconds)
-        //         {
-        //             totalRpsToNow = (_throughput * _rampUpSeconds / 2)
-        //                 + (secondsEllapsed - _rampUpSeconds) * _throughput;
-        //         }
-        //         else
-        //         {
-        //             totalRpsToNow = (_throughput * millisecondsEllapsed) / 1000 / 2;
-        //         }
-        //     }
-        //     else
-        //     {
-        //         totalRpsToNow = (_throughput * millisecondsEllapsed) / 1000;
-        //     }
-        //     DebugHelper.Write($"total allowed requests to now {totalRpsToNow}");
-        //     return Convert.ToInt32(totalRpsToNow);
-        // }
 
         public async Task ReleaseTokens(DateTime startTime, CancellationToken ct)
         {
@@ -94,15 +91,16 @@ namespace Yakka
                 return;
             }
             var tokensReleased = 0;
-            var endTime = EndTime(startTime, _rampUpSeconds, _holdForSeconds);
+            var endTime = startTime.Add(_config.TestDuration());
+
             while (!IsTestComplete(endTime, tokensReleased) && !ct.IsCancellationRequested)
             {
                 var millisecondsEllapsed = Convert.ToInt32(DateTime.UtcNow.Subtract(startTime).TotalMilliseconds);
-                var tokensToNow = _config.Throughput.Phases.TotalAllowedRequestsToNow(millisecondsEllapsed);
+                _tokensToNow = _config.Throughput.Phases.TotalAllowedRequestsToNow(millisecondsEllapsed);
 
-                if (tokensToNow > tokensReleased)
+                if (_tokensToNow > tokensReleased)
                 {
-                    var tokensToRelease = Convert.ToInt32(tokensToNow - tokensReleased);
+                    var tokensToRelease = Convert.ToInt32(_tokensToNow - tokensReleased);
                     if (_iterations > 0)
                     {
                         if (int.MaxValue - tokensToRelease < tokensReleased)
@@ -111,7 +109,7 @@ namespace Yakka
                         }
                         if (tokensToRelease + tokensReleased > _iterations)
                         {
-                            tokensToRelease = _iterations - tokensReleased;
+                            tokensToRelease = Convert.ToInt32(_iterations) - tokensReleased;
                         }
                     }
                     if (tokensToRelease > 0)
@@ -126,19 +124,130 @@ namespace Yakka
             }
         }
 
-        private bool IsTestComplete(DateTime endTime, int iterations) => 
-            DateTime.UtcNow >= endTime || IterationsExceeded(iterations);
+        private void AdjustThreads(DateTime startTime, int amount, CancellationToken ct)
+        {
+            if (amount > 0)
+            {
+                for (var i = 0; i < amount; i++)
+                {
+                    StartTask(startTime, ct);
+                }
+            }
+            else if (amount < 0)
+            {
+                for (var i = 0; i > amount; i--)
+                {
+                    _taskKill.Enqueue(true);
+                }
+            }
+        }
+
+        public async Task AllocateThreads(DateTime startTime, CancellationToken ct)
+        {
+            var endTime = startTime.Add(_config.TestDuration());
+            var now = DateTime.UtcNow;
+            var lastExecutionRequestCount = _executionRequestCount;
+            var lastTotalTokens = _tokensToNow;
+            while (DateTime.UtcNow < endTime && !ct.IsCancellationRequested)
+            {
+                //remove completed tasks 
+                _tasks.RemoveAll(x => x.IsCompleted);
+                var threadCount = _tasks.Count;
+                DebugHelper.Write($"thread count {threadCount}");
+                if (_config.Concurrency.OpenWorkload)
+                {
+                    DebugHelper.Write("calculate threads for open workload");
+                    if (threadCount < _config.Concurrency.MinThreads)
+                    {
+                        DebugHelper.Write("concurrency less than min");
+                        AdjustThreads(startTime, _config.Concurrency.MinThreads - threadCount, ct);
+                    }
+
+                    var tokensToNow = _tokensToNow;
+                    var executionsToNow = _executionRequestCount;
+                    var growth = (tokensToNow - lastTotalTokens) - (executionsToNow - lastExecutionRequestCount);
+                    if (growth > 0)
+                    {
+                        DebugHelper.Write("token growth occured");
+                        AdjustThreads(startTime, growth, ct);
+                    }
+                    lastExecutionRequestCount = executionsToNow;
+                    lastTotalTokens = tokensToNow;
+                }
+                else
+                {
+                    DebugHelper.Write("calculate threads for closed workload");
+                    var millisecondsEllapsed = Convert.ToInt32(now.Subtract(startTime).TotalMilliseconds);
+                    var desired = _config.Concurrency.Phases.CurrentDesiredThreadCount(millisecondsEllapsed);
+                    var current = _tasks.Count;
+                    DebugHelper.Write($"desired threads: {desired}. current threads: {current}");
+                    if (desired > current)
+                    {
+                        DebugHelper.Write("desired greater than current");
+                        StartTask(startTime, ct);
+                    }
+                    else if (desired > current)
+                    {
+                        DebugHelper.Write("current greater than desired, requesting task kill");
+                        _taskKill.Enqueue(true);
+                    }
+                }
+                DebugHelper.Write($"thread allocation loop complete. thread count {_tasks.Count}");
+                await Task.Delay(TimeSpan.FromMilliseconds(200));
+            }
+        }
+
+        private bool StartTask(DateTime startTime, CancellationToken ct)
+        {
+            var atMax = _config.Concurrency.OpenWorkload
+                ? _tasks.Count >= _config.Concurrency.MaxThreads
+                : _tasks.Count >= _config.Concurrency.Threads;
+
+            if (!atMax)
+            {
+                _tasks.Add(Task.Run(() => RunTestLoop(startTime, ct), ct));
+                return true;
+            }
+            return false;
+        }
+
+        private async Task RunTestLoop(DateTime startTime, CancellationToken ct)
+        {
+            var threadName = $"worker_{Guid.NewGuid().ToString("N")}";
+            bool testCompleted = false;
+            while (!ct.IsCancellationRequested && !testCompleted)
+            {
+                DebugHelper.Write($"request task execution {threadName}");
+                testCompleted = await RequestTaskExecution(startTime, ct);
+                DebugHelper.Write($"task execution request returned {threadName}");
+                if (!ct.IsCancellationRequested && !testCompleted)
+                {
+                    DebugHelper.Write($"test not complete - run method {threadName}");
+                    _plugin.ExecuteTestMethod();
+                    DebugHelper.Write($"method invoke complete {threadName}");
+                }
+                else
+                {
+                    DebugHelper.Write($"thread complete {threadName}");
+                }
+                if (!RequestTaskContinuedExecution())
+                {
+                    DebugHelper.Write($"continued execution denied. task kill. thread complete {threadName}");
+                    break;
+                }
+            }
+        }
+
+        private bool IsTestComplete(DateTime startTime, int iterations) =>
+            DateTime.UtcNow >= startTime.Add(_config.TestDuration()) || IterationsExceeded(iterations);
 
         private bool IterationsExceeded(int iterations) =>
             _iterations > 0 && iterations > _iterations;
-
-        private DateTime EndTime(DateTime startTime, int rampUpSeconds, int holdForSeconds) =>
-            startTime.AddSeconds(rampUpSeconds + holdForSeconds);
     }
 
     public interface IThreadControl
     {
-        Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct);
         Task ReleaseTokens(DateTime startTime, CancellationToken ct);
+        Task AllocateThreads(DateTime startTime, CancellationToken ct);
     }
 }

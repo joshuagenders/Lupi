@@ -8,17 +8,14 @@ namespace Yakka
     public class Application : IApplication
     {
         private readonly IThreadControl _threadControl;
-        private readonly IThreadAllocator _threadAllocator;
         private readonly Config _config;
         private readonly SemaphoreSlim _executionSemaphore;
 
         public Application(
-            IThreadAllocator threadAllocator,
             IThreadControl threadControl,
             Config config)
         {
             _threadControl = threadControl;
-            _threadAllocator = threadAllocator;
             _config = config;
             _executionSemaphore = new SemaphoreSlim(1);
         }
@@ -26,15 +23,13 @@ namespace Yakka
         public async Task Run(CancellationToken ct)
         {
             await _executionSemaphore.WaitAsync(ct);
+            DebugHelper.Write("==== run ====");
             try
             {
                 var startTime = DateTime.UtcNow;
                 var testDuration = _config.TestDuration();
                 var threadCreationTask = Task.Run(() =>
-                    _threadAllocator.StartThreads(
-                        startTime, 
-                        _config.Concurrency.Threads, 
-                        Convert.ToInt32(_config.Concurrency.RampUp.TotalSeconds), ct), ct);
+                    _threadControl.AllocateThreads(startTime, ct), ct);
                 var testDurationTask = _config.ThroughputEnabled
                     ? Task.Run(() => _threadControl.ReleaseTokens(startTime, ct), ct)
                     : Task.Run(() => Task.Delay(testDuration, ct), ct);

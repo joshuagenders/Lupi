@@ -46,8 +46,10 @@ namespace Yakka
         public TimeSpan RampDown { get; set; }
         public bool OpenWorkload { get; set; } // requires throughput
 
-        public int MinThreads{ get; set; } //requires open workload
-        public int MaxThreads { get; set; } //requires open workload
+        public int MinThreads { get; set; } = 1; //requires open workload
+        public int MaxThreads { get; set; } = 10000;//requires open workload
+
+        public List<ConcurrencyPhase> Phases { get; set; } = new List<ConcurrencyPhase>();
     }
 
     public class Throughput
@@ -59,6 +61,16 @@ namespace Yakka
         public List<Phase> Phases { get; set; } = new List<Phase>();
         public TimeSpan ThinkTime { get; set; }
         public int Iterations { get; set; }
+    }
+
+    public class ConcurrencyPhase
+    {
+        public TimeSpan Duration { get; set; }
+        public int Threads { get; set; }
+        [YamlMember(Alias = "from")]
+        public int FromThreads { get; set; }
+        [YamlMember(Alias = "to")]
+        public int ToThreads { get; set; }
     }
 
     public class Phase
