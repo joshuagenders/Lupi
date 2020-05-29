@@ -30,12 +30,13 @@ namespace Yakka.Tests
             int rampUpSeconds,
             int holdForSeconds,
             int iterations,
-            Mock<IRunner> runner)
+            Mock<IPlugin> plugin)
         {
             var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations);
             var cts = new CancellationTokenSource();
             var threadControl = new ThreadControl(config);
-            var threadAllocator = new ThreadAllocator(runner.Object, threadControl);
+            var runner = new Runner(plugin.Object, threadControl);
+            var threadAllocator = new ThreadAllocator(runner, threadControl);
             var app = new Application(threadAllocator, threadControl, config);
 
             cts.CancelAfter(TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds + 1));
@@ -43,9 +44,7 @@ namespace Yakka.Tests
             // why this fails I have no idea
             //await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, runner.Object);
             
-            runner.Verify(n =>
-                n.RunTest(It.IsRegex("worker_.+")),
-                Times.Exactly(iterations));
+            plugin.Verify(n => n.ExecuteTestMethod(), Times.Exactly(iterations));
         }
 
         [Theory]
@@ -60,11 +59,11 @@ namespace Yakka.Tests
             double throughput,
             int rampUpSeconds,
             int holdForSeconds,
-            Mock<IRunner> runner)
+            Mock<IPlugin> plugin)
         {
             var watch = new Stopwatch();
             watch.Start();
-            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, runner.Object);
+            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, plugin.Object);
             watch.Stop();
             watch.Elapsed.Should().BeGreaterOrEqualTo(
                 TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds)
@@ -83,9 +82,9 @@ namespace Yakka.Tests
             int holdForSeconds,
             int iterations)
         {
-            var runner = new runnerFake();
-            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, runner);
-            runner.Calls.Should().BeLessThan(iterations);
+            var plugin = new PluginFake();
+            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, plugin);
+            plugin.Calls.Should().BeLessThan(iterations);
         }
 
         [Theory]
@@ -103,16 +102,15 @@ namespace Yakka.Tests
             double throughput,
             int rampUpSeconds,
             int holdForSeconds,
-            Mock<IRunner> runner)
+            Mock<IPlugin> plugin)
         {
-            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, runner.Object);
+            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, plugin.Object);
 
             var expectedTotal = throughput * holdForSeconds +
                 (rampUpSeconds * throughput / 2);
             var tps = concurrency * throughput;
 
-            runner.Verify(n =>
-                n.RunTest(It.IsRegex("worker_.+")),
+            plugin.Verify(n => n.ExecuteTestMethod(),
                 Times.Between(Convert.ToInt32(expectedTotal - tps), Convert.ToInt32(expectedTotal), Moq.Range.Inclusive));
         }
 
@@ -122,11 +120,12 @@ namespace Yakka.Tests
             int iterations,
             int rampUpSeconds,
             int holdForSeconds,
-            IRunner runner)
+            IPlugin plugin)
         {
             var cts = new CancellationTokenSource();
             var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations);
             var threadControl = new ThreadControl(config);
+            var runner = new Runner(plugin, threadControl);
             var threadAllocator = new ThreadAllocator(runner, threadControl);
             var app = new Application(threadAllocator, threadControl, config);
 
@@ -160,11 +159,11 @@ namespace Yakka.Tests
             return config;
         }
 
-        class runnerFake : IRunner
+        class PluginFake : IPlugin
         {
             public int Calls;
-            
-            public void RunTest(string threadName)
+
+            public void ExecuteTestMethod()
             {
                 Interlocked.Increment(ref Calls);
                 Thread.Sleep(400);

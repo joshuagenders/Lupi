@@ -46,8 +46,8 @@ namespace Yakka
         public TimeSpan RampDown { get; set; }
         public bool OpenWorkload { get; set; } // requires throughput
 
-        public int MinConcurrency { get; set; } //requires open workload
-        public int MaxConcurrency { get; set; } //requires open workload
+        public int MinThreads{ get; set; } //requires open workload
+        public int MaxThreads { get; set; } //requires open workload
     }
 
     public class Throughput

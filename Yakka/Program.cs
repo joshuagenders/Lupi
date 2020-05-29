@@ -28,7 +28,7 @@ namespace Yakka
 
                     var plugin = new Plugin(config);
                     var threadControl = new ThreadControl(config);
-                    var testRunner = new Runner(plugin, config);
+                    var testRunner = new Runner(plugin, threadControl);
                     var threadAllocator = new ThreadAllocator(testRunner, threadControl);
                     var app = new Application(threadAllocator, threadControl, config);
                     await app.Run(cts.Token);

@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yakka.Examples", "Yakka.Examples\Yakka.Examples.csproj", "{A8AC6EA5-1A87-4166-B6FD-FA51FD199E21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{EFDEFF38-9F50-46C9-A866-8F59281F00C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFDEFF38-9F50-46C9-A866-8F59281F00C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFDEFF38-9F50-46C9-A866-8F59281F00C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8AC6EA5-1A87-4166-B6FD-FA51FD199E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8AC6EA5-1A87-4166-B6FD-FA51FD199E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8AC6EA5-1A87-4166-B6FD-FA51FD199E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8AC6EA5-1A87-4166-B6FD-FA51FD199E21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

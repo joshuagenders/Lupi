@@ -61,28 +61,10 @@ namespace Yakka
         {
             if (_tasks.Count < concurrency)
             {
-                _tasks.Add(Task.Run(() => TestLoop(startTime, ct), ct));
+                _tasks.Add(Task.Run(() => _runner.RunTestLoop(startTime, ct), ct));
                 return true;
             }
             return false;
-        }
-
-        private async Task TestLoop(DateTime startTime, CancellationToken ct)
-        {
-            var threadName = $"worker_{Guid.NewGuid().ToString("N")}";
-            bool testCompleted = false;
-            while (!ct.IsCancellationRequested && !testCompleted)
-            {
-                DebugHelper.Write($"request task execution");
-                testCompleted = await _threadControl.RequestTaskExecution(startTime, ct);
-                DebugHelper.Write($"task execution request returned");
-                if (!ct.IsCancellationRequested && !testCompleted)
-                {
-                    DebugHelper.Write($"test not complete - run nunit");
-                    _runner.RunTest(threadName);
-                    DebugHelper.Write($"nunit run complete");
-                }
-            }
         }
 
         private bool InRampup(DateTime startTime, int concurrency, int rampUpSeconds) =>

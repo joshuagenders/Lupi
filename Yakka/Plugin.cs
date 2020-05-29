@@ -1,28 +1,48 @@
 ﻿using Autofac;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Yakka
 {
-    public class Plugin
+    public class Plugin : IPlugin
     {
         private readonly Config _config;
-        private Assembly _assembly { get; set; }
+        private readonly Assembly _assembly;
+        private readonly object _classMethodSingleton;
+        private readonly Action _setupAction; //todo
+        private readonly Action _testAction;
+        private readonly Action _teardownAction; //todo
+        private readonly MethodInfo _testMethod;
         public Plugin(Config config)
         {
             _config = config;
-            LoadAssembly();
-        }
 
-        private void LoadAssembly()
-        {
-            if (_assembly == null)
+            PluginLoadContext loadContext = new PluginLoadContext(_config.Test.AssemblyPath);
+            var assemblyName = new AssemblyName(Path.GetFileNameWithoutExtension(_config.Test.AssemblyPath));
+
+            _assembly = loadContext.LoadFromAssemblyName(assemblyName);
+
+            _testMethod = GetMethod(_config.Test.TestClass, _config.Test.TestMethod);
+            if (_testMethod.IsStatic)
             {
-                PluginLoadContext loadContext = new PluginLoadContext(_config.Test.AssemblyPath);
-                var assemblyName = new AssemblyName(Path.GetFileNameWithoutExtension(_config.Test.AssemblyPath));
-                _assembly = loadContext.LoadFromAssemblyName(assemblyName);
+                _testAction = new Action(() => _testMethod.Invoke(null, null));
+            }
+            else
+            {
+                if (_config.Test.SingleTestClassInstance)
+                {
+                    _classMethodSingleton = GetInstance(_config.Test.TestClass);
+                    _testAction = new Action(() => _testMethod.Invoke(_classMethodSingleton, null));
+                }
+                else
+                {
+                    _testAction = new Action(() => _testMethod.Invoke(GetInstance(_config.Test.TestClass), null));
+                }
             }
         }
 
@@ -34,11 +54,11 @@ namespace Yakka
             return builder;
         }
 
-        //todo -> also pass to startup class if matching siignature / configured
-        public IContainer GetIocContainer() => 
+        //todo -> also pass to startup class if matching signature / configured
+        private IContainer GetIocContainer() =>
             GetIocBuilder().Build();
 
-        public object GetInstance(string className)
+        private object GetInstance(string className)
         {
             var c = GetClass(className);
             if (c == null)
@@ -48,10 +68,10 @@ namespace Yakka
             return GetIocContainer().Resolve(c);
         }
 
-        public Type GetClass(string className) => 
+        private Type GetClass(string className) =>
             _assembly.GetTypes().Where(t => t.FullName.Equals(className)).FirstOrDefault();
 
-        public MethodInfo GetMethod(string classFullName, string method)
+        private MethodInfo GetMethod(string classFullName, string method)
         {
             var c = GetClass(classFullName);
             if (c != null)
@@ -61,5 +81,12 @@ namespace Yakka
             }
             return null;
         }
+
+        public void ExecuteTestMethod() =>_testAction.Invoke();
+    }
+
+    public interface IPlugin
+    {
+        void ExecuteTestMethod();
     }
 }

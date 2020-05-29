@@ -1,7 +1,8 @@
 # Next Features
+
 ## Assembly loading
 plugin and DI pattern design 
-go through steps of how assmebly is loaded and what is supported in locating an executing methods
+go through steps of how assembly is loaded and what is supported in locating an executing methods
 i.e. autofac, cancellation tokens
 start with simple model -> no required framework
 pass method name, use method signature as startup module
@@ -12,6 +13,8 @@ pass method name, use method signature as startup module
  - Listeners automatically registered and invoked on test result
  - File listener
  - Statsd listener
+ - Console listener
+ - Prometheus?
 
 # Elastic threads
 threads can die and be replaced
@@ -19,7 +22,6 @@ threads can be created to meet RPS (open workload)
 use producer-consumer?
 task.ContinueWith
 tasks.RemoveAt(Task.WaitAny(tasks.ToArray()));
-
 
 thread allocator loops around and continuously cleans up old threads and creates new as required
 instead of exiting -> wait in loop for signals to add threads up to max threads
@@ -51,16 +53,19 @@ how many threads should I have right now
  - not enough then spawn
 
 'how many threads should I have right now'
-  'configured' -> ramp up, hold, ramp down
-  dynamic -> requires throughput. options:
+  'configured - closed' -> ramp up, hold, ramp down
+  'auto-scaling - open' -> requires throughput. options:
     'detect'
-    - if iteration count is behind tps
+    - if iteration count is behind (tps - ~1 time delta of throughput)
     - if no threads awaiting execution semaphore
     - if execution sempaphore grows for x periods (10?)
     'calculate'
     - calculate likely required thread count + delta based on moving average response times
 
 # Logging
+
+# Method inputs and returns
+Timers, CancellationToken, ContainerBuilder
 
 # Exit Conditions
 failure rate/percentage

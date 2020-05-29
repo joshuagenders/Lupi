@@ -22,8 +22,8 @@ concurrency:
     rampUp: 2m
     rampDown: 2m
     openWorkload: true # (can add additional threads when throughput is not met)
-    minConcurrency: 3 # requires open workload
-    maxConcurrency: 15 # requires open workload
+    minThreads: 3 # requires open workload
+    maxThreads: 15 # requires open workload
 throughput:
     tps: 20
     rampUp: 20s
@@ -46,8 +46,8 @@ concurrency:
     rampUp: 2m
     rampDown: 2m
     openWorkload: true # (can add additional threads when throughput is not met)
-    minConcurrency: 3 # requires open workload
-    maxConcurrency: 15 # requires open workload
+    minThreads: 3 # requires open workload
+    maxThreads: 15 # requires open workload
 throughput:
     thinkTime: 500ms
     phases:
