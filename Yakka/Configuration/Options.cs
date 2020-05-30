@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace Yakka
+namespace Yakka.Configuration
 {
     public class Options
     {

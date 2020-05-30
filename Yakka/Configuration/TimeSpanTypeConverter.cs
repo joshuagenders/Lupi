@@ -4,7 +4,7 @@ using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
-namespace Yakka
+namespace Yakka.Configuration
 {
     public class TimeSpanTypeConverter : IYamlTypeConverter
     {

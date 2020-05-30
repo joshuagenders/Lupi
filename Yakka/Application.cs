@@ -8,12 +8,15 @@ namespace Yakka
     public class Application : IApplication
     {
         private readonly IThreadControl _threadControl;
+        private readonly ITestResultPublisher _testResultPublisher;
         private readonly SemaphoreSlim _executionSemaphore;
 
         public Application(
-            IThreadControl threadControl)
+            IThreadControl threadControl,
+            ITestResultPublisher testResultPublisher)
         {
             _threadControl = threadControl;
+            _testResultPublisher = testResultPublisher;
             _executionSemaphore = new SemaphoreSlim(1);
         }
 
@@ -24,11 +27,15 @@ namespace Yakka
             try
             {
                 var startTime = DateTime.UtcNow;
+                var reportTask = Task.Run(() => _testResultPublisher.Process(ct), ct);
                 var tasks = new Task[] {
                     Task.Run(() => _threadControl.ReleaseTokens(startTime, ct), ct),
                     Task.Run(() => _threadControl.AllocateThreads(startTime, ct), ct),
                 };
                 await Task.WhenAll(tasks);
+
+                _testResultPublisher.TestCompleted = true;
+                await reportTask;
             }
             catch (TaskCanceledException) { }
             catch (OperationCanceledException) { }

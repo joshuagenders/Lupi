@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Yakka.Configuration;
 
 namespace Yakka.Tests
 {
@@ -30,12 +31,13 @@ namespace Yakka.Tests
             int rampUpSeconds,
             int holdForSeconds,
             int iterations,
-            Mock<IPlugin> plugin)
+            Mock<IPlugin> plugin,
+            Mock<ITestResultPublisher> testResultPublisher)
         {
             var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations);
             var cts = new CancellationTokenSource();
-            var threadControl = new ThreadControl(config, plugin.Object);
-            var app = new Application(threadControl);
+            var threadControl = new ThreadControl(config, plugin.Object, testResultPublisher.Object);
+            var app = new Application(threadControl, testResultPublisher.Object);
 
             cts.CancelAfter(TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds + 2));
             await app.Run(cts.Token);
@@ -57,7 +59,8 @@ namespace Yakka.Tests
             double throughput,
             int rampUpSeconds,
             int holdForSeconds,
-            Mock<IPlugin> plugin)
+            Mock<IPlugin> plugin,
+            Mock<ITestResultPublisher> testResultPublisher)
         {
             var watch = new Stopwatch();
             watch.Start();
@@ -67,7 +70,7 @@ namespace Yakka.Tests
                 rampUpSeconds: rampUpSeconds, 
                 holdForSeconds: holdForSeconds);
 
-            await RunApp(config, plugin.Object);
+            await RunApp(config, plugin.Object, testResultPublisher.Object);
             watch.Stop();
             watch.Elapsed.Should().BeGreaterOrEqualTo(
                 TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds)
@@ -84,7 +87,8 @@ namespace Yakka.Tests
             double throughput,
             int rampUpSeconds,
             int holdForSeconds,
-            int iterations)
+            int iterations,
+            Mock<ITestResultPublisher> testResultPublisher)
         {
             var plugin = new PluginFake();
             var config = GetConfig(
@@ -94,7 +98,7 @@ namespace Yakka.Tests
                 holdForSeconds: holdForSeconds,
                 iterations: iterations);
 
-            await RunApp(config, plugin);
+            await RunApp(config, plugin, testResultPublisher.Object);
             plugin.Calls.Should().BeLessThan(iterations);
             plugin.Calls.Should().BeGreaterThan(0);
         }
@@ -114,7 +118,8 @@ namespace Yakka.Tests
             double throughput,
             int rampUpSeconds,
             int holdForSeconds,
-            Mock<IPlugin> plugin)
+            Mock<IPlugin> plugin,
+            Mock<ITestResultPublisher> testResultPublisher)
         {
             var config = GetConfig(
                 concurrency: concurrency,
@@ -122,7 +127,7 @@ namespace Yakka.Tests
                 rampUpSeconds: rampUpSeconds,
                 holdForSeconds: holdForSeconds);
 
-            await RunApp(config, plugin.Object);
+            await RunApp(config, plugin.Object, testResultPublisher.Object);
 
             var expectedTotal = throughput * holdForSeconds +
                 (rampUpSeconds * throughput / 2);
@@ -134,13 +139,14 @@ namespace Yakka.Tests
 
         [Theory]
         [InlineAutoMoqData(20, 0, 3, 25)]
-        [InlineAutoMoqData(350, 2, 2, 100)]
-        [InlineAutoMoqData(350, 0, 5, 100)]
+        [InlineAutoMoqData(350, 2, 2, 80)]
+        [InlineAutoMoqData(350, 0, 5, 80)]
         public async Task WhenMoreIterationsThanSingleThreadAllows_ThenThreadsAdapt(
             double throughput,
             int rampUpSeconds,
             int holdForSeconds,
-            int iterations)
+            int iterations,
+            Mock<ITestResultPublisher> testResultPublisher)
         {
             var plugin = new PluginFake();
             var config = GetConfig(
@@ -150,7 +156,7 @@ namespace Yakka.Tests
                 iterations: iterations,
                 openWorkload: true);
 
-            await RunApp(config, plugin);
+            await RunApp(config, plugin, testResultPublisher.Object);
             plugin.Calls.Should().Be(iterations);
         }
 
@@ -166,7 +172,8 @@ namespace Yakka.Tests
             int concurrency,
             double throughput,
             int rampUpSeconds,
-            int holdForSeconds)
+            int holdForSeconds,
+            Mock<ITestResultPublisher> testResultPublisher)
         {
             var plugin = new PluginFake();
             var config = GetConfig(
@@ -176,7 +183,7 @@ namespace Yakka.Tests
                 holdForSeconds: holdForSeconds,
                 openWorkload: true);
 
-            await RunApp(config, plugin);
+            await RunApp(config, plugin, testResultPublisher.Object);
             
             var expectedTotal = throughput * holdForSeconds +
               (rampUpSeconds * throughput / 2);
@@ -192,20 +199,22 @@ namespace Yakka.Tests
             int holdForSeconds,
             int thinkTimeMilliseconds,
             int expectedMax,
-            Mock<IPlugin> plugin)
+            Mock<IPlugin> plugin,
+            Mock<ITestResultPublisher> testResultPublisher)
         {
             var config = GetConfig(holdForSeconds: holdForSeconds, thinkTimeMilliseconds: thinkTimeMilliseconds);
-            await RunApp(config, plugin.Object);
+            await RunApp(config, plugin.Object, testResultPublisher.Object);
             plugin.Verify(n => n.ExecuteTestMethod(), Times.Between(1, expectedMax, Moq.Range.Inclusive));
         }
 
         private async Task RunApp(
             Config config,
-            IPlugin plugin)
+            IPlugin plugin,
+            ITestResultPublisher testResultPublisher)
         {
             var cts = new CancellationTokenSource();
-            var threadControl = new ThreadControl(config, plugin);
-            var app = new Application(threadControl);
+            var threadControl = new ThreadControl(config, plugin, testResultPublisher);
+            var app = new Application(threadControl, testResultPublisher);
 
             cts.CancelAfter(config.TestDuration().Add(TimeSpan.FromMilliseconds(250)));
             await app.Run(cts.Token);

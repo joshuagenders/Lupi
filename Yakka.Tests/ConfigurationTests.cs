@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using System;
 using Xunit;
+using Yakka.Configuration;
 
 namespace Yakka.Tests
 {
@@ -72,7 +73,7 @@ throughput:
         [Fact]
         public void WhenConfigurationStringIsParsed_ThenConfigIsDeserialised()
         {
-            var parsed = Config.GetConfigFromString(AllConfigBasic);
+            var parsed = ConfigHelper.GetConfigFromString(AllConfigBasic);
             parsed.Should().NotBeNull();
             parsed.Throughput.Phases.Should().HaveCount(3);
             parsed.Throughput.RampUp.Should().BeGreaterThan(TimeSpan.Zero);
@@ -85,7 +86,7 @@ throughput:
         [Fact]
         public void WhenConfigurationStringIsParsed_ThenConfigIsDeserialisedPhases()
         {
-            var parsed = Config.GetConfigFromString(AllConfigPhases);
+            var parsed = ConfigHelper.GetConfigFromString(AllConfigPhases);
             parsed.Should().NotBeNull();
             parsed.Throughput.Phases.Should().HaveCount(4);
             parsed.Concurrency.RampUp.Should().BeGreaterThan(TimeSpan.Zero);

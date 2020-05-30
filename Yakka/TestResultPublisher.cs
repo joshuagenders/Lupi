@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Yakka.Configuration;
+using Yakka.Listeners;
 
-namespace Yakka {
-    public class TestResultPublisher 
+namespace Yakka 
+{
+    public class TestResultPublisher : ITestResultPublisher
     {
         private readonly ConcurrentQueue<TestResult> _results;
         private readonly List<ITestResultListener> _listeners;
@@ -31,16 +34,29 @@ namespace Yakka {
         {
             while (!ct.IsCancellationRequested && !TestCompleted || _results.Any())
             {
-                if(_results.TryDequeue(out var result))
+                var resultProcessingBatchSize = 10;
+                var count = 0;
+                var batch = new List<TestResult>();
+                while (_results.TryDequeue(out var result) && count < resultProcessingBatchSize)
                 {
-                    var tasks = _listeners.Select(l => l.OnResult(result));
-                    await Task.WhenAll(tasks);
+                    count++;
+                    batch.Add(result);
                 }
-                if (!_results.Any() && !TestCompleted)
+                var tasks = _listeners.Select(l => l.OnResult(batch.ToArray(), ct));
+                await Task.WhenAll(tasks);
+                if (!TestCompleted)
                 {
                     await Task.Delay(_config.Engine.ResultPublishingInterval);
                 }
             }
         }
+    }
+
+    public interface ITestResultPublisher
+    {
+        Task Process(CancellationToken ct);
+        void Publish(TestResult result);
+        void Subscribe(ITestResultListener listener);
+        bool TestCompleted { get; set; }
     }
 }

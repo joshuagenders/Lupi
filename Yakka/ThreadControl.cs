@@ -1,19 +1,23 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Yakka.Configuration;
 
 namespace Yakka
 {
     public class ThreadControl : IThreadControl
     {
+        private readonly Config _config;
+        private readonly IPlugin _plugin;
+        private readonly ITestResultPublisher _testResultPublisher;
+        private readonly List<Task> _tasks;
         private readonly SemaphoreSlim _taskExecution;
         private readonly ConcurrentQueue<bool> _taskKill;
         private readonly SemaphoreSlim _taskIncrement;
-        private readonly Config _config;
-        private readonly IPlugin _plugin;
-        private readonly List<Task> _tasks;
 
         private bool _enabled { get; set; }
         public double _throughput { get; }
@@ -25,10 +29,11 @@ namespace Yakka
 
         private int _tokensToNow { get; set; }
 
-        public ThreadControl(Config config, IPlugin plugin)
+        public ThreadControl(Config config, IPlugin plugin, ITestResultPublisher testResultPublisher)
         {
             _config = config;
             _plugin = plugin;
+            _testResultPublisher = testResultPublisher;
             _taskExecution = new SemaphoreSlim(0);
             _taskIncrement = new SemaphoreSlim(1);
             _taskKill = new ConcurrentQueue<bool>();
@@ -216,6 +221,7 @@ namespace Yakka
         {
             var threadName = $"worker_{Guid.NewGuid().ToString("N")}";
             bool testCompleted = false;
+            var watch = new Stopwatch();
             while (!ct.IsCancellationRequested && !testCompleted)
             {
                 DebugHelper.Write($"request task execution {threadName}");
@@ -224,7 +230,35 @@ namespace Yakka
                 if (!ct.IsCancellationRequested && !testCompleted)
                 {
                     DebugHelper.Write($"test not complete - run method {threadName}");
-                    _plugin.ExecuteTestMethod();
+                    object result;
+                    try
+                    {
+                        watch.Restart();
+                        result = _plugin.ExecuteTestMethod();
+                        watch.Stop();
+                        //todo handle tuple result
+                        var duration = result is TimeSpan ? (TimeSpan)result : watch.Elapsed;
+
+                        _testResultPublisher.Publish(
+                            new TestResult
+                            {
+                                Duration = duration,
+                                Passed = true,
+                                Result = result.ToString()
+                            });
+                    }
+                    catch (Exception ex)
+                    {
+                        watch.Stop();
+                        _testResultPublisher.Publish(
+                            new TestResult
+                            {
+                                Duration = watch.Elapsed,
+                                Passed = false,
+                                Result = JsonConvert.SerializeObject(ex)
+                            });
+                    }
+                    
                     DebugHelper.Write($"method invoke complete {threadName}");
                 }
                 else

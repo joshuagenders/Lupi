@@ -1,8 +1,11 @@
 ﻿using CommandLine;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Yakka.Configuration;
+using Yakka.Listeners;
 
 namespace Yakka
 {
@@ -21,7 +24,7 @@ namespace Yakka
                 .WithParsedAsync(async o =>
                 {
                     Console.WriteLine($"config file: {o.ConfigFilepath}");
-                    var config = await Config.GetConfigFromFile(o.ConfigFilepath);
+                    var config = await ConfigHelper.GetConfigFromFile(o.ConfigFilepath);
                     if (config == null)
                     {
                         throw new ArgumentException("Error reading configuration file. Result was null.");
@@ -37,8 +40,18 @@ namespace Yakka
                     }
 
                     var plugin = new Plugin(config);
-                    var threadControl = new ThreadControl(config, plugin);
-                    var app = new Application(threadControl);
+                    var testResultPublisher = new TestResultPublisher(config);
+                    var threadControl = new ThreadControl(config, plugin, testResultPublisher);
+                    
+                    var listenerSubscribers = new Dictionary<string, Action>
+                    {
+                        { "file", () => testResultPublisher.Subscribe(new FileListener(config)) },
+                        { "console", () => testResultPublisher.Subscribe(new ConsoleListener()) },
+                        { "statsd", () => testResultPublisher.Subscribe(new StatsdListener(config)) }
+                    };
+                    config.Listeners.ActiveListeners.ForEach(l => listenerSubscribers[l]());
+
+                    var app = new Application(threadControl, testResultPublisher);
                     await app.Run(cts.Token);
                 });
         }

@@ -40,6 +40,18 @@ throughput:
         duration: 20s
         from: 20
         to: 0
+listeners:
+    activeListeners:
+    - file
+    - statsd
+    - console
+    file:
+        path: results.log
+    statsd:
+        host: 10.0.0.1
+        port: 8125
+        prefix: my.prefix
+        bucket: my.test.bucket
 ```
 
 # Who this is for

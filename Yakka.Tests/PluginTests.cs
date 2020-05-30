@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using Xunit;
+using Yakka.Configuration;
 
 namespace Yakka.Tests
 {

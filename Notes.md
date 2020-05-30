@@ -1,13 +1,11 @@
 # Next Features
-# Listener support
- - Listeners automatically registered and invoked on test result
- - anything returned sent to listeners, including timers which override the reported ellapsed time value
- - File listener
- - Statsd listener
- - Console listener
- - Aggregating listener (means listeners will need to be stateful)
+## Unit tests
+rampdown threads
+rampdown rps
+min/max threads open workload
+test results publishing
 
-# Logging
+# Make console reporter report on bucket average - (10 results at a time)?
 
 # Examples
 ## use cases
@@ -20,6 +18,14 @@ Enriching results with return values and timers
 burst load
 ramp up / ramp down
 complex phases
+
+# Aggregating listener
+ - Aggregate results
+   - what are the requirements / use cases here?
+
+# Returning pass/fail status from tests
+ - requires aggregator listener
+ - use exceptions or use Tuple<bool, string>?
 
 # Exit Conditions
 - requires aggregator listener

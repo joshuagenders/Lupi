@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
-namespace Yakka
+namespace Yakka.Configuration
 {
     public class Config
     {
@@ -15,30 +12,11 @@ namespace Yakka
         public Test Test { get; set; } = new Test();
 
         public Engine Engine { get; set; } = new Engine();
+        public Listeners Listeners { get; set; } = new Listeners();
+
         public bool ThroughputEnabled => 
             Throughput != null 
             && (Throughput.Tps > 0 || Throughput.Phases.Any(p => p.ToTps > 0 || p.FromTps > 0 || p.Tps > 0));
-
-        public static async Task<Config> GetConfigFromFile(string filepath)
-        {
-            var configText = await File.ReadAllTextAsync(filepath);
-            return GetConfigFromString(configText);
-        }
-
-        public static Config GetConfigFromString(string configText)
-        {
-            var deserializer = new DeserializerBuilder()
-                .WithTypeConverter(new TimeSpanTypeConverter())
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
-
-            var config = deserializer.Deserialize<Config>(configText);
-            if (!config.Throughput.Phases.Any())
-            {
-                config.Throughput.Phases = config.BuildStandardThroughputPhases();
-            }
-            return config;
-        }
     }
 
     public class Concurrency
@@ -102,5 +80,25 @@ namespace Yakka
         public TimeSpan TokenGenerationInterval { get; set; } = TimeSpan.FromMilliseconds(100);
         public TimeSpan ResultPublishingInterval { get; set; } = TimeSpan.FromMilliseconds(250);
         public TimeSpan ThreadAllocationInterval { get; set; } = TimeSpan.FromMilliseconds(150);
+    }
+
+    public class Listeners
+    {
+        public List<string> ActiveListeners { get; set; } = new List<string>();
+        public Statsd Statsd { get; set; } = new Statsd();
+        public File File { get; set; }
+    }
+
+    public class File
+    {
+        public string Path { get; set; }
+    }
+
+    public class Statsd
+    {
+        public string Host { get; set; }
+        public int Port { get; set; }
+        public string Prefix { get; set; }
+        public string Bucket { get; set; }
     }
 }
