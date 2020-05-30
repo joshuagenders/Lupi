@@ -29,6 +29,12 @@ namespace Yakka.Examples
             Interlocked.Increment(ref Counter);
         }
 
+        public async Task<int> IncrementReturnAsync(CancellationToken ct)
+        {
+            await Task.Delay(10);
+            return Interlocked.Increment(ref Counter);
+        }
+
         public int DependencyRequired(IInternalDependency dependency)
         {
             var data = dependency.GetData();
