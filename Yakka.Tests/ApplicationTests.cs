@@ -61,7 +61,13 @@ namespace Yakka.Tests
         {
             var watch = new Stopwatch();
             watch.Start();
-            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, plugin.Object);
+            var config = GetConfig(
+                concurrency: concurrency, 
+                throughput: throughput, 
+                rampUpSeconds: rampUpSeconds, 
+                holdForSeconds: holdForSeconds);
+
+            await RunApp(config, plugin.Object);
             watch.Stop();
             watch.Elapsed.Should().BeGreaterOrEqualTo(
                 TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds)
@@ -81,7 +87,14 @@ namespace Yakka.Tests
             int iterations)
         {
             var plugin = new PluginFake();
-            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, plugin);
+            var config = GetConfig(
+                concurrency: concurrency, 
+                throughput: throughput, 
+                rampUpSeconds: rampUpSeconds, 
+                holdForSeconds: holdForSeconds,
+                iterations: iterations);
+
+            await RunApp(config, plugin);
             plugin.Calls.Should().BeLessThan(iterations);
             plugin.Calls.Should().BeGreaterThan(0);
         }
@@ -103,7 +116,13 @@ namespace Yakka.Tests
             int holdForSeconds,
             Mock<IPlugin> plugin)
         {
-            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, plugin.Object);
+            var config = GetConfig(
+                concurrency: concurrency,
+                throughput: throughput,
+                rampUpSeconds: rampUpSeconds,
+                holdForSeconds: holdForSeconds);
+
+            await RunApp(config, plugin.Object);
 
             var expectedTotal = throughput * holdForSeconds +
                 (rampUpSeconds * throughput / 2);
@@ -114,18 +133,24 @@ namespace Yakka.Tests
         }
 
         [Theory]
-        [InlineAutoMoqData(0, 20, 0, 3, 25)]
-        [InlineAutoMoqData(0, 300, 2, 2, 100)]
-        [InlineAutoMoqData(0, 300, 0, 5, 100)]
+        [InlineAutoMoqData(20, 0, 3, 25)]
+        [InlineAutoMoqData(350, 2, 2, 100)]
+        [InlineAutoMoqData(350, 0, 5, 100)]
         public async Task WhenMoreIterationsThanSingleThreadAllows_ThenThreadsAdapt(
-            int concurrency,
             double throughput,
             int rampUpSeconds,
             int holdForSeconds,
             int iterations)
         {
             var plugin = new PluginFake();
-            await RunApp(concurrency, throughput, iterations, rampUpSeconds, holdForSeconds, plugin, openWorkload: true);
+            var config = GetConfig(
+                throughput: throughput,
+                rampUpSeconds: rampUpSeconds,
+                holdForSeconds: holdForSeconds,
+                iterations: iterations,
+                openWorkload: true);
+
+            await RunApp(config, plugin);
             plugin.Calls.Should().Be(iterations);
         }
 
@@ -144,7 +169,14 @@ namespace Yakka.Tests
             int holdForSeconds)
         {
             var plugin = new PluginFake();
-            await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, plugin, openWorkload: true);
+            var config = GetConfig(
+                concurrency: concurrency, 
+                throughput: throughput, 
+                rampUpSeconds: rampUpSeconds, 
+                holdForSeconds: holdForSeconds,
+                openWorkload: true);
+
+            await RunApp(config, plugin);
             
             var expectedTotal = throughput * holdForSeconds +
               (rampUpSeconds * throughput / 2);
@@ -154,37 +186,39 @@ namespace Yakka.Tests
                 Convert.ToInt32(expectedTotal));
         }
 
-        [Fact]
-        public async Task WhenThinkTimeIsSpecified_ThenWaitIsObserved()
+        [Theory]
+        [InlineAutoMoqData(2,500,4)]
+        public async Task WhenThinkTimeIsSpecified_ThenWaitIsObserved(
+            int holdForSeconds,
+            int thinkTimeMilliseconds,
+            int expectedMax,
+            Mock<IPlugin> plugin)
         {
-            throw new NotImplementedException();
+            var config = GetConfig(holdForSeconds: holdForSeconds, thinkTimeMilliseconds: thinkTimeMilliseconds);
+            await RunApp(config, plugin.Object);
+            plugin.Verify(n => n.ExecuteTestMethod(), Times.Between(1, expectedMax, Moq.Range.Inclusive));
         }
 
         private async Task RunApp(
-            int concurrency,
-            double throughput,
-            int iterations,
-            int rampUpSeconds,
-            int holdForSeconds,
-            IPlugin plugin,
-            bool openWorkload = false)
+            Config config,
+            IPlugin plugin)
         {
             var cts = new CancellationTokenSource();
-            var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations, openWorkload);
             var threadControl = new ThreadControl(config, plugin);
             var app = new Application(threadControl);
 
-            cts.CancelAfter(TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds + 1));
+            cts.CancelAfter(config.TestDuration().Add(TimeSpan.FromMilliseconds(250)));
             await app.Run(cts.Token);
         }
 
         private Config GetConfig(
-            int concurrency,
-            double throughput,
-            int rampUpSeconds,
-            int holdForSeconds,
-            int iterations,
-            bool openWorkload = false)
+            int concurrency = 1,
+            double throughput = 0,
+            int rampUpSeconds = 0,
+            int holdForSeconds = 1,
+            int iterations = 0,
+            bool openWorkload = false,
+            int thinkTimeMilliseconds = 0)
         {
             var config = new Config
             {
@@ -198,7 +232,8 @@ namespace Yakka.Tests
                     HoldFor = TimeSpan.FromSeconds(holdForSeconds),
                     RampUp = TimeSpan.FromSeconds(rampUpSeconds),
                     Iterations = iterations,
-                    Tps = throughput
+                    Tps = throughput,
+                    ThinkTime = TimeSpan.FromMilliseconds(thinkTimeMilliseconds)
                 }
             };
             config.Throughput.Phases = config.BuildStandardThroughputPhases();

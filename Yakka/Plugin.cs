@@ -1,12 +1,12 @@
 ﻿using Autofac;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Yakka
 {
@@ -15,13 +15,13 @@ namespace Yakka
         private readonly Config _config;
         private readonly CancellationToken _ct;
         private readonly Assembly _assembly;
-        private readonly object _classMethodSingleton;
-        private readonly Action _setupAction; //todo
-        private readonly Func<object> _testFunc;
-        private readonly Action _teardownAction; //todo
-        private readonly MethodInfo _testMethod;
         private readonly IContainer _ioc;
 
+        private readonly object _testClassSingleton;
+        private readonly Func<Task<object>> _testFunc;
+
+        private readonly MethodInfo _testMethod;
+        
         public Plugin(Config config, CancellationToken ct = default)
         {
             _config = config;
@@ -33,27 +33,61 @@ namespace Yakka
             _assembly = loadContext.LoadFromAssemblyName(assemblyName);
 
             _testMethod = GetMethod(_config.Test.TestClass, _config.Test.TestMethod);
+            
+            
+            //todo move to function - dont need readonly testfunc - generic func cache?
             if (_testMethod.IsStatic)
             {
-                _testFunc = new Func<object>(() => _testMethod.Invoke(null, null));
+                _testFunc = new Func<Task<object>>(() => Task.FromResult(_testMethod.Invoke(null, GetParameters(_testMethod))));
             }
             else
             {
-                //todo method inputs -> timers, cancellation tokens, registered assembly interfaces, default constructor or null
-                //handle overloaded methods - prefer those with resolvable type inputs?
+                //todo - how to handle overloaded methods - prefer those with resolvable type inputs?
                 if (_config.Test.SingleTestClassInstance)
                 {
-                    _classMethodSingleton = GetInstance(_config.Test.TestClass);
-                    _testFunc = new Func<object>(() => _testMethod.Invoke(_classMethodSingleton, null));
+                    _testClassSingleton = GetInstance(_config.Test.TestClass);
+                    _testFunc = new Func<Task<object>>(async () => await RunMethod(_testMethod, _testClassSingleton, GetParameters(_testMethod)));  
                 }
                 else
                 {
-                    _testFunc = new Func<object>(() => _testMethod.Invoke(GetInstance(_config.Test.TestClass), null));
+                    _testFunc = new Func<Task<object>>(async () => await RunMethod(_testMethod, GetInstance(_config.Test.TestClass), GetParameters(_testMethod)));
                 }
             }
+            // end
 
             _ioc = GetIocContainer();
         }
+
+        public async Task<object> RunMethod(MethodInfo method, object instance, object[] parameters)
+        {
+            if (IsAsyncMethod(_testMethod))
+            {
+                if (_testMethod.ReturnType.GetGenericArguments().Any())
+                {
+                    var task = (Task)method.Invoke(instance, parameters);
+                    await task;
+                    var resultProperty = typeof(Task<>)
+                        .MakeGenericType(_testMethod.ReturnType.GetGenericArguments().First())
+                        .GetProperty("Result");
+                    object result = resultProperty.GetValue(task);
+                    return result;
+                }
+                else
+                {
+                    var task = (Task)method.Invoke(instance, parameters);
+                    await task;
+                    return null;
+                }
+            }
+            else
+            {
+                var result = method.Invoke(instance, parameters);
+                return result;
+            }
+        }
+
+        private static bool IsAsyncMethod(MethodInfo method) =>
+            (AsyncStateMachineAttribute)method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
 
         private ContainerBuilder GetIocBuilder()
         {
@@ -105,6 +139,17 @@ namespace Yakka
             }
         }
 
+        private object[] GetParameters(MethodInfo method)
+        {
+            var parms = method.GetParameters()
+                .Select(p => p.ParameterType)
+                .Select(GetInstanceFromType)
+                .ToArray();
+            return parms.Any()
+                ? parms
+                : null;
+        }
+
         private Type GetClass(string className) =>
             _assembly.GetTypes().Where(t => t.FullName.Equals(className)).FirstOrDefault();
 
@@ -119,7 +164,7 @@ namespace Yakka
             return null;
         }
 
-        public object ExecuteTestMethod() => _testFunc.Invoke();
+        public object ExecuteTestMethod() => _testFunc.Invoke().GetAwaiter().GetResult();
     }
 
     public interface IPlugin

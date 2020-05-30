@@ -1,21 +1,11 @@
 # Next Features
-
-## Assembly loading
-plugin and DI pattern design 
-  - autofac with optional builder interface
-  - look for a particular static method signature similar to asp.net
-
-# Method inputs and returns
-- Timers, CancellationToken, registered interfaces, complex objects with default constructor
-- anything returned sent to listeners, including timers which override the reported ellapsed time value
-
 # Listener support
  - Listeners automatically registered and invoked on test result
+ - anything returned sent to listeners, including timers which override the reported ellapsed time value
  - File listener
  - Statsd listener
  - Console listener
  - Aggregating listener (means listeners will need to be stateful)
-
 
 # Logging
 
@@ -30,7 +20,6 @@ Enriching results with return values and timers
 burst load
 ramp up / ramp down
 complex phases
-
 
 # Exit Conditions
 - requires aggregator listener
@@ -110,3 +99,6 @@ method attribute filtering
 setup/teardown attributes
 datasource input attributes
 scoping/threading attributes
+
+# maybe - website
+static site generator
