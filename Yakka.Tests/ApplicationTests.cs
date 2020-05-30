@@ -154,6 +154,12 @@ namespace Yakka.Tests
                 Convert.ToInt32(expectedTotal));
         }
 
+        [Fact]
+        public async Task WhenThinkTimeIsSpecified_ThenWaitIsObserved()
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task RunApp(
             int concurrency,
             double throughput,
@@ -208,10 +214,10 @@ namespace Yakka.Tests
         {
             public int Calls;
 
-            public void ExecuteTestMethod()
+            public object ExecuteTestMethod()
             {
-                Interlocked.Increment(ref Calls);
                 Thread.Sleep(400);
+                return Interlocked.Increment(ref Calls);
             }
         }
     }

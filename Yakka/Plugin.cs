@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,15 +13,19 @@ namespace Yakka
     public class Plugin : IPlugin
     {
         private readonly Config _config;
+        private readonly CancellationToken _ct;
         private readonly Assembly _assembly;
         private readonly object _classMethodSingleton;
         private readonly Action _setupAction; //todo
-        private readonly Action _testAction;
+        private readonly Func<object> _testFunc;
         private readonly Action _teardownAction; //todo
         private readonly MethodInfo _testMethod;
-        public Plugin(Config config)
+        private readonly IContainer _ioc;
+
+        public Plugin(Config config, CancellationToken ct = default)
         {
             _config = config;
+            _ct = ct;
 
             PluginLoadContext loadContext = new PluginLoadContext(_config.Test.AssemblyPath);
             var assemblyName = new AssemblyName(Path.GetFileNameWithoutExtension(_config.Test.AssemblyPath));
@@ -30,21 +35,24 @@ namespace Yakka
             _testMethod = GetMethod(_config.Test.TestClass, _config.Test.TestMethod);
             if (_testMethod.IsStatic)
             {
-                _testAction = new Action(() => _testMethod.Invoke(null, null));
+                _testFunc = new Func<object>(() => _testMethod.Invoke(null, null));
             }
             else
             {
-                //todo method inputs -> timers, cancellation tokens, registered assembly interfaces
+                //todo method inputs -> timers, cancellation tokens, registered assembly interfaces, default constructor or null
+                //handle overloaded methods - prefer those with resolvable type inputs?
                 if (_config.Test.SingleTestClassInstance)
                 {
                     _classMethodSingleton = GetInstance(_config.Test.TestClass);
-                    _testAction = new Action(() => _testMethod.Invoke(_classMethodSingleton, null));
+                    _testFunc = new Func<object>(() => _testMethod.Invoke(_classMethodSingleton, null));
                 }
                 else
                 {
-                    _testAction = new Action(() => _testMethod.Invoke(GetInstance(_config.Test.TestClass), null));
+                    _testFunc = new Func<object>(() => _testMethod.Invoke(GetInstance(_config.Test.TestClass), null));
                 }
             }
+
+            _ioc = GetIocContainer();
         }
 
         private ContainerBuilder GetIocBuilder()
@@ -66,7 +74,35 @@ namespace Yakka
             {
                 return null;
             }
-            return GetIocContainer().Resolve(c);
+            var instance = GetInstanceFromType(c);
+            return instance;
+        }
+
+        private object GetInstanceFromType(Type type)
+        {
+            if (type.Equals(typeof(CancellationToken)))
+            {
+                return _ct;
+            }
+            if (type.IsInterface)
+            {
+                return _ioc.Resolve(type);
+            }
+            var defaultConstructor = type.GetConstructor(Type.EmptyTypes);
+            if (defaultConstructor == null)
+            {
+                var inputs = new List<object>();
+                var constructor = type.GetConstructors().OrderBy(c => c.GetParameters().Count()).First();
+                foreach (var input in constructor.GetParameters())
+                {
+                    inputs.Add(GetInstanceFromType(input.ParameterType));
+                }
+                return Activator.CreateInstance(type, inputs.ToArray());
+            }
+            else
+            {
+                return Activator.CreateInstance(type);
+            }
         }
 
         private Type GetClass(string className) =>
@@ -83,11 +119,11 @@ namespace Yakka
             return null;
         }
 
-        public void ExecuteTestMethod() =>_testAction.Invoke();
+        public object ExecuteTestMethod() => _testFunc.Invoke();
     }
 
     public interface IPlugin
     {
-        void ExecuteTestMethod();
+        object ExecuteTestMethod();
     }
 }

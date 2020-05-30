@@ -45,3 +45,4 @@ throughput:
 # Who this is for
 * You want to write a load test using code but don't want to have to write a lot of code to control the load profile.
 * You want to write load tests in a dotnet language.
+* Don't need local visualisations of test execution, just a reliable load agent.

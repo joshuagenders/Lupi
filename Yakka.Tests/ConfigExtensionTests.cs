@@ -4,7 +4,8 @@ using System.Text;
 
 namespace Yakka.Tests
 {
-    class ConfigExtensionTests
+    public class ConfigExtensionTests
     {
+        //todo
     }
 }

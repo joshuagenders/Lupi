@@ -237,6 +237,7 @@ namespace Yakka
                     DebugHelper.Write($"continued execution denied. task kill. thread complete {threadName}");
                     break;
                 }
+                await Task.Delay(_config.Throughput.ThinkTime);
             }
         }
 
