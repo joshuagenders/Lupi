@@ -9,7 +9,7 @@ namespace Yakka.Examples
         public static HttpClient HttpClient { get; private set; } = new HttpClient();
         public static Browser Browser { get; private set; }
 
-        public async static Task Init()
+        public async static Task InitBrowser()
         {
             await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
             Browser = await Puppeteer.LaunchAsync(new LaunchOptions
@@ -18,7 +18,7 @@ namespace Yakka.Examples
             });
         }
 
-        public static async Task Teardown()
+        public static async Task TeardownBrowser()
         {
             await Browser?.CloseAsync();
         }

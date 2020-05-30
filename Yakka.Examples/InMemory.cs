@@ -18,9 +18,9 @@ namespace Yakka.Examples
             _dependency = dependency;
         }
 
-        public void Increment()
+        public int Increment()
         {
-            Interlocked.Increment(ref Counter);
+            return Interlocked.Increment(ref Counter);
         }
 
         public async Task IncrementAsync(CancellationToken ct)
