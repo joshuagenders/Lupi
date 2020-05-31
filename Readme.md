@@ -71,6 +71,7 @@ engine:
     tokenGenerationInterval: 100ms
     resultPublishingInterval: 250ms
     threadAllocationInterval: 150ms
+baseConfig: BaseConfig.yml
 ```
 
 # Concurrency and Throughput
