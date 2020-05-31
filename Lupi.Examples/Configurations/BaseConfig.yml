@@ -1,0 +1,20 @@
+test:
+    assemblyPath: ../bin/Release/netcoreapp3.0/publish/Lupi.Examples.dll
+    singleTestClassInstance: true
+    testClass: Lupi.Examples.PuppeteerExample
+    testMethod: Homepage
+    setupClass: Lupi.Examples.GlobalState
+    setupMethod: InitBrowser
+    teardownClass: Lupi.Examples.GlobalState
+    teardownMethod: TeardownBrowser
+listeners:
+    activeListeners:
+    - file
+    - statsd
+    - console
+    file:
+        path: results.log
+    statsd:
+        host: 127.0.0.1
+        port: 8125
+        prefix: Lupi.Examples

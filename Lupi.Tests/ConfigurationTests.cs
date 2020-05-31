@@ -2,6 +2,7 @@
 using System;
 using Xunit;
 using Lupi.Configuration;
+using System.Threading.Tasks;
 
 namespace Lupi.Tests
 {
@@ -71,9 +72,9 @@ throughput:
 
         #endregion
         [Fact]
-        public void WhenConfigurationStringIsParsed_ThenConfigIsDeserialised()
+        public async Task WhenConfigurationStringIsParsed_ThenConfigIsDeserialised()
         {
-            var parsed = ConfigHelper.GetConfigFromString(AllConfigBasic);
+            var parsed = await ConfigHelper.GetConfigFromString(AllConfigBasic);
             parsed.Should().NotBeNull();
             parsed.Throughput.Phases.Should().HaveCount(3);
             parsed.Throughput.RampUp.Should().BeGreaterThan(TimeSpan.Zero);
@@ -84,9 +85,9 @@ throughput:
             parsed.Concurrency.RampDown.Should().BeGreaterThan(TimeSpan.Zero);
         }
         [Fact]
-        public void WhenConfigurationStringIsParsed_ThenConfigIsDeserialisedPhases()
+        public async Task WhenConfigurationStringIsParsed_ThenConfigIsDeserialisedPhases()
         {
-            var parsed = ConfigHelper.GetConfigFromString(AllConfigPhases);
+            var parsed = await ConfigHelper.GetConfigFromString(AllConfigPhases);
             parsed.Should().NotBeNull();
             parsed.Throughput.Phases.Should().HaveCount(4);
             parsed.Concurrency.RampUp.Should().BeGreaterThan(TimeSpan.Zero);

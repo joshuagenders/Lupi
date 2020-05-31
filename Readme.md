@@ -1,10 +1,8 @@
-<p align="center">
-    <img
-        alt="Lupi"
-        src="https://github.com/joshuagenders/lupi/blob/master/Logo.png"
-        width="200"
-    />
-</p>
+<img
+    alt="Lupi"
+    src="https://github.com/joshuagenders/lupi/blob/master/Logo.png"
+    width="200"
+/>
 
 # Lupi
 Lupi is a load testing framework written for the dotnet runtime.
@@ -17,7 +15,11 @@ Lupi supports a plugin system for loading and executing code from compatible DLL
 * Don't need local visualisations of test execution, just a reliable load agent.
 
 ## Quickstart
-`dotnet run config.yaml`
+```bash
+dotnet publish -c Release
+cd Lupi/bin/Release/netcoreapp3.0/publish
+dotnet run Lupi.dll <config path>
+```
 
 ## Configuration
 ```yaml

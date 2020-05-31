@@ -1,0 +1,8 @@
+concurrency:
+    threads: 10
+    rampUp: 2m
+    rampDown: 20s
+listeners:
+    statsd:
+        bucket: concurrencyonly
+baseConfig: BaseConfig.yml

@@ -1,0 +1,13 @@
+concurrency:
+    openWorkload: true
+    minThreads: 3
+    maxThreads: 500
+throughput:
+    tps: 20
+    rampUp: 2m
+    holdFor: 10m
+    rampDown: 1m
+listeners:
+    statsd:
+        bucket: openworkload
+baseConfig: BaseConfig.yml

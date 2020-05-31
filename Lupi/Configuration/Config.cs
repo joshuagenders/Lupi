@@ -13,6 +13,7 @@ namespace Lupi.Configuration
 
         public Engine Engine { get; set; } = new Engine();
         public Listeners Listeners { get; set; } = new Listeners();
+        public string BaseConfig { get; set; }
 
         public bool ThroughputEnabled => 
             Throughput != null 

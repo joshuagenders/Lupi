@@ -5,6 +5,9 @@
 - Publish repo and nuget packages
 
 # Next Features
+## Configuration inheritance
+specify a base config
+
 ## Configurable file listener output formats
 
 ## Config validation

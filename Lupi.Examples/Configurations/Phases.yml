@@ -1,0 +1,21 @@
+concurrency:
+    phases:
+    -   duration: 1m
+        from: 5
+        to: 50
+    -   duration: 10m30s
+        threads: 50
+throughput:
+    phases:
+    -   duration: 2m
+        from: 1
+        to: 20
+    -   duration: 10m
+        tps: 20
+    -   duration: 30s
+        from: 20
+        to: 0
+listeners:
+    statsd:
+        bucket: phases
+baseConfig: BaseConfig.yml
