@@ -1,4 +1,5 @@
-﻿using PuppeteerSharp;
+﻿using Autofac;
+using PuppeteerSharp;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -21,6 +22,12 @@ namespace Lupi.Examples
         public static async Task TeardownBrowser()
         {
             await Browser?.CloseAsync();
+        }
+
+        public static ContainerBuilder Startup(ContainerBuilder builder)
+        {
+            builder.RegisterAssemblyTypes(typeof(GlobalState).Assembly);
+            return builder;
         }
     }
 }

@@ -8,11 +8,20 @@
     ".NETCoreApp,Version=v3.0": {
       "Lupi.Examples/1.0.0": {
         "dependencies": {
+          "Autofac": "5.2.0",
           "FluentAssertions": "5.10.3",
           "PuppeteerSharp": "2.0.3"
         },
         "runtime": {
           "Lupi.Examples.dll": {}
+        }
+      },
+      "Autofac/5.2.0": {
+        "runtime": {
+          "lib/netstandard2.1/Autofac.dll": {
+            "assemblyVersion": "5.2.0.0",
+            "fileVersion": "5.2.0.0"
+          }
         }
       },
       "FluentAssertions/5.10.3": {
@@ -949,6 +958,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "Autofac/5.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-V8dBH0dsv75uDzl7Sw+HkhKDPUw2eXnlMjcSVMH+tLo2s67MpTKGyDj1pDcpR+IF2u4YRs0s3/x7R88YJzIWvg==",
+      "path": "autofac/5.2.0",
+      "hashPath": "autofac.5.2.0.nupkg.sha512"
     },
     "FluentAssertions/5.10.3": {
       "type": "package",
