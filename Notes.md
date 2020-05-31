@@ -1,77 +1,76 @@
-# Next Features
-
-# Config validation
-required fields
-
+# Remaining MVP
 ## Unit tests
-rampdown threads
-rampdown rps
-min/max threads open workload
-test results publishing
-number of class instances created
+- Rampdown threads
+- Rampdown RPS
+- Min/max threads open workload
+- Test results publishing
+- Number of class instances created
 
-# Improve docs
-What fields are required when
-threads controlled separately to throughput
-can use threads with think time or throughput
-link to examples
-graphics
+## Tasks
+- Test with local grafana
+- Test actual examples
+- Ipdate docs and examples as required
+- Publish repo and nuget packages
 
-# Refactor thread control - separate concerns
+## Improve docs
+- What fields are required when
+- Threads controlled separately to throughput
+- Can use threads with think time or throughput
+- Link to examples
+- Graphics
 
-# Make console reporter report on bucket average - (10 results at a time)?
+# Next Features
+## Config validation
+Required fields
 
-# Aggregating listener
+## Refactor thread control - separate concerns
+
+## Make console reporter report on bucket average - (10 results at a time)?
+
+## Aggregating listener
  - Aggregate results
    - what are the requirements / use cases here?
 
-# Returning pass/fail status from tests
- - requires aggregator listener
- - use exceptions or use Tuple<bool, string>?
+## Returning pass/fail status from tests
+ - Requires aggregator listener
+ - Use exceptions or use Tuple<bool, string>?
 
-# Exit Conditions
-- requires aggregator listener
-- failure rate/percentage
-- failure count
-- latency over x average / max in y period
+## Exit Conditions
+- Requires aggregator listener
+- Failure rate/percentage
+- Failure count
+- Latency over x average / max in y period
 
-# todo
- - features above
- - more unit testing
- - test with local grafana
- - test actual examples
- - update docs and examples as required
- - review licenses
- - publish repo and nuget packages
- - write blog post(s?)
+## Other
+- Write blog post(s?)
 
-# Maybe - Docker image
-- create docker compose / container image
-- publish image
+## Maybe - Docker image
+- Create docker compose / container image
+- Publish image
 
-# Maybe - "Requests" scenario generation
-- browser, browser emulator and http client options
-- think about how to manage scope and what to support
-- look at roslyn compilation
-- look at all jmeter node types + what youd typically use beanshell for
-- plus what you'd normally write in locust
-  - things like when to clear/set cookies
-  - actions to perform on screen
-- maybe allow js scripts and assertions through puppeteer
-- is there a nice page object pattern in yaml? is that taurus 'scenarios'
+## Maybe - "Requests" scenario generation
+- Browser, browser emulator and http client options
+- Think about how to manage scope and what to support
+- Look at roslyn compilation
+- Look at all jmeter node types + what youd typically use beanshell for
+- Plus what you'd normally write in locust
+  - Things like when to clear/set cookies
+  - Actions to perform on screen
+- Maybe allow js scripts and assertions through puppeteer
+- Is there a nice page object pattern in yaml? is that taurus 'scenarios'
 
-# Maybe - Datasources
+## Maybe - Datasources
 Thread-safe implementations of datasources, making scope access and lifetime obvious
- - http
- - file
-   - csv
-   - json
-   - raw line reader
+- HTTP
+- file
+  - CSV
+  - JSON
+  - raw line reader
 Parsed and passed into test method
 
-# Maybe - Gherkin syntax support - requests scenario
- - because I can
- - nuget?
+## Maybe - Gherkin syntax support - requests scenario
+- Because I can
+- Nuget?
 
 ```gherkin
 Given the default address http://blazedemo.com
@@ -101,12 +100,12 @@ And then 10 users hold for 5 minutes
 Then the average response time is 200ms
 ```
 
-# Maybe - Attribute Framework
-test attributes
-method attribute filtering
-setup/teardown attributes
-datasource input attributes
-scoping/threading attributes
+## Maybe - Attribute Framework
+- Test attributes
+- Method attribute filtering
+- Setup/teardown attributes
+- Datasource input attributes
+- Scoping/Threading attributes
 
-# maybe - website
-static site generator
+## Maybe - Website for the tool
+Static site generator
