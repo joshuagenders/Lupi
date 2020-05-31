@@ -1,3 +1,4 @@
+![Lupi](https://github.com/joshuagenders/lupi/blob/master/Claw_Marks.png?raw=true)
 # Lupi
 Lupi is a load testing framework written for the dotnet runtime.
 
