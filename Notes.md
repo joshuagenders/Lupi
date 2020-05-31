@@ -1,10 +1,7 @@
 # Next Features
 
-# open workload - kill threads that aren't needed
-- threads add message to queue when they wait more than x seconds (+think-time) for task execution
-# refactor thread control - separate concerns
-
-# config validation
+# Config validation
+required fields
 
 ## Unit tests
 rampdown threads
@@ -13,12 +10,14 @@ min/max threads open workload
 test results publishing
 number of class instances created
 
-# improve docs
+# Improve docs
 What fields are required when
 threads controlled separately to throughput
 can use threads with think time or throughput
 link to examples
 graphics
+
+# Refactor thread control - separate concerns
 
 # Make console reporter report on bucket average - (10 results at a time)?
 
