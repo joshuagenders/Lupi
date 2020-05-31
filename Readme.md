@@ -1,7 +1,7 @@
-# Yakka
-Yakka is a load testing framework written for the dotnet runtime.
+# Lupi
+Lupi is a load testing framework written for the dotnet runtime.
 
-Yakka supports a plugin system for loading and executing code from compatible DLLs.
+Lupi supports a plugin system for loading and executing code from compatible DLLs.
 
 ## Quickstart
 `dotnet run config.yaml`
