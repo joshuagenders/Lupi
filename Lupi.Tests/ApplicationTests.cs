@@ -45,6 +45,7 @@ namespace Lupi.Tests
             //await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, runner.Object);
             
             plugin.Verify(n => n.ExecuteTestMethod(), Times.Exactly(iterations));
+            testResultPublisher.Verify(s => s.Publish(It.IsAny<TestResult>()), Times.Exactly(iterations));
         }
 
         [Theory]
@@ -158,6 +159,7 @@ namespace Lupi.Tests
 
             await RunApp(config, plugin, testResultPublisher.Object);
             plugin.Calls.Should().Be(iterations);
+            testResultPublisher.Verify(s => s.Publish(It.IsAny<TestResult>()), Times.Exactly(iterations));
         }
 
         [Theory]
@@ -207,6 +209,33 @@ namespace Lupi.Tests
             plugin.Verify(n => n.ExecuteTestMethod(), Times.Between(1, expectedMax, Moq.Range.Inclusive));
         }
 
+        [Theory]
+        [InlineAutoMoqData(10, 2, 2)]
+        [InlineAutoMoqData(8, 3, 1)]
+        [InlineAutoMoqData(5, 0, 3)]
+        public async Task WhenRampDownConcurrencyIsSpecified_ThenThreadsRpsDecreases(
+            int concurrency,
+            int holdForSeconds,
+            int rampDownSeconds,
+            Mock<IPlugin> plugin,
+            Mock<ITestResultPublisher> testResultPublisher)
+        {
+            var thinkTime = 195;
+            var config = GetConfig(
+                concurrency: concurrency, 
+                holdForSeconds: holdForSeconds, 
+                rampDownSeconds: rampDownSeconds, 
+                thinkTimeMilliseconds: thinkTime);
+            await RunApp(config, plugin.Object, testResultPublisher.Object);
+
+            var throughput = 5;
+            var expected = throughput * holdForSeconds * concurrency +
+              (rampDownSeconds * concurrency * throughput / 2);
+            var expectedMax = throughput * concurrency * (holdForSeconds + rampDownSeconds);
+
+            plugin.Verify(n => n.ExecuteTestMethod(), Times.Between(expected, expectedMax, Moq.Range.Inclusive));
+        }
+
         private async Task RunApp(
             Config config,
             IPlugin plugin,
@@ -227,19 +256,23 @@ namespace Lupi.Tests
             int holdForSeconds = 1,
             int iterations = 0,
             bool openWorkload = false,
-            int thinkTimeMilliseconds = 0)
+            int thinkTimeMilliseconds = 0,
+            int rampDownSeconds = 0)
         {
             var config = new Config
             {
                 Concurrency = new Concurrency
                 {
                     Threads = concurrency,
-                    RampUp = TimeSpan.FromSeconds(rampUpSeconds)
+                    RampUp = TimeSpan.FromSeconds(rampUpSeconds),
+                    RampDown = TimeSpan.FromSeconds(rampDownSeconds),
+                    OpenWorkload = openWorkload
                 },
                 Throughput = new Throughput
                 {
                     HoldFor = TimeSpan.FromSeconds(holdForSeconds),
                     RampUp = TimeSpan.FromSeconds(rampUpSeconds),
+                    RampDown = TimeSpan.FromSeconds(rampDownSeconds),
                     Iterations = iterations,
                     Tps = throughput,
                     ThinkTime = TimeSpan.FromMilliseconds(thinkTimeMilliseconds)
@@ -247,10 +280,6 @@ namespace Lupi.Tests
             };
             config.Throughput.Phases = config.BuildStandardThroughputPhases();
             config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
-            if (openWorkload)
-            {
-                config.Concurrency.OpenWorkload = true;
-            }
             return config;
         }
 

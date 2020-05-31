@@ -1,11 +1,4 @@
 # Remaining MVP
-## Unit tests
-- Rampdown threads
-- Rampdown RPS
-- Min/max threads open workload
-- Test results publishing
-- Number of class instances created
-
 ## Tasks
 - Test with local grafana
 - Test actual examples
@@ -16,6 +9,7 @@
 - What fields are required when
 - Threads controlled separately to throughput
 - Can use threads with think time or throughput
+- Can specify with constant+ramping or as phases
 - Link to examples
 - Graphics
 
