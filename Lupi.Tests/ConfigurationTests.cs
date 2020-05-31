@@ -14,10 +14,10 @@ test:
     singleTestClassInstance: true
     testClass: MyNamespace.MyClass # optional if method name is unique in the assembly
     testMethod: MyMethod
-    assemblySetupClass: MyNamespace.SetupClass
-    assemblySetupMethod: Init
-    assemblyTeardownClass: MyNamespace.TeardownClass
-    assemblyTeardownMethod: Teardown
+    setupClass: MyNamespace.SetupClass
+    setupMethod: Init
+    teardownClass: MyNamespace.TeardownClass
+    teardownMethod: Teardown
 concurrency:
     threads: 10 
     rampUp: 2m
@@ -38,10 +38,10 @@ test:
     singleTestClassInstance: true
     testClass: MyNamespace.MyClass # optional if method name is unique in the assembly
     testMethod: MyMethod
-    assemblySetupClass: MyNamespace.SetupClass
-    assemblySetupMethod: Init
-    assemblyTeardownClass: MyNamespace.TeardownClass
-    assemblyTeardownMethod: Teardown
+    setupClass: MyNamespace.SetupClass
+    setupMethod: Init
+    teardownClass: MyNamespace.TeardownClass
+    teardownMethod: Teardown
 concurrency:
     threads: 10
     rampUp: 2m

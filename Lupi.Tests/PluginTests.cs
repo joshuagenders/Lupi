@@ -53,8 +53,8 @@ namespace Lupi.Tests
         public void SetupMethodCanBeExecuted()
         {
             var config = GetConfig("GetIntWithDependency");
-            config.Test.AssemblySetupClass = config.Test.TestClass;
-            config.Test.AssemblySetupMethod = config.Test.TestMethod;
+            config.Test.SetupClass = config.Test.TestClass;
+            config.Test.SetupMethod = config.Test.TestMethod;
             var plugin = new Plugin(config);
             var result = (int)plugin.ExecuteSetupMethod();
             result.Should().BeInRange(1, 100);
@@ -64,8 +64,8 @@ namespace Lupi.Tests
         public void TeardownCanBeExecuted()
         {
             var config = GetConfig("GetIntWithDependency");
-            config.Test.AssemblyTeardownClass = config.Test.TestClass;
-            config.Test.AssemblyTeardownMethod = config.Test.TestMethod;
+            config.Test.TeardownClass = config.Test.TestClass;
+            config.Test.TeardownMethod = config.Test.TestMethod;
             var plugin = new Plugin(config);
             var result = (int)plugin.ExecuteTeardownMethod();
             result.Should().BeInRange(1, 100);

@@ -1,29 +1,24 @@
 # Remaining MVP
-## Tasks
 - Test with local grafana
-- Test actual examples
-- Ipdate docs and examples as required
+- Test actual examples against real site
+- Update docs and examples as required
 - Publish repo and nuget packages
 
-## Improve docs
-- What fields are required when
-- Threads controlled separately to throughput
-- Can use threads with think time or throughput
-- Can specify with constant+ramping or as phases
-- Link to examples
-- Graphics
-
 # Next Features
+## Configurable file listener output formats
+
 ## Config validation
 Required fields
 
-## Refactor thread control - separate concerns
-
-## Make console reporter report on bucket average - (10 results at a time)?
+## Refactor thread control 
+Separate concerns
 
 ## Aggregating listener
- - Aggregate results
-   - what are the requirements / use cases here?
+ - what are the requirements / use cases here?
+  - console listener
+
+## Make console reporter report better
+use aggregator results
 
 ## Returning pass/fail status from tests
  - Requires aggregator listener

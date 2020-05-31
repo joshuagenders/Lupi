@@ -70,10 +70,10 @@ namespace Lupi.Configuration
         public bool SingleTestClassInstance { get; set; }
         public string TestClass { get; set; }
         public string TestMethod { get; set; }
-        public string AssemblySetupClass { get; set; }
-        public string AssemblySetupMethod { get; set; } 
-        public string AssemblyTeardownClass { get; set; }
-        public string AssemblyTeardownMethod { get; set; }
+        public string SetupClass { get; set; }
+        public string SetupMethod { get; set; } 
+        public string TeardownClass { get; set; }
+        public string TeardownMethod { get; set; }
     }
 
     public class Engine

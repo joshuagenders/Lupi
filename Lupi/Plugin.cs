@@ -36,8 +36,8 @@ namespace Lupi
 
             _assembly = loadContext.LoadFromAssemblyName(assemblyName);
             _testMethod = GetMethod(_config.Test.TestClass, _config.Test.TestMethod);
-            _setupMethod = GetMethod(_config.Test.AssemblySetupClass, _config.Test.AssemblySetupMethod);
-            _teardownMethod = GetMethod(_config.Test.AssemblyTeardownClass, _config.Test.AssemblyTeardownMethod);
+            _setupMethod = GetMethod(_config.Test.SetupClass, _config.Test.SetupMethod);
+            _teardownMethod = GetMethod(_config.Test.TeardownClass, _config.Test.TeardownMethod);
             _ioc = GetIocContainer();
             SetupTestFunc();
         }
