@@ -19,12 +19,6 @@ namespace Yakka
         private readonly ConcurrentQueue<bool> _taskKill;
         private readonly SemaphoreSlim _taskIncrement;
 
-        private bool _enabled { get; set; }
-        public double _throughput { get; }
-        public int _iterations { get; }
-        public int _rampUpSeconds { get; }
-        public int _holdForSeconds { get; }
-
         private int _executionRequestCount;
 
         private int _tokensToNow { get; set; }
@@ -34,15 +28,11 @@ namespace Yakka
             _config = config;
             _plugin = plugin;
             _testResultPublisher = testResultPublisher;
+
             _taskExecution = new SemaphoreSlim(0);
             _taskIncrement = new SemaphoreSlim(1);
             _taskKill = new ConcurrentQueue<bool>();
             _tasks = new List<Task>();
-            _throughput = config.Throughput.Tps;
-            _iterations = config.Throughput.Iterations;
-            _rampUpSeconds = Convert.ToInt32(config.Concurrency.RampUp.TotalSeconds);
-            _holdForSeconds = Convert.ToInt32(config.Throughput.HoldFor.TotalSeconds);
-            _enabled = config.ThroughputEnabled;
             _executionRequestCount = 0;
         }
 
@@ -60,6 +50,7 @@ namespace Yakka
 
         private async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
         {
+            DebugHelper.Write($"task execution request start");
             int iterations; //todo use long throughout
             try
             {
@@ -70,29 +61,28 @@ namespace Yakka
             {
                 _taskIncrement.Release();
             }
-            DebugHelper.Write($"task execution request start");
-            if (_enabled)
+            if (_config.ThroughputEnabled)
             {
                 DebugHelper.Write($"task execution enabled, waiting");
                 await _taskExecution.WaitAsync(ct);
                 DebugHelper.Write($"waiting complete");
             }
-            
 
-            if (_taskKill.TryDequeue(out var result))
+            if (!RequestTaskContinuedExecution())
             {
+                DebugHelper.Write($"found kill token. dying.");
                 return false;
             }
 
             DebugHelper.Write($"executions {iterations}");
             var isCompleted = IsTestComplete(startTime, iterations);
-            DebugHelper.Write($"is test completed {isCompleted} {iterations} {_iterations}");
+            DebugHelper.Write($"is test completed {isCompleted} {iterations} {_config.Throughput.Iterations}");
             return isCompleted;
         }
 
         public async Task ReleaseTokens(DateTime startTime, CancellationToken ct)
         {
-            if (!_enabled)
+            if (!_config.ThroughputEnabled)
             {
                 return;
             }
@@ -107,15 +97,15 @@ namespace Yakka
                 if (_tokensToNow > tokensReleased)
                 {
                     var tokensToRelease = Convert.ToInt32(_tokensToNow - tokensReleased);
-                    if (_iterations > 0)
+                    if (_config.Throughput.Iterations > 0)
                     {
                         if (int.MaxValue - tokensToRelease < tokensReleased)
                         {
                             tokensToRelease = int.MaxValue - tokensReleased;
                         }
-                        if (tokensToRelease + tokensReleased > _iterations)
+                        if (tokensToRelease + tokensReleased > _config.Throughput.Iterations)
                         {
-                            tokensToRelease = Convert.ToInt32(_iterations) - tokensReleased;
+                            tokensToRelease = Convert.ToInt32(_config.Throughput.Iterations) - tokensReleased;
                         }
                     }
                     if (tokensToRelease > 0)
@@ -220,14 +210,34 @@ namespace Yakka
         private async Task RunTestLoop(DateTime startTime, CancellationToken ct)
         {
             var threadName = $"worker_{Guid.NewGuid().ToString("N")}";
-            bool testCompleted = false;
+            bool shouldExit = false;
             var watch = new Stopwatch();
-            while (!ct.IsCancellationRequested && !testCompleted)
+            while (!ct.IsCancellationRequested && !shouldExit)
             {
                 DebugHelper.Write($"request task execution {threadName}");
-                testCompleted = await RequestTaskExecution(startTime, ct);
-                DebugHelper.Write($"task execution request returned {threadName}");
-                if (!ct.IsCancellationRequested && !testCompleted)
+                if (_config.Concurrency.OpenWorkload)
+                {
+                    var taskExecutionRequest = RequestTaskExecution(startTime, ct);
+                    var killDelay = Task.Delay(_config.Concurrency.ThreadIdleKillTime);
+                    var result = await Task.WhenAny(taskExecutionRequest, killDelay);
+                    if (result == killDelay)
+                    {
+                        DebugHelper.Write($"thread {threadName} got tired of waiting. waited {watch.ElapsedMilliseconds}ms then executed. dying.");
+                        break;
+                    }
+                    else
+                    {
+                        shouldExit = await taskExecutionRequest;
+                        DebugHelper.Write($"task execution request returned {threadName}");
+                    }
+                }
+                else
+                {
+                    shouldExit = await RequestTaskExecution(startTime, ct);
+                    DebugHelper.Write($"task execution request returned {threadName}");
+                }
+
+                if (!ct.IsCancellationRequested && !shouldExit)
                 {
                     DebugHelper.Write($"test not complete - run method {threadName}");
                     object result;
@@ -236,7 +246,7 @@ namespace Yakka
                         watch.Restart();
                         result = _plugin.ExecuteTestMethod();
                         watch.Stop();
-                        //todo handle tuple result
+                        //todo handle tuple result?
                         var duration = result is TimeSpan ? (TimeSpan)result : watch.Elapsed;
 
                         _testResultPublisher.Publish(
@@ -266,11 +276,6 @@ namespace Yakka
                     DebugHelper.Write($"thread complete {threadName}");
                     break;
                 }
-                if (!RequestTaskContinuedExecution())
-                {
-                    DebugHelper.Write($"continued execution denied. task kill. thread complete {threadName}");
-                    break;
-                }
                 await Task.Delay(_config.Throughput.ThinkTime);
             }
         }
@@ -279,7 +284,7 @@ namespace Yakka
             DateTime.UtcNow >= startTime.Add(_config.TestDuration()) || IterationsExceeded(iterations);
 
         private bool IterationsExceeded(int iterations) =>
-            _iterations > 0 && iterations > _iterations;
+            _config.Throughput.Iterations > 0 && iterations > _config.Throughput.Iterations;
     }
 
     public interface IThreadControl

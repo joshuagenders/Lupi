@@ -1,19 +1,10 @@
 # Next Features
-# Examples + system testing
-## use cases
-I want open / closed workload
-I don't care about threads
-I don't care about throughput control, just concurrency
-Setup / teardown
-Dependencies
-Enriching results with return values and timers
-burst load
-ramp up / ramp down
-complex phases
 
 # open workload - kill threads that aren't needed
 - threads add message to queue when they wait more than x seconds (+think-time) for task execution
 # refactor thread control - separate concerns
+
+# config validation
 
 ## Unit tests
 rampdown threads
@@ -21,6 +12,13 @@ rampdown rps
 min/max threads open workload
 test results publishing
 number of class instances created
+
+# improve docs
+What fields are required when
+threads controlled separately to throughput
+can use threads with think time or throughput
+link to examples
+graphics
 
 # Make console reporter report on bucket average - (10 results at a time)?
 

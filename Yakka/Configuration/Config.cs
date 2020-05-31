@@ -30,6 +30,7 @@ namespace Yakka.Configuration
         public int MaxThreads { get; set; } = 10000;//requires open workload
 
         public List<ConcurrencyPhase> Phases { get; set; } = new List<ConcurrencyPhase>();
+        public TimeSpan ThreadIdleKillTime { get; set; } = TimeSpan.FromSeconds(5); // requires open workload
     }
 
     public class Throughput
