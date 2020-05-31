@@ -133,3 +133,7 @@ throughput:
         from: 20
         to: 0
 ```
+
+## Returning test results
+`TimeSpan` objects returned from test methods will be used as the duration value in test results.
+Any value type will be serialised with `toString()`, and other types will be JSON serialised.
