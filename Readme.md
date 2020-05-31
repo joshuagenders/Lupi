@@ -1,4 +1,11 @@
-![Lupi](https://github.com/joshuagenders/lupi/blob/master/Claw_Marks.png?raw=true)
+<p align="center">
+    <img
+        alt="Lupi"
+        src="https://github.com/joshuagenders/lupi/blob/master/Claw_Marks.png"
+        width="200"
+    />
+</p>
+
 # Lupi
 Lupi is a load testing framework written for the dotnet runtime.
 
