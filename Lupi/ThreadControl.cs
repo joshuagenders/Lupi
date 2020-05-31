@@ -254,7 +254,9 @@ namespace Lupi
                             {
                                 Duration = duration,
                                 Passed = true,
-                                Result = result.ToString()
+                                Result = result.GetType().IsValueType 
+                                    ? result.ToString() 
+                                    : JsonConvert.SerializeObject(result)
                             });
                     }
                     catch (Exception ex)
