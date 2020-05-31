@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +15,10 @@ namespace Yakka.Examples
             Counter = 0;
             _dependency = dependency;
         }
+
+        public static int GetInt() => 42;
+        public static int GetIntWithDependency(IInternalDependency dependency) => 
+            dependency.GetData();
 
         public int Increment()
         {

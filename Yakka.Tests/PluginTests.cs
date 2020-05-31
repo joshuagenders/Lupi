@@ -31,6 +31,46 @@ namespace Yakka.Tests
             casted.Item2.Should().NotBeNullOrEmpty();
         }
 
+        [Fact]
+        public void StaticMethodsCanBeExecuted()
+        {
+            var config = GetConfig("GetInt");
+            var plugin = new Plugin(config);
+            var result = plugin.ExecuteTestMethod();
+            result.Should().Be(42);
+        }
+
+        [Fact]
+        public void StaticMethodsWithDependenciesCanBeExecuted()
+        {
+            var config = GetConfig("GetIntWithDependency");
+            var plugin = new Plugin(config);
+            var result = (int)plugin.ExecuteTestMethod();
+            result.Should().BeInRange(1, 100);
+        }
+
+        [Fact]
+        public void SetupMethodCanBeExecuted()
+        {
+            var config = GetConfig("GetIntWithDependency");
+            config.Test.AssemblySetupClass = config.Test.TestClass;
+            config.Test.AssemblySetupMethod = config.Test.TestMethod;
+            var plugin = new Plugin(config);
+            var result = (int)plugin.ExecuteSetupMethod();
+            result.Should().BeInRange(1, 100);
+        }
+
+        [Fact]
+        public void TeardownCanBeExecuted()
+        {
+            var config = GetConfig("GetIntWithDependency");
+            config.Test.AssemblyTeardownClass = config.Test.TestClass;
+            config.Test.AssemblyTeardownMethod = config.Test.TestMethod;
+            var plugin = new Plugin(config);
+            var result = (int)plugin.ExecuteTeardownMethod();
+            result.Should().BeInRange(1, 100);
+        }
+
         private Config GetConfig(string method) => new Config
         {
             Concurrency = new Concurrency

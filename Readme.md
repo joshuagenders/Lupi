@@ -11,7 +11,7 @@ Yakka supports a plugin system for loading and executing code from compatible DL
 test:
     assemblyPath: path/to/my.dll
     singleTestClassInstance: true
-    testClass: MyNamespace.MyClass # optional if method name is unique in the assembly
+    testClass: MyNamespace.MyClass
     testMethod: MyMethod
     assemblySetupClass: MyNamespace.SetupClass
     assemblySetupMethod: Init

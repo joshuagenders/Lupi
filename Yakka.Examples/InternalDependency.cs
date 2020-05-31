@@ -12,7 +12,7 @@ namespace Yakka.Examples
         private static readonly Random _r = new Random();
         public int GetData()
         {
-            return _r.Next();
+            return _r.Next(1, 100);
         }
     }
 }

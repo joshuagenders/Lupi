@@ -258,6 +258,16 @@ namespace Yakka.Tests
         {
             public int Calls;
 
+            public object ExecuteSetupMethod()
+            {
+                throw new NotImplementedException();
+            }
+
+            public object ExecuteTeardownMethod()
+            {
+                throw new NotImplementedException();
+            }
+
             public object ExecuteTestMethod()
             {
                 Thread.Sleep(400);

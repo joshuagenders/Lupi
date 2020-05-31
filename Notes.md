@@ -1,13 +1,5 @@
 # Next Features
-## Unit tests
-rampdown threads
-rampdown rps
-min/max threads open workload
-test results publishing
-
-# Make console reporter report on bucket average - (10 results at a time)?
-
-# Examples
+# Examples + system testing
 ## use cases
 I want open / closed workload
 I don't care about threads
@@ -18,6 +10,19 @@ Enriching results with return values and timers
 burst load
 ramp up / ramp down
 complex phases
+
+# open workload - kill threads that aren't needed
+- threads add message to queue when they wait more than x seconds (+think-time) for task execution
+# refactor thread control - separate concerns
+
+## Unit tests
+rampdown threads
+rampdown rps
+min/max threads open workload
+test results publishing
+number of class instances created
+
+# Make console reporter report on bucket average - (10 results at a time)?
 
 # Aggregating listener
  - Aggregate results

@@ -18,10 +18,13 @@ namespace Yakka
         private readonly Assembly _assembly;
         private readonly IContainer _ioc;
 
-        private readonly object _testClassSingleton;
-        private readonly Func<Task<object>> _testFunc;
-
         private readonly MethodInfo _testMethod;
+        private readonly MethodInfo _setupMethod;
+        private readonly MethodInfo _teardownMethod;
+
+        private object _testClassSingleton;
+        private Func<Task<object>> _testFunc { get; set; }
+
         
         public Plugin(Config config, CancellationToken ct = default)
         {
@@ -32,35 +35,109 @@ namespace Yakka
             var assemblyName = new AssemblyName(Path.GetFileNameWithoutExtension(_config.Test.AssemblyPath));
 
             _assembly = loadContext.LoadFromAssemblyName(assemblyName);
-
             _testMethod = GetMethod(_config.Test.TestClass, _config.Test.TestMethod);
-            
-            
-            //todo move to function - dont need readonly testfunc - generic func cache?
+            _setupMethod = GetMethod(_config.Test.AssemblySetupClass, _config.Test.AssemblySetupMethod);
+            _teardownMethod = GetMethod(_config.Test.AssemblyTeardownClass, _config.Test.AssemblyTeardownMethod);
+            _ioc = GetIocContainer();
+            SetupTestFunc();
+        }
+
+        private void SetupTestFunc()
+        {
+            //todo refactor this
             if (_testMethod.IsStatic)
             {
-                _testFunc = new Func<Task<object>>(() => Task.FromResult(_testMethod.Invoke(null, GetParameters(_testMethod))));
+                _testFunc = new Func<Task<object>>(() =>
+                   Task.FromResult(_testMethod.Invoke(null, GetParameters(_testMethod))));
             }
-            else
+            if (IsAsyncMethod(_testMethod))
             {
-                //todo - how to handle overloaded methods - prefer those with resolvable type inputs?
                 if (_config.Test.SingleTestClassInstance)
                 {
                     _testClassSingleton = GetInstance(_config.Test.TestClass);
-                    _testFunc = new Func<Task<object>>(async () => await RunMethod(_testMethod, _testClassSingleton, GetParameters(_testMethod)));  
+                    if (_testMethod.ReturnType.GetGenericArguments().Any())
+                    {
+                        _testFunc = new Func<Task<object>>(async () =>
+                        {
+                            var task = (Task)_testMethod.Invoke(
+                                _testClassSingleton, 
+                                GetParameters(_testMethod));
+                            await task;
+                            var resultProperty = typeof(Task<>)
+                                .MakeGenericType(_testMethod.ReturnType.GetGenericArguments().First())
+                                .GetProperty("Result");
+                            object result = resultProperty.GetValue(task);
+                            return result;
+                        });
+                    }
+                    else
+                    {
+                        _testFunc = new Func<Task<object>>(async () =>
+                        {
+                            var task = (Task)_testMethod.Invoke(
+                                _testClassSingleton, 
+                                GetParameters(_testMethod));
+                            await task;
+                            return null;
+                        });
+                    }
                 }
                 else
                 {
-                    _testFunc = new Func<Task<object>>(async () => await RunMethod(_testMethod, GetInstance(_config.Test.TestClass), GetParameters(_testMethod)));
+                    if (_testMethod.ReturnType.GetGenericArguments().Any())
+                    {
+                        _testFunc = new Func<Task<object>>(async () =>
+                        {
+                            var task = (Task)_testMethod.Invoke(
+                                GetInstance(_config.Test.TestClass),
+                                GetParameters(_testMethod));
+                            await task;
+                            var resultProperty = typeof(Task<>)
+                                .MakeGenericType(_testMethod.ReturnType.GetGenericArguments().First())
+                                .GetProperty("Result");
+                            object result = resultProperty.GetValue(task);
+                            return result;
+                        });
+                    }
+                    else
+                    {
+                        _testFunc = new Func<Task<object>>(async () =>
+                        {
+                            var task = (Task)_testMethod.Invoke(
+                                GetInstance(_config.Test.TestClass),
+                                GetParameters(_testMethod));
+                            await task;
+                            return null;
+                        });
+                    }
                 }
             }
-            // end
-
-            _ioc = GetIocContainer();
+            else
+            {
+                if (_config.Test.SingleTestClassInstance)
+                {
+                    _testClassSingleton = GetInstance(_config.Test.TestClass);
+                    _testFunc = new Func<Task<object>>(() => 
+                        Task.FromResult(_testMethod.Invoke(_testClassSingleton, GetParameters(_testMethod))));
+                }
+                else
+                {
+                    _testFunc = new Func<Task<object>>(() =>
+                        Task.FromResult(_testMethod.Invoke(GetInstance(_config.Test.TestClass), GetParameters(_testMethod))));
+                }
+            }
         }
 
-        public async Task<object> RunMethod(MethodInfo method, object instance, object[] parameters)
+        public async Task<object> RunMethod(MethodInfo method, object[] parameters, object instance = null)
         {
+            if (method.IsStatic)
+            {
+                return _testMethod.Invoke(null, GetParameters(_testMethod));
+            }
+            else if (instance == null)
+            {
+                instance = GetInstanceFromType(method.DeclaringType);
+            }
             if (IsAsyncMethod(_testMethod))
             {
                 if (_testMethod.ReturnType.GetGenericArguments().Any())
@@ -91,11 +168,27 @@ namespace Yakka
             (AsyncStateMachineAttribute)method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
 
         private ContainerBuilder GetIocBuilder()
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterAssemblyTypes(_assembly)
-                   .AsImplementedInterfaces();
-            return builder;
+        {  
+            var startup = _assembly
+                .GetTypes()
+                .SelectMany(t => t.GetMethods())
+                .Where(m => 
+                    m.GetParameters().Any(p => p.ParameterType == typeof(ContainerBuilder))
+                    && (m.ReturnType == typeof(ContainerBuilder) 
+                        || m.ReturnType.GetGenericArguments().FirstOrDefault() == typeof(ContainerBuilder)))
+                .FirstOrDefault();
+
+            if (startup == null)
+            {
+                var builder = new ContainerBuilder();
+                builder.RegisterAssemblyTypes(_assembly)
+                       .AsImplementedInterfaces();
+                return builder;
+            }
+            else
+            {
+                return (ContainerBuilder)RunMethod(startup, GetParameters(startup)).GetAwaiter().GetResult();
+            }
         }
 
         //todo -> also pass to startup class if matching signature / configured
@@ -119,7 +212,7 @@ namespace Yakka
             {
                 return _ct;
             }
-            if (type.IsInterface)
+            if (type.IsInterface || _ioc.IsRegistered(type))
             {
                 return _ioc.Resolve(type);
             }
@@ -165,11 +258,19 @@ namespace Yakka
             return null;
         }
 
-        public object ExecuteTestMethod() => _testFunc.Invoke().GetAwaiter().GetResult();
+        //todo - do we want to force sync?
+        public object ExecuteSetupMethod() => 
+            RunMethod(_setupMethod, GetParameters(_setupMethod)).GetAwaiter().GetResult();
+        public object ExecuteTestMethod() => 
+            _testFunc.Invoke().GetAwaiter().GetResult();
+        public object ExecuteTeardownMethod() => 
+            RunMethod(_teardownMethod, GetParameters(_teardownMethod)).GetAwaiter().GetResult();
     }
 
     public interface IPlugin
     {
+        object ExecuteSetupMethod();
         object ExecuteTestMethod();
+        object ExecuteTeardownMethod();
     }
 }
