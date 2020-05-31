@@ -2,6 +2,7 @@ concurrency:
     threads: 10
     rampUp: 2m
     rampDown: 20s
+    thinkTime: 500ms
 listeners:
     statsd:
         bucket: concurrencyonly
