@@ -1,12 +1,12 @@
 test:
     assemblyPath: ../bin/Release/netcoreapp3.0/publish/Lupi.Examples.dll
     singleTestClassInstance: true
-    testClass: Lupi.Examples.PuppeteerExample
-    testMethod: Homepage
-    setupClass: Lupi.Examples.GlobalState
-    setupMethod: InitBrowser
-    teardownClass: Lupi.Examples.GlobalState
-    teardownMethod: TeardownBrowser
+    testClass: Lupi.Examples.InMemory
+    testMethod: Increment
+    # setupClass: Lupi.Examples.GlobalState
+    # setupMethod: InitBrowser
+    # teardownClass: Lupi.Examples.GlobalState
+    # teardownMethod: TeardownBrowser
 listeners:
     activeListeners:
     - file

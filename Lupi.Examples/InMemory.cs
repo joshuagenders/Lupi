@@ -58,11 +58,11 @@ namespace Lupi.Examples
             return (stopwatch, "timed get with string return");
         }
 
-        public async Task<TimeSpan> TimedGetTimespan(CancellationToken ct)
+        public async Task<TimeSpan> TimedGetTimespan(IInternalDependency dependency, CancellationToken ct)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            await Task.Delay(10, ct);
+            await Task.Delay(30 + dependency.GetData(), ct);
             stopwatch.Stop();
             return TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
         }

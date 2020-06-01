@@ -31,6 +31,7 @@ namespace Lupi
             _config = config;
             _ct = ct;
 
+            Console.WriteLine($"assembly path {_config.Test.AssemblyPath}");
             PluginLoadContext loadContext = new PluginLoadContext(_config.Test.AssemblyPath);
             var assemblyName = new AssemblyName(Path.GetFileNameWithoutExtension(_config.Test.AssemblyPath));
 
