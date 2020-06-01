@@ -1,12 +1,12 @@
 # Remaining MVP
-- Test with local grafana
 - Test actual examples against real site
 - Update docs and examples as required
 - Publish repo and nuget packages
 
 # Next Features
 ## Configuration inheritance
-specify a base config
+specify a base config - has bugs - test + fix
+-write own mapper
 
 ## Configurable file listener output formats
 
