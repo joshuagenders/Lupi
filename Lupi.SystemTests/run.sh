@@ -5,12 +5,15 @@ function run_file {
 }
 echo "starting"
 
-pushd ../Lupi
+pushd ..
 dotnet build -c Release
 popd
 
+rm -rf Examples
+cp -r ../Lupi.Examples/bin/Release/netcoreapp3.0/publish/ Examples
+
 pushd Configurations
-run_file ConcurrencyOnly.yml
-run_file OpenWorkload.yml
-run_file ComplexPhases.yml
+for i in *.yml; do
+    run_file $i
+done
 popd
