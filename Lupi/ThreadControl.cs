@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Lupi.Configuration;
+using JustEat.StatsD;
 
 namespace Lupi
 {
@@ -20,6 +21,7 @@ namespace Lupi
         private readonly SemaphoreSlim _taskIncrement;
 
         private int _executionRequestCount;
+        private readonly StatsDPublisher _stats;
 
         private int _tokensToNow { get; set; }
 
@@ -34,6 +36,16 @@ namespace Lupi
             _taskKill = new ConcurrentQueue<bool>();
             _tasks = new List<Task>();
             _executionRequestCount = 0;
+
+            if (!string.IsNullOrWhiteSpace(_config.Listeners.Statsd.Host))
+            {
+                _stats = new StatsDPublisher(new StatsDConfiguration
+                {
+                    Host = _config.Listeners.Statsd.Host,
+                    Port = _config.Listeners.Statsd.Port,
+                    Prefix = _config.Listeners.Statsd.Prefix
+                });
+            }
         }
 
         public bool RequestTaskContinuedExecution()
@@ -51,6 +63,7 @@ namespace Lupi
         private async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
         {
             DebugHelper.Write($"task execution request start");
+            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecution");
             int iterations; //todo use long throughout
             try
             {
@@ -112,6 +125,8 @@ namespace Lupi
                     {
                         DebugHelper.Write($"releasing {tokensToRelease}");
                         tokensReleased += tokensToRelease;
+                        _stats?.Increment(tokensToRelease, $"{_config.Listeners.Statsd.Bucket}.releasedtoken");
+                        _stats?.Gauge(tokensReleased, $"{_config.Listeners.Statsd.Bucket}.totalreleasedtokens");
                         DebugHelper.Write($"total tokens released {tokensReleased}");
                         _taskExecution.Release(tokensToRelease);
                     }
@@ -133,6 +148,7 @@ namespace Lupi
             {
                 for (var i = 0; i > amount; i--)
                 {
+                    _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
                     _taskKill.Enqueue(true);
                 }
             }
@@ -185,16 +201,19 @@ namespace Lupi
                     else if (desired > current)
                     {
                         DebugHelper.Write("current greater than desired, requesting task kill");
+                        _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
                         _taskKill.Enqueue(true);
                     }
                 }
                 DebugHelper.Write($"thread allocation loop complete. thread count {_tasks.Count}");
+                _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
                 await Task.Delay(_config.Engine.ThreadAllocationInterval);
             }
         }
 
         private bool StartTask(DateTime startTime, CancellationToken ct)
         {
+            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.starttask");
             var atMax = _config.Concurrency.OpenWorkload
                 ? _tasks.Count >= _config.Concurrency.MaxThreads
                 : _tasks.Count >= _config.Concurrency.Threads;
@@ -209,6 +228,7 @@ namespace Lupi
 
         private async Task RunTestLoop(DateTime startTime, CancellationToken ct)
         {
+            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskstart");
             var threadName = $"worker_{Guid.NewGuid().ToString("N")}";
             bool shouldExit = false;
             var watch = new Stopwatch();
@@ -280,6 +300,7 @@ namespace Lupi
                 }
                 await Task.Delay(_config.Throughput.ThinkTime);
             }
+            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskcomplete");
         }
 
         private bool IsTestComplete(DateTime startTime, int iterations) =>
