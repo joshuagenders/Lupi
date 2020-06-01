@@ -1,0 +1,39 @@
+concurrency:
+    phases:
+    -   duration: 15s
+        from: 5
+        to: 50
+    -   duration: 20s
+        threads: 50
+    -   duration: 30s
+        threads: 40
+    -   duration: 50s
+        threads: 35
+    -   duration: 40s
+        from: 100
+        to: 50
+    -   duration: 25s
+        from: 10
+        to: 75
+            
+throughput:
+    phases:
+    -   duration: 20s
+        from: 1
+        to: 5
+    -   duration: 30s
+        tps: 20
+    -   duration: 45s
+        from: 20
+        to: 0
+    -   duration: 15s
+        tps: 30
+    -   duration: 45s
+        from: 20
+        to: 0
+    -   duration: 25s
+        tps: 3
+listeners:
+    statsd:
+        bucket: phases
+baseConfig: BaseConfig.yml

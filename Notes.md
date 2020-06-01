@@ -1,4 +1,5 @@
 # Remaining MVP
+- Add thread count, tokens, kill tokens etc. to output of statsd listener
 - Test actual examples against real site
 - Update docs and examples as required
 - Publish repo and nuget packages

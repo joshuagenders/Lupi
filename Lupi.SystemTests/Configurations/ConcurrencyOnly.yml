@@ -1,0 +1,24 @@
+test:
+    assemblyPath: ../../Lupi/bin/Release/netcoreapp3.0/publish/Lupi.Examples.dll
+    singleTestClassInstance: true
+    testClass: Lupi.Examples.InMemory
+    testMethod: TimedGetTimespan
+listeners:
+    activeListeners:
+    - file
+    - statsd
+    - console
+    file:
+        path: results.log
+    statsd:
+        host: 127.0.0.1
+        port: 8125
+        prefix: Lupi.Examples
+        bucket: concurrencyonly
+concurrency:
+    threads: 80
+    rampUp: 2m
+    rampDown: 20s
+throughput:
+    holdFor: 15s
+    thinkTime: 500ms
