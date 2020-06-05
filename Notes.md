@@ -1,28 +1,33 @@
 # Remaining MVP
+- Fix problem system tests
+- Refactor thread control onto main thread
 - Add thread count, tokens, kill tokens etc. to output of statsd listener
 - Test actual examples against real site
+- Aggregations with basic console reporting
+- Verbose logging
 - Update docs and examples as required
 - Publish repo and nuget packages
 
 # Next Features
+## Refactor thread control 
+move execution all onto main thread
+
 ## Configuration inheritance
 specify a base config - has bugs - test + fix
 -write own mapper
 
-## Configurable file listener output formats
+## Aggregating listener
+- what are the requirements / use cases here?
+  - console listener
+
+## Make console reporter report better
+- use aggregator results
+- Configurable file listener output formats
 
 ## Config validation
 Required fields
 
-## Refactor thread control 
-Separate concerns
-
-## Aggregating listener
- - what are the requirements / use cases here?
-  - console listener
-
-## Make console reporter report better
-use aggregator results
+---
 
 ## Returning pass/fail status from tests
  - Requires aggregator listener
