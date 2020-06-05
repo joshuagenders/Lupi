@@ -97,108 +97,95 @@ namespace Lupi.Configuration
             return phases;
         }
 
-        public static double GetPhaseTotalThroughput(this Phase phase) =>
-           phase.Tps > 0
-               ? phase.Duration.TotalMilliseconds * phase.Tps / 1000
-               : phase.Duration.TotalMilliseconds * Math.Abs(phase.ToTps - phase.FromTps) / 2 / 1000 
-                    + phase.Duration.TotalMilliseconds * phase.FromTps / 1000;
-
-        public static double GetPhaseThroughput(this Phase phase, int millisecondsEllapsed)
+        public static double GetTokensForPeriod(this IEnumerable<Phase> phases, DateTime startTime, DateTime lastTime, DateTime now)
         {
-            if (phase.Tps > 0)
-            {
-                return millisecondsEllapsed * phase.Tps / 1000;
-            }
-            else if (phase.FromTps == phase.ToTps)
-            {
-                return millisecondsEllapsed * phase.ToTps / 1000;
-            }
-            else if (phase.FromTps < phase.ToTps)
-            {
-                return (millisecondsEllapsed * (phase.ToTps - phase.FromTps)) / 2 / 1000 + millisecondsEllapsed * phase.FromTps / 1000;
-            }
-            else
-            {//todo refactor this
-                var phaseTotal = phase.Duration.TotalMilliseconds * (phase.FromTps - phase.ToTps) / 2 
-                    + phase.Duration.TotalMilliseconds * phase.ToTps;
-                var millisecondsRemaining = phase.Duration.TotalMilliseconds - millisecondsEllapsed;
-                var remainingTotal = millisecondsRemaining * (phase.FromTps - phase.ToTps) / 2 + millisecondsRemaining * phase.ToTps;
-                return (phaseTotal - remainingTotal) / 1000;
-            }
-        }
-
-        public static int GetPhaseThreadCount(this ConcurrencyPhase phase, int millisecondsEllapsed)
-        {
-            var percentageThroughPhase = millisecondsEllapsed / phase.Duration.TotalMilliseconds;
-            if (percentageThroughPhase > 1)
-            {
-                DebugHelper.Write("Get phase thread count past the phase end");
-                return 0;
-            }
-
-            if (phase.Threads > 0 || phase.FromThreads == phase.ToThreads)
-            {
-                return phase.Threads;
-            }
-            else if (phase.FromThreads < phase.ToThreads)
-            {//todo refactor this
-
-                var diff = phase.ToThreads - phase.FromThreads;
-                var extraThreads = diff * percentageThroughPhase;
-                return Convert.ToInt32(extraThreads) + phase.FromThreads;
-            }
-            else
-            {
-                var diff = phase.FromThreads - phase.ToThreads;
-                var lessThreads = diff * percentageThroughPhase;
-                return phase.FromThreads - Convert.ToInt32(lessThreads);
-            }
-        }
-
-        public static int TotalAllowedRequestsToNow(this IEnumerable<Phase> phases, int millisecondsEllapsed)
-        {
-            var currentPhase = phases.Select(
+            var phaseStartTimes = phases.Select(
                 (p, i) => new
                 {
                     Phase = p,
                     PhaseStart = phases.Where((x, n) => i < n)
-                                       .Sum(x => x.Duration.TotalMilliseconds),
-                    PhaseStartTps = phases.Where((x, n) => i < n)
-                                       .Sum(x => x.GetPhaseTotalThroughput()),
-                })
-                .Where(s => s.PhaseStart < millisecondsEllapsed && s.Phase.Duration.TotalMilliseconds + s.PhaseStart > millisecondsEllapsed)
+                                       .Sum(x => x.Duration.TotalMilliseconds)
+                });
+            var lastPhase = phaseStartTimes
+                .Where(p => startTime.AddMilliseconds(p.PhaseStart) <= lastTime)
+                .Where(p => startTime.AddMilliseconds(p.PhaseStart).Add(p.Phase.Duration) >= lastTime)
                 .FirstOrDefault();
+            var currentPhase = phaseStartTimes
+                .Where(p => startTime.AddMilliseconds(p.PhaseStart) <= now)
+                .Where(p => startTime.AddMilliseconds(p.PhaseStart).Add(p.Phase.Duration) >= now)
+                .FirstOrDefault();
+
             if (currentPhase == null)
             {
-                DebugHelper.Write($"Could not determine current throughput phase. milliseconds ellaped {millisecondsEllapsed}");
+                DebugHelper.Write($"Could not determine current throughput phase.");
                 return 0;
             }
-            var millisecondsThroughPhase = Convert.ToInt32(millisecondsEllapsed - currentPhase.PhaseStart);
-            var allowedRequests = Convert.ToInt32(currentPhase.PhaseStartTps + currentPhase.Phase.GetPhaseThroughput(millisecondsThroughPhase));
+            
+            //if constant
+            var phaseStart = startTime.AddMilliseconds(currentPhase.PhaseStart);
+            var lastX = lastTime.Subtract(phaseStart).TotalMilliseconds;
+            var result = 0d;
+            if (lastX < 0)
+            {
+                //get last phase remaining amount
+                var lastPhaseEnd = startTime.AddMilliseconds(lastPhase.PhaseStart)
+                                            .Add(lastPhase.Phase.Duration)
+                                            .Subtract(TimeSpan.FromMilliseconds(1));
 
-            return allowedRequests;
+                result += phases.GetTokensForPeriod(startTime, lastTime, lastPhaseEnd);
+                lastX = 0;
+            }
+            var x = now.Subtract(phaseStart).TotalMilliseconds;
+            if (currentPhase.Phase.Tps > 0)
+            {
+                return currentPhase.Phase.Tps * (x - lastX) / 1000;
+            }
+
+            //if gradient
+            var gradient =
+                Math.Abs(currentPhase.Phase.ToTps - currentPhase.Phase.FromTps) 
+                / currentPhase.Phase.Duration.TotalMilliseconds;
+               
+            var lastY = lastX * gradient;
+            var y = x * gradient;
+            var squareArea = Math.Abs(x - lastX) * lastY;
+            var triangleArea = Math.Abs(y - lastY) * Math.Abs(x - lastX) / 2;
+            result += (triangleArea + squareArea) / 1000;
+            return result;
         }
 
-        public static int CurrentDesiredThreadCount(this IEnumerable<ConcurrencyPhase> phases, int millisecondsEllapsed)
+        public static int CurrentDesiredThreadCount(this IEnumerable<ConcurrencyPhase> phases, DateTime startTime, DateTime now)
         {
-            var currentPhase = phases.Select(
+            var phaseStartTimes = phases.Select(
                 (p, i) => new
                 {
                     Phase = p,
                     PhaseStart = phases.Where((x, n) => i < n)
-                                       .Sum(x => x.Duration.TotalMilliseconds),
-                })
-                .Where(s => s.PhaseStart <= millisecondsEllapsed && s.Phase.Duration.TotalMilliseconds + s.PhaseStart > millisecondsEllapsed)
+                                       .Sum(x => x.Duration.TotalMilliseconds)
+                });
+            var currentPhase = phaseStartTimes
+                .Where(p => startTime.AddMilliseconds(p.PhaseStart) <= now)
+                .Where(p => startTime.AddMilliseconds(p.PhaseStart).Add(p.Phase.Duration) >= now)
                 .FirstOrDefault();
             if (currentPhase == null)
             {
-                DebugHelper.Write($"Could not determine current concurrency phase. milliseconds ellapsed {millisecondsEllapsed}");
+                DebugHelper.Write($"Could not determine current concurrency phase.");
                 DebugHelper.Write(JsonConvert.SerializeObject(phases));
                 return 0;
             }
-            var millisecondsThroughPhase = Convert.ToInt32(millisecondsEllapsed - currentPhase.PhaseStart);
-            
-            return currentPhase.Phase.GetPhaseThreadCount(millisecondsThroughPhase);
+            if (currentPhase.Phase.Threads > 0)
+            {
+                return currentPhase.Phase.Threads;
+            }
+            else
+            {
+                var gradient = 
+                    (currentPhase.Phase.ToThreads - currentPhase.Phase.FromThreads)
+                    / currentPhase.Phase.Duration.TotalMilliseconds;
+                var phaseStart = startTime.AddMilliseconds(currentPhase.PhaseStart);
+                var x = (now.Subtract(phaseStart).TotalMilliseconds);
+                return Convert.ToInt32(currentPhase.Phase.FromThreads + x * gradient);
+            }
         }
     }
 }

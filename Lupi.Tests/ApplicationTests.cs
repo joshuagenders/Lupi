@@ -18,9 +18,9 @@ namespace Lupi.Tests
         [InlineAutoMoqData(3, 0, 0, 2, 1)]
         [InlineAutoMoqData(1, 0, 0, 2, 2)]
         [InlineAutoMoqData(1, 1, 0, 2, 1)]
-        [InlineAutoMoqData(2, 1, 0, 2, 2)]
+        [InlineAutoMoqData(2, 1, 0, 3, 2)]
         [InlineAutoMoqData(3, 1, 0, 2, 1)]
-        [InlineAutoMoqData(1, 1, 0, 2, 2)]
+        [InlineAutoMoqData(1, 1, 0, 3, 2)]
         [InlineAutoMoqData(4, 0, 1, 2, 1)]
         [InlineAutoMoqData(4, 1, 1, 2, 2)]
         [InlineAutoMoqData(2, 0.9, 0, 6, 1)]
@@ -233,7 +233,7 @@ namespace Lupi.Tests
               (rampDownSeconds * concurrency * throughput / 2);
             var expectedMax = throughput * concurrency * (holdForSeconds + rampDownSeconds);
 
-            plugin.Verify(n => n.ExecuteTestMethod(), Times.Between(expected, expectedMax, Moq.Range.Inclusive));
+            plugin.Verify(n => n.ExecuteTestMethod(), Times.Between(expected - throughput, expectedMax, Moq.Range.Inclusive));
         }
 
         private async Task RunApp(
