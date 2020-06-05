@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using Xunit;
 using Lupi.Configuration;
+using System.Threading.Tasks;
 
 namespace Lupi.Tests
 {
@@ -12,62 +13,62 @@ namespace Lupi.Tests
         [InlineData("Increment", 1)]
         [InlineData("IncrementAsync", null)]
         [InlineData("IncrementReturnAsync", 1)]
-        public void WhenMethodExecuted_ReturnTypeIsCorrect(string method, object expectedResult)
+        public async Task WhenMethodExecuted_ReturnTypeIsCorrect(string method, object expectedResult)
         {
             var config = GetConfig(method);
             var plugin = new Plugin(config);
-            var result = plugin.ExecuteTestMethod();
+            var result = await plugin.ExecuteTestMethod();
             result.Should().Be(expectedResult);
         }
 
         [Fact]
-        public void WhenTupleReturned_BothValuesCanBeAccessed()
+        public async Task WhenTupleReturned_BothValuesCanBeAccessed()
         {
             var config = GetConfig("TimedGetString");
             var plugin = new Plugin(config);
-            var result = plugin.ExecuteTestMethod();
-            var casted = (ValueTuple<Stopwatch, string>)result;
+            var result = await plugin.ExecuteTestMethod();
+            var casted = (ValueTuple<Stopwatch, string>) result;
             casted.Item1.ElapsedMilliseconds.Should().BeGreaterThan(0);
             casted.Item2.Should().NotBeNullOrEmpty();
         }
 
         [Fact]
-        public void StaticMethodsCanBeExecuted()
+        public async Task StaticMethodsCanBeExecuted()
         {
             var config = GetConfig("GetInt");
             var plugin = new Plugin(config);
-            var result = plugin.ExecuteTestMethod();
+            var result = await plugin.ExecuteTestMethod();
             result.Should().Be(42);
         }
 
         [Fact]
-        public void StaticMethodsWithDependenciesCanBeExecuted()
+        public async Task StaticMethodsWithDependenciesCanBeExecuted()
         {
             var config = GetConfig("GetIntWithDependency");
             var plugin = new Plugin(config);
-            var result = (int)plugin.ExecuteTestMethod();
+            var result = (int)await plugin.ExecuteTestMethod();
             result.Should().BeInRange(1, 100);
         }
 
         [Fact]
-        public void SetupMethodCanBeExecuted()
+        public async Task SetupMethodCanBeExecuted()
         {
             var config = GetConfig("GetIntWithDependency");
             config.Test.SetupClass = config.Test.TestClass;
             config.Test.SetupMethod = config.Test.TestMethod;
             var plugin = new Plugin(config);
-            var result = (int)plugin.ExecuteSetupMethod();
+            var result = (int)await plugin.ExecuteSetupMethod();
             result.Should().BeInRange(1, 100);
         }
 
         [Fact]
-        public void TeardownCanBeExecuted()
+        public async Task TeardownCanBeExecuted()
         {
             var config = GetConfig("GetIntWithDependency");
             config.Test.TeardownClass = config.Test.TestClass;
             config.Test.TeardownMethod = config.Test.TestMethod;
             var plugin = new Plugin(config);
-            var result = (int)plugin.ExecuteTeardownMethod();
+            var result = (int)await plugin.ExecuteTeardownMethod();
             result.Should().BeInRange(1, 100);
         }
 

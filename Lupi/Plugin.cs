@@ -39,7 +39,7 @@ namespace Lupi
             _testMethod = GetMethod(_config.Test.TestClass, _config.Test.TestMethod);
             _setupMethod = GetMethod(_config.Test.SetupClass, _config.Test.SetupMethod);
             _teardownMethod = GetMethod(_config.Test.TeardownClass, _config.Test.TeardownMethod);
-            _ioc = GetIocContainer();
+            _ioc = GetIocContainer().GetAwaiter().GetResult();
             SetupTestFunc();
         }
 
@@ -64,11 +64,7 @@ namespace Lupi
                                 _testClassSingleton, 
                                 GetParameters(_testMethod));
                             await task;
-                            var resultProperty = typeof(Task<>)
-                                .MakeGenericType(_testMethod.ReturnType.GetGenericArguments().First())
-                                .GetProperty("Result");
-                            object result = resultProperty.GetValue(task);
-                            return result;
+                            return task.GetType().GetProperty("Result").GetValue(task);
                         });
                     }
                     else
@@ -93,10 +89,7 @@ namespace Lupi
                                 GetInstance(_config.Test.TestClass),
                                 GetParameters(_testMethod));
                             await task;
-                            var resultProperty = typeof(Task<>)
-                                .MakeGenericType(_testMethod.ReturnType.GetGenericArguments().First())
-                                .GetProperty("Result");
-                            object result = resultProperty.GetValue(task);
+                            var result = task.GetType().GetProperty("Result").GetValue(task);
                             return result;
                         });
                     }
@@ -168,7 +161,7 @@ namespace Lupi
         private static bool IsAsyncMethod(MethodInfo method) =>
             (AsyncStateMachineAttribute)method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
 
-        private ContainerBuilder GetIocBuilder()
+        private async Task<ContainerBuilder> GetIocBuilder()
         {  
             var startup = _assembly
                 .GetTypes()
@@ -188,13 +181,13 @@ namespace Lupi
             }
             else
             {
-                return (ContainerBuilder)RunMethod(startup, GetParameters(startup)).GetAwaiter().GetResult();
+                return (ContainerBuilder)await RunMethod(startup, GetParameters(startup));
             }
         }
 
         //todo -> also pass to startup class if matching signature / configured
-        private IContainer GetIocContainer() =>
-            GetIocBuilder().Build();
+        private async Task<IContainer> GetIocContainer() =>
+            (await GetIocBuilder()).Build();
 
         private object GetInstance(string className)
         {
@@ -259,19 +252,18 @@ namespace Lupi
             return null;
         }
 
-        //todo - do we want to force sync?
-        public object ExecuteSetupMethod() => 
-            RunMethod(_setupMethod, GetParameters(_setupMethod)).GetAwaiter().GetResult();
-        public object ExecuteTestMethod() => 
-            _testFunc.Invoke().GetAwaiter().GetResult();
-        public object ExecuteTeardownMethod() => 
-            RunMethod(_teardownMethod, GetParameters(_teardownMethod)).GetAwaiter().GetResult();
+        public async Task<object> ExecuteSetupMethod() =>
+            await RunMethod(_setupMethod, GetParameters(_setupMethod));
+        public async Task<object> ExecuteTestMethod() =>
+            await _testFunc.Invoke();
+        public async Task<object> ExecuteTeardownMethod() =>
+            await RunMethod(_teardownMethod, GetParameters(_teardownMethod));
     }
 
     public interface IPlugin
     {
-        object ExecuteSetupMethod();
-        object ExecuteTestMethod();
-        object ExecuteTeardownMethod();
+        Task<object> ExecuteSetupMethod();
+        Task<object> ExecuteTestMethod();
+        Task<object> ExecuteTeardownMethod();
     }
 }

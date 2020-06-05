@@ -47,6 +47,89 @@ namespace Lupi
             }
         }
 
+        public async Task Run(DateTime startTime, CancellationToken ct)
+        {
+            var endTime = startTime.Add(_config.TestDuration());
+            var lastTime = DateTime.UtcNow;
+            var partialTokens = 0d;
+            var iterationsRemaining = _config.Throughput.Iterations;
+            while (DateTime.UtcNow < endTime && !ct.IsCancellationRequested)
+            {
+                if (_config.Throughput.Iterations > 0 && iterationsRemaining <= 0)
+                {
+                    //here?
+                    return;
+                }
+                var now = DateTime.UtcNow;
+                // execution tokens
+                var tokensToRelease = _config.Throughput.Phases.GetTokensForPeriod(startTime, lastTime, now);
+                var wholeTokens = Convert.ToInt32(tokensToRelease);
+
+                partialTokens += tokensToRelease - wholeTokens;
+                if (partialTokens >= 1)
+                {
+                    wholeTokens += Convert.ToInt32(partialTokens);
+                    partialTokens -= Math.Truncate(partialTokens);
+                }
+                lastTime = now;
+                if (_config.Throughput.Iterations > 0 && iterationsRemaining - wholeTokens < 0)
+                {
+                    wholeTokens = iterationsRemaining;
+                }
+                if (wholeTokens > 0)
+                {
+                    DebugHelper.Write($"releasing {wholeTokens} tokens");
+                    _stats?.Increment(wholeTokens, $"{_config.Listeners.Statsd.Bucket}.releasedtoken");
+                    _taskExecution.Release(wholeTokens);
+                }
+
+                // threads
+                _tasks.RemoveAll(x => x.IsCompleted);
+                var threadCount = _tasks.Count;
+
+                DebugHelper.Write($"thread count {threadCount}");
+                if (_config.Concurrency.OpenWorkload)
+                {
+                    DebugHelper.Write("calculate threads for open workload");
+                    if (threadCount < _config.Concurrency.MinThreads)
+                    {
+                        DebugHelper.Write("concurrency less than min");
+                        AdjustThreads(startTime, _config.Concurrency.MinThreads - threadCount, ct);
+                    }
+
+                    var currentCount = _taskExecution.CurrentCount;
+                    if (currentCount > 1)
+                    {
+                        AdjustThreads(startTime, currentCount - 1, ct);
+                    }
+                }
+                else
+                {
+                    DebugHelper.Write("calculate threads for closed workload");
+                    var desired = _config.Concurrency.Phases.CurrentDesiredThreadCount(startTime, now);
+                    var current = _tasks.Count;
+                    DebugHelper.Write($"desired threads: {desired}. current threads: {current}");
+                    if (desired > current)
+                    {
+                        DebugHelper.Write("desired greater than current");
+                        StartTask(startTime, ct);
+                    }
+                    else if (desired > current)
+                    {
+                        DebugHelper.Write("current greater than desired, requesting task kill");
+                        _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
+                        _taskKill.Enqueue(true);
+                    }
+                }
+                DebugHelper.Write($"thread allocation loop complete. thread count {_tasks.Count}");
+                _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
+
+                await Task.Delay(_config.Engine.GenerationInterval, ct);
+            }
+
+            await Task.WhenAll(_tasks);
+        }
+
         public bool RequestTaskContinuedExecution()
         {
             if (_config.ThroughputEnabled)
@@ -96,40 +179,6 @@ namespace Lupi
             return isCompleted;
         }
 
-        public async Task ReleaseTokens(DateTime startTime, CancellationToken ct)
-        {
-            //also release threads in a loop here - only need 1 loop checking things
-            // just pass in the start time, last time and current time to get back tokens to release
-            if (!_config.ThroughputEnabled)
-            {
-                return;
-            }
-            var tokensReleased = 0;
-            var endTime = startTime.Add(_config.TestDuration());
-            var lastTime = DateTime.UtcNow;
-            var partialTokens = 0d;
-            while (!IsTestComplete(endTime, tokensReleased) && !ct.IsCancellationRequested)
-            {
-                var now = DateTime.UtcNow;
-                var tokensToRelease = _config.Throughput.Phases.GetTokensForPeriod(startTime, lastTime, now);
-                var wholeTokens = Convert.ToInt32(tokensToRelease);
-
-                partialTokens += tokensToRelease - wholeTokens;
-                if (partialTokens >= 1) {
-                    wholeTokens += Convert.ToInt32(partialTokens);
-                    partialTokens -= Math.Truncate(partialTokens);
-                }
-                lastTime = now;
-                if (wholeTokens > 0)
-                {
-                    DebugHelper.Write($"releasing {wholeTokens} tokens");
-                    _stats?.Increment(wholeTokens, $"{_config.Listeners.Statsd.Bucket}.releasedtoken");
-                    _taskExecution.Release(wholeTokens);
-                }
-                await Task.Delay(_config.Engine.TokenGenerationInterval, ct);
-            }
-        }
-
         private void AdjustThreads(DateTime startTime, int amount, CancellationToken ct)
         {
             if (amount > 0)
@@ -146,55 +195,6 @@ namespace Lupi
                     _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
                     _taskKill.Enqueue(true);
                 }
-            }
-        }
-
-        public async Task AllocateThreads(DateTime startTime, CancellationToken ct)
-        {
-            var endTime = startTime.Add(_config.TestDuration());
-            var now = DateTime.UtcNow;
-            while (DateTime.UtcNow < endTime && !ct.IsCancellationRequested)
-            {
-                //remove completed tasks 
-                _tasks.RemoveAll(x => x.IsCompleted);
-                var threadCount = _tasks.Count;
-                DebugHelper.Write($"thread count {threadCount}");
-                if (_config.Concurrency.OpenWorkload)
-                {
-                    DebugHelper.Write("calculate threads for open workload");
-                    if (threadCount < _config.Concurrency.MinThreads)
-                    {
-                        DebugHelper.Write("concurrency less than min");
-                        AdjustThreads(startTime, _config.Concurrency.MinThreads - threadCount, ct);
-                    }
-
-                    var currentCount = _taskExecution.CurrentCount;
-                    if (currentCount > 1)
-                    {
-                        AdjustThreads(startTime, currentCount - 1, ct);
-                    }
-                }
-                else
-                {
-                    DebugHelper.Write("calculate threads for closed workload");
-                    var desired = _config.Concurrency.Phases.CurrentDesiredThreadCount(startTime, now);
-                    var current = _tasks.Count;
-                    DebugHelper.Write($"desired threads: {desired}. current threads: {current}");
-                    if (desired > current)
-                    {
-                        DebugHelper.Write("desired greater than current");
-                        StartTask(startTime, ct);
-                    }
-                    else if (desired > current)
-                    {
-                        DebugHelper.Write("current greater than desired, requesting task kill");
-                        _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
-                        _taskKill.Enqueue(true);
-                    }
-                }
-                DebugHelper.Write($"thread allocation loop complete. thread count {_tasks.Count}");
-                _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
-                await Task.Delay(_config.Engine.ThreadAllocationInterval);
             }
         }
 
@@ -297,7 +297,6 @@ namespace Lupi
 
     public interface IThreadControl
     {
-        Task ReleaseTokens(DateTime startTime, CancellationToken ct);
-        Task AllocateThreads(DateTime startTime, CancellationToken ct);
+        Task Run(DateTime startTime, CancellationToken ct);
     }
 }

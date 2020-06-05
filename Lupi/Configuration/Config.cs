@@ -82,9 +82,8 @@ namespace Lupi.Configuration
 
     public class Engine
     {
-        public TimeSpan TokenGenerationInterval { get; set; } = TimeSpan.FromMilliseconds(100);
         public TimeSpan ResultPublishingInterval { get; set; } = TimeSpan.FromMilliseconds(250);
-        public TimeSpan ThreadAllocationInterval { get; set; } = TimeSpan.FromMilliseconds(150);
+        public TimeSpan GenerationInterval { get; set; } = TimeSpan.FromMilliseconds(150);
     }
 
     public class Listeners

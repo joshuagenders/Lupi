@@ -28,12 +28,7 @@ namespace Lupi
             {
                 var startTime = DateTime.UtcNow;
                 var reportTask = Task.Run(() => _testResultPublisher.Process(ct), ct);
-                var tasks = new Task[] {
-                    Task.Run(() => _threadControl.ReleaseTokens(startTime, ct), ct),
-                    Task.Run(() => _threadControl.AllocateThreads(startTime, ct), ct),
-                };
-                await Task.WhenAll(tasks);
-
+                await _threadControl.Run(startTime, ct);
                 _testResultPublisher.TestCompleted = true;
                 await reportTask;
             }

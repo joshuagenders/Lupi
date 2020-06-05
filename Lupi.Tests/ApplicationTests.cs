@@ -229,7 +229,7 @@ namespace Lupi.Tests
             await RunApp(config, plugin.Object, testResultPublisher.Object);
 
             var throughput = 5;
-            var expected = throughput * holdForSeconds * concurrency +
+            var expected = throughput * (holdForSeconds > 0 ? holdForSeconds - 1 : 0) * concurrency +
               (rampDownSeconds * concurrency * throughput / 2);
             var expectedMax = throughput * concurrency * (holdForSeconds + rampDownSeconds);
 
@@ -287,17 +287,17 @@ namespace Lupi.Tests
         {
             public int Calls;
 
-            public object ExecuteSetupMethod()
+            public async Task<object> ExecuteSetupMethod()
             {
                 throw new NotImplementedException();
             }
 
-            public object ExecuteTeardownMethod()
+            public async Task<object> ExecuteTeardownMethod()
             {
                 throw new NotImplementedException();
             }
 
-            public object ExecuteTestMethod()
+            public async Task<object> ExecuteTestMethod()
             {
                 Thread.Sleep(400);
                 return Interlocked.Increment(ref Calls);

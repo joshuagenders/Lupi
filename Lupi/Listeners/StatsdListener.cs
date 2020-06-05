@@ -21,6 +21,7 @@ namespace Lupi.Listeners
                 Prefix = _config.Listeners.Statsd.Prefix
             });
         }
+
         public async Task OnResult(TestResult[] results, CancellationToken ct)
         {
             foreach (var result in results)
