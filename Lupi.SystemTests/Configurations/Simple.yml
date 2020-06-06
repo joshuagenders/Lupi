@@ -1,25 +1,18 @@
 test:
-    assemblyPath: ../Examples/Lupi.Examples.dll
-    singleTestClassInstance: true
-    testClass: Lupi.Examples.InMemory
     testMethod: Increment
+
 listeners:
-    activeListeners:
-    - file
-    - statsd
-    - console
-    file:
-        path: results.log
     statsd:
-        host: 127.0.0.1
-        port: 8125
-        prefix: Lupi.Examples
         bucket: simple
+
 concurrency:
     threads: 1
+
 throughput:
     tps: 20
     rampUp: 20s
     holdFor: 20s
     rampDown: 20s
     thinkTime: 500ms
+
+baseConfig: ../base-config.yml

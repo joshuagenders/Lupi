@@ -1,19 +1,7 @@
 test:
-    assemblyPath: ../Examples/Lupi.Examples.dll
-    singleTestClassInstance: true
-    testClass: Lupi.Examples.InMemory
     testMethod: TimedGetTimespan
 listeners:
-    activeListeners:
-    - file
-    - statsd
-    - console
-    file:
-        path: results.log
     statsd:
-        host: 127.0.0.1
-        port: 8125
-        prefix: Lupi.Examples
         bucket: complexphases
 concurrency:
     phases:
@@ -51,3 +39,4 @@ throughput:
     -   duration: 25s
         tps: 3
 
+baseConfig: ../base-config.yml

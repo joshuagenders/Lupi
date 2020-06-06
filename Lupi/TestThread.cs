@@ -79,9 +79,11 @@ namespace Lupi
                             {
                                 Duration = duration,
                                 Passed = true,
-                                Result = result.GetType().IsValueType
-                                    ? result.ToString()
-                                    : JsonConvert.SerializeObject(result)
+                                Result = result?.GetType()?.IsValueType ?? false
+                                    ? result?.ToString()
+                                    : JsonConvert.SerializeObject(result),
+                                FinishedTime = DateTime.UtcNow,
+                                ThreadName = threadName
                             });
                     }
                     catch (Exception ex)
@@ -92,7 +94,9 @@ namespace Lupi
                             {
                                 Duration = watch.Elapsed,
                                 Passed = false,
-                                Result = JsonConvert.SerializeObject(ex)
+                                Result = JsonConvert.SerializeObject(ex),
+                                FinishedTime = DateTime.UtcNow,
+                                ThreadName = threadName
                             });
                     }
 

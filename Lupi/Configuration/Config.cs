@@ -32,7 +32,7 @@ namespace Lupi.Configuration
         //probably either write own mapper and save the dependency or make everything nullable and don't use defaults
         //..just write own mapper
         public int MinThreads { get; set; } = 1; //requires open workload
-        public int MaxThreads { get; set; } = 10000;//requires open workload
+        public int MaxThreads { get; set; } = 300;//requires open workload
 
         public List<ConcurrencyPhase> Phases { get; set; } = new List<ConcurrencyPhase>();
         public TimeSpan ThreadIdleKillTime { get; set; } = TimeSpan.FromSeconds(5); // requires open workload
@@ -91,7 +91,7 @@ namespace Lupi.Configuration
     {
         public List<string> ActiveListeners { get; set; } = new List<string>();
         public Statsd Statsd { get; set; } = new Statsd();
-        public File File { get; set; }
+        public File File { get; set; } = new File();
     }
 
     public class File

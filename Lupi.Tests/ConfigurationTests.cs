@@ -87,6 +87,7 @@ throughput:
             parsed.Concurrency.HoldFor.Should().BeGreaterThan(TimeSpan.Zero);
             parsed.Concurrency.RampDown.Should().BeGreaterThan(TimeSpan.Zero);
         }
+
         [Fact]
         public async Task WhenConfigurationStringIsParsed_ThenConfigIsDeserialisedPhases()
         {
@@ -95,6 +96,14 @@ throughput:
             parsed.Throughput.Phases.Should().HaveCount(4);
             parsed.Concurrency.RampUp.Should().BeGreaterThan(TimeSpan.Zero);
             parsed.Concurrency.RampDown.Should().BeGreaterThan(TimeSpan.Zero);
+        }
+
+        [Fact]
+        public async Task BaseConfigurationCanBeMapped()
+        {
+            var baseConfig = await ConfigHelper.GetConfigFromString(AllConfigPhases);
+            var config = new Config();
+            ConfigHelper.MapBaseConfig(config, baseConfig).Should().BeEquivalentTo(baseConfig);
         }
     }
 }

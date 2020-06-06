@@ -134,7 +134,7 @@ namespace Lupi.Tests
         [Theory]
         [InlineAutoMoqData(20, 0, 3, 25)]
         [InlineAutoMoqData(350, 2, 2, 80)]
-        [InlineAutoMoqData(350, 0, 6, 80)]
+        [InlineAutoMoqData(350, 0, 7, 80)]
         public async Task WhenMoreIterationsThanSingleThreadAllows_ThenThreadsAdapt(
             double throughput,
             int rampUpSeconds,
@@ -293,6 +293,7 @@ namespace Lupi.Tests
             public async Task<object> ExecuteTestMethod()
             {
                 Thread.Sleep(400);
+                await Task.Delay(1);
                 return Interlocked.Increment(ref Calls);
             }
         }

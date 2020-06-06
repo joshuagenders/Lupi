@@ -1,9 +1,9 @@
 concurrency:
     openWorkload: true
     minThreads: 3
-    maxThreads: 500
+    maxThreads: 180
 throughput:
-    tps: 20
+    tps: 300
     rampUp: 2m
     holdFor: 10m
     rampDown: 1m

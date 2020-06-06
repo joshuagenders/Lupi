@@ -1,18 +1,20 @@
 # Remaining MVP
 - add more unit tests
-- add holdFor for concurrency  
-- improve test result metadata
-- Add thread count, tokens, kill tokens etc. to output of statsd listener
-- Test actual examples against real site
+  - failed tests / exception handling
+  - threads that hold on for too long/lock
+  - separate values for concurrency + throughput rampup/down
+  - custom phases
+  - result aggregation
 - Aggregations with basic console reporting
+- validate input config, remove automapper
 - profile the load agent and address hotspots, generate flame graphs
-- Verbose logging
+- Test actual examples against real site
+- Add configurable + verbose logging
 - Update docs and examples as required
+  - make quickstart easier to follow, including how to publish properly
 - Publish repo and nuget packages
 
 # Next Features
-## Refactor thread control 
-move execution all onto main thread
 
 ## Configuration inheritance
 specify a base config - has bugs - test + fix
