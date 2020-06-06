@@ -281,12 +281,12 @@ namespace Lupi.Tests
 
             public async Task<object> ExecuteSetupMethod()
             {
-                throw new NotImplementedException();
+                return await Task.FromResult(0);
             }
 
             public async Task<object> ExecuteTeardownMethod()
             {
-                throw new NotImplementedException();
+                return await Task.FromResult(0);
             }
 
             public async Task<object> ExecuteTestMethod()

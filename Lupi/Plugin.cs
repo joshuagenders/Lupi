@@ -252,12 +252,25 @@ namespace Lupi
             return null;
         }
 
-        public async Task<object> ExecuteSetupMethod() =>
-            await RunMethod(_setupMethod, GetParameters(_setupMethod));
+        public async Task<object> ExecuteSetupMethod()
+        {
+            if (_setupMethod != null)
+            {
+                return await RunMethod(_setupMethod, GetParameters(_setupMethod));
+            }
+            return null;
+        } 
+            
         public async Task<object> ExecuteTestMethod() =>
             await _testFunc.Invoke();
-        public async Task<object> ExecuteTeardownMethod() =>
-            await RunMethod(_teardownMethod, GetParameters(_teardownMethod));
+        public async Task<object> ExecuteTeardownMethod() 
+        {
+            if (_teardownMethod != null)
+            {
+                return await RunMethod(_teardownMethod, GetParameters(_teardownMethod));
+            }
+            return null;
+        }
     }
 
     public interface IPlugin

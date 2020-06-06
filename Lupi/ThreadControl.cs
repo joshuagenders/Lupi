@@ -48,89 +48,96 @@ namespace Lupi
 
         public async Task Run(DateTime startTime, CancellationToken ct)
         {
-            //todo run setup and teardown methods
-            var endTime = startTime.Add(_config.TestDuration());
-            var lastTime = DateTime.UtcNow;
-            var partialTokens = 0d;
-            var iterationsRemaining = _config.Throughput.Iterations;
-            while (DateTime.UtcNow < endTime && !ct.IsCancellationRequested)
+            //todo refactor into private methods
+            await _plugin.ExecuteSetupMethod();
+            try 
             {
-                if (_config.Throughput.Iterations > 0 && iterationsRemaining <= 0)
+                var endTime = startTime.Add(_config.TestDuration());
+                var lastTime = DateTime.UtcNow;
+                var partialTokens = 0d;
+                var iterationsRemaining = _config.Throughput.Iterations;
+                while (DateTime.UtcNow < endTime && !ct.IsCancellationRequested)
                 {
-                    //here?
-                    return;
-                }
-                var now = DateTime.UtcNow;
-                // execution tokens
-                var tokensToRelease = _config.Throughput.Phases.GetTokensForPeriod(startTime, lastTime, now);
-                var wholeTokens = Convert.ToInt32(tokensToRelease);
-
-                partialTokens += tokensToRelease - wholeTokens;
-                if (partialTokens >= 1)
-                {
-                    wholeTokens += Convert.ToInt32(partialTokens);
-                    partialTokens -= Math.Truncate(partialTokens);
-                }
-                lastTime = now;
-                if (_config.Throughput.Iterations > 0 && iterationsRemaining - wholeTokens < 0)
-                {
-                    wholeTokens = iterationsRemaining;
-                }
-                if (wholeTokens > 0)
-                {
-                    DebugHelper.Write($"releasing {wholeTokens} tokens");
-                    _stats?.Increment(wholeTokens, $"{_config.Listeners.Statsd.Bucket}.releasedtoken");
-                    _taskExecution.Release(wholeTokens);
-                }
-
-                // threads
-                _tasks.RemoveAll(x => x.IsCompleted);
-                var threadCount = _tasks.Count;
-
-                DebugHelper.Write($"thread count {threadCount}");
-                if (_config.Concurrency.OpenWorkload)
-                {
-                    DebugHelper.Write("calculate threads for open workload");
-                    if (threadCount < _config.Concurrency.MinThreads)
+                    if (_config.Throughput.Iterations > 0 && iterationsRemaining <= 0)
                     {
-                        DebugHelper.Write("concurrency less than min");
-                        AdjustThreads(startTime, _config.Concurrency.MinThreads - threadCount, ct);
+                        //here?
+                        return;
+                    }
+                    var now = DateTime.UtcNow;
+                    // execution tokens
+                    var tokensToRelease = _config.Throughput.Phases.GetTokensForPeriod(startTime, lastTime, now);
+                    var wholeTokens = Convert.ToInt32(tokensToRelease);
+
+                    partialTokens += tokensToRelease - wholeTokens;
+                    if (partialTokens >= 1)
+                    {
+                        wholeTokens += Convert.ToInt32(partialTokens);
+                        partialTokens -= Math.Truncate(partialTokens);
+                    }
+                    lastTime = now;
+                    if (_config.Throughput.Iterations > 0 && iterationsRemaining - wholeTokens < 0)
+                    {
+                        wholeTokens = iterationsRemaining;
+                    }
+                    if (wholeTokens > 0)
+                    {
+                        DebugHelper.Write($"releasing {wholeTokens} tokens");
+                        _stats?.Increment(wholeTokens, $"{_config.Listeners.Statsd.Bucket}.releasedtoken");
+                        _taskExecution.Release(wholeTokens);
                     }
 
-                    var currentCount = _taskExecution.CurrentCount;
-                    if (currentCount > 1)
+                    // threads
+                    _tasks.RemoveAll(x => x.IsCompleted);
+                    var threadCount = _tasks.Count;
+
+                    DebugHelper.Write($"thread count {threadCount}");
+                    if (_config.Concurrency.OpenWorkload)
                     {
-                        AdjustThreads(startTime, currentCount - 1, ct);
-                    }
-                }
-                else
-                {
-                    DebugHelper.Write("calculate threads for closed workload");
-                    var desired = _config.Concurrency.Phases.CurrentDesiredThreadCount(startTime, now);
-                    var current = _tasks.Where(t => !t.IsCompleted).Count();
-                    DebugHelper.Write($"desired threads: {desired}. current threads: {current}");
-                    if (desired > current)
-                    {
-                        DebugHelper.Write("desired greater than current");
-                        StartTask(startTime, ct);
-                    }
-                    else if (desired < current)
-                    {
-                        DebugHelper.Write("current greater than desired, requesting task kill");
-                        _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
-                        for (int i = 0; i < current - desired; i++)
+                        DebugHelper.Write("calculate threads for open workload");
+                        if (threadCount < _config.Concurrency.MinThreads)
                         {
-                            _taskKill.Enqueue(true);
+                            DebugHelper.Write("concurrency less than min");
+                            AdjustThreads(startTime, _config.Concurrency.MinThreads - threadCount, ct);
+                        }
+
+                        var currentCount = _taskExecution.CurrentCount;
+                        if (currentCount > 1)
+                        {
+                            AdjustThreads(startTime, currentCount - 1, ct);
                         }
                     }
+                    else
+                    {
+                        DebugHelper.Write("calculate threads for closed workload");
+                        var desired = _config.Concurrency.Phases.CurrentDesiredThreadCount(startTime, now);
+                        var current = _tasks.Where(t => !t.IsCompleted).Count();
+                        DebugHelper.Write($"desired threads: {desired}. current threads: {current}");
+                        if (desired > current)
+                        {
+                            DebugHelper.Write("desired greater than current");
+                            StartTask(startTime, ct);
+                        }
+                        else if (desired < current)
+                        {
+                            DebugHelper.Write("current greater than desired, requesting task kill");
+                            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
+                            for (int i = 0; i < current - desired; i++)
+                            {
+                                _taskKill.Enqueue(true);
+                            }
+                        }
+                    }
+                    DebugHelper.Write($"main loop complete. thread count {_tasks.Count}");
+                    _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
+
+                    await Task.Delay(_config.Engine.CheckInterval, ct);
                 }
-                DebugHelper.Write($"main loop complete. thread count {_tasks.Count}");
-                _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
-
-                await Task.Delay(_config.Engine.CheckInterval, ct);
             }
-
-            _stats?.Gauge(0, $"{_config.Listeners.Statsd.Bucket}.threads");
+            finally
+            {
+                _stats?.Gauge(0, $"{_config.Listeners.Statsd.Bucket}.threads");
+                await _plugin.ExecuteTeardownMethod();
+            }
         }
 
         public bool RequestTaskContinuedExecution()
