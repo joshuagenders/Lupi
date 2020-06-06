@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Lupi.Configuration;
@@ -106,7 +107,7 @@ namespace Lupi
                 {
                     DebugHelper.Write("calculate threads for closed workload");
                     var desired = _config.Concurrency.Phases.CurrentDesiredThreadCount(startTime, now);
-                    var current = _tasks.Count;
+                    var current = _tasks.Where(t => !t.IsCompleted).Count();
                     DebugHelper.Write($"desired threads: {desired}. current threads: {current}");
                     if (desired > current)
                     {
@@ -150,7 +151,7 @@ namespace Lupi
             if (!RequestTaskContinuedExecution())
             {
                 DebugHelper.Write($"found kill token. dying.");
-                return false;
+                return true;
             }
 
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecution");

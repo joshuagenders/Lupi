@@ -33,12 +33,12 @@ namespace Lupi
         public async Task Run(DateTime startTime, CancellationToken ct)
         {
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskstart");
-            var threadName = $"worker_{Guid.NewGuid().ToString("N")}";
+            var threadName = $"worker {Guid.NewGuid().ToString("N")}";
             bool shouldExit = false;
             var watch = new Stopwatch();
             while (!ct.IsCancellationRequested && !shouldExit)
             {
-                DebugHelper.Write($"request task execution {threadName}");
+                DebugHelper.Write($"{threadName} request task execution");
                 if (_config.Concurrency.OpenWorkload)
                 {
                     var taskExecutionRequest = _threadControl.RequestTaskExecution(startTime, ct);
@@ -46,24 +46,25 @@ namespace Lupi
                     var result = await Task.WhenAny(taskExecutionRequest, killDelay);
                     if (result == killDelay)
                     {
-                        DebugHelper.Write($"thread {threadName} got tired of waiting. waited {watch.ElapsedMilliseconds}ms then executed. dying.");
+                        DebugHelper.Write($"{threadName} got tired of waiting. waited {watch.ElapsedMilliseconds}ms then executed. dying.");
+                        shouldExit = true;
                         break;
                     }
                     else
                     {
                         shouldExit = await taskExecutionRequest;
-                        DebugHelper.Write($"task execution request returned {threadName}");
+                        DebugHelper.Write($"{threadName} task execution request returned. should exit {shouldExit}");
                     }
                 }
                 else
                 {
                     shouldExit = await _threadControl.RequestTaskExecution(startTime, ct);
-                    DebugHelper.Write($"task execution request returned {threadName}");
+                    DebugHelper.Write($"{threadName} task execution request returned. should exit {shouldExit}");
                 }
 
                 if (!ct.IsCancellationRequested && !shouldExit)
                 {
-                    DebugHelper.Write($"test not complete - run method {threadName}");
+                    DebugHelper.Write($"{threadName} test not complete - run method");
                     object result;
                     try
                     {
@@ -95,11 +96,11 @@ namespace Lupi
                             });
                     }
 
-                    DebugHelper.Write($"method invoke complete {threadName}");
+                    DebugHelper.Write($"{threadName} method invoke complete");
                 }
                 else
                 {
-                    DebugHelper.Write($"thread complete {threadName}");
+                    DebugHelper.Write($"{threadName} thread complete");
                     break;
                 }
                 await Task.Delay(_config.Throughput.ThinkTime);
