@@ -19,7 +19,8 @@ rm -rf Examples
 cp -r ../Lupi.Examples/bin/Release/netcoreapp3.0/publish/ Examples
 
 pushd Configurations
-for i in *.yml; do
-    run_file $i
-done
+# for i in *.yml; do
+#     run_file $i
+# done
+run_file SkylinesWithIterations.yml
 popd

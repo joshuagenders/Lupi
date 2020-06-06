@@ -53,6 +53,17 @@ namespace Lupi.Configuration
                     Threads = config.Concurrency.Threads
                 });
             }
+            else if (config.Throughput.Phases.Any())
+            {
+                phases.Add(new ConcurrencyPhase
+                {
+                    Duration = config.Throughput
+                        .Phases
+                        .Aggregate(TimeSpan.Zero, (acc, val) => acc.Add(val.Duration)),
+                    Threads = config.Concurrency.Threads
+                });
+            }
+
             if (config.Concurrency.RampDown.TotalMilliseconds > 0)
             {
                 phases.Add(new ConcurrencyPhase

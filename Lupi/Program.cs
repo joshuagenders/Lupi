@@ -30,13 +30,13 @@ namespace Lupi
                         throw new ArgumentException("Error reading configuration file. Result was null.");
                     }
 
-                    if (!config.Concurrency.Phases.Any())
-                    {
-                        config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
-                    }
                     if (!config.Throughput.Phases.Any())
                     {
                         config.Throughput.Phases = config.BuildStandardThroughputPhases();
+                    }
+                    if (!config.Concurrency.Phases.Any())
+                    {
+                        config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
                     }
 
                     var plugin = new Plugin(config);
