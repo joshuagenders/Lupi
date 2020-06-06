@@ -15,6 +15,9 @@ Lupi supports a plugin system for loading and executing code from compatible DLL
 * Don't need local visualisations of test execution, just a reliable load agent.
 
 ## Quickstart
+### Pre-requisites
+* [.NET Core SDK](https://dotnet.microsoft.com/download)
+
 ### Publish test solution
 Lupi uses a plugin architecture. Start by writing a test and then publish your test solution.
 ```bash
