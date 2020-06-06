@@ -44,7 +44,7 @@ throughput:
     holdFor: 5m
 ```
 
-## I want to run tests at a specific rate, run as many threads as necessary
+## I want to run tests at a specific rate, Lupi - please run as many threads as necessary
 ```yaml
 concurrency:
     openWorkload: true
