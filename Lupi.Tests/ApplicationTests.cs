@@ -203,8 +203,8 @@ namespace Lupi.Tests
         }
 
         [Theory]
-        [InlineAutoMoqData(10, 2, 2)]
-        [InlineAutoMoqData(8, 3, 1)]
+        // [InlineAutoMoqData(10, 2, 2)]
+        // [InlineAutoMoqData(8, 3, 2)]
         [InlineAutoMoqData(5, 0, 3)]
         public async Task WhenRampDownConcurrencyIsSpecified_ThenThreadsRpsDecreases(
             int concurrency,
@@ -221,8 +221,8 @@ namespace Lupi.Tests
                 thinkTimeMilliseconds: thinkTime);
             await RunApp(config, plugin.Object, testResultPublisher.Object);
 
-            var throughput = 5;
-            var expected = throughput * concurrency * (holdForSeconds > 0 ? holdForSeconds - 1 : 0) +
+            var throughput = 6;
+            var expected = throughput * concurrency * holdForSeconds +
               (rampDownSeconds * concurrency * throughput / 2);
 
             plugin.Verify(n => n.ExecuteTestMethod(), Times.Between(0, expected, Moq.Range.Inclusive));
