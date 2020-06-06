@@ -22,6 +22,7 @@ test:
 concurrency:
     threads: 10 
     rampUp: 2m
+    holdFor: 20s
     rampDown: 2m
     openWorkload: true # (can add additional threads when throughput is not met)
     minThreads: 3 # requires open workload
@@ -46,6 +47,7 @@ test:
 concurrency:
     threads: 10
     rampUp: 2m
+    holdFor: 30s
     rampDown: 2m
     openWorkload: true # (can add additional threads when throughput is not met)
     minThreads: 3 # requires open workload
@@ -82,6 +84,7 @@ throughput:
             parsed.Throughput.RampDown.Should().BeGreaterThan(TimeSpan.Zero);
             parsed.Throughput.ThinkTime.Should().BeGreaterThan(TimeSpan.Zero);
             parsed.Concurrency.RampUp.Should().BeGreaterThan(TimeSpan.Zero);
+            parsed.Concurrency.HoldFor.Should().BeGreaterThan(TimeSpan.Zero);
             parsed.Concurrency.RampDown.Should().BeGreaterThan(TimeSpan.Zero);
         }
         [Fact]

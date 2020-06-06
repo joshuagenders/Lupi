@@ -185,7 +185,7 @@ namespace Lupi.Tests
 
             plugin.Calls.Should().BeInRange(
                 Convert.ToInt32(expectedTotal - throughput), 
-                Convert.ToInt32(expectedTotal));
+                Convert.ToInt32(expectedTotal + throughput));
         }
 
         [Theory]
@@ -203,9 +203,9 @@ namespace Lupi.Tests
         }
 
         [Theory]
-        // [InlineAutoMoqData(10, 2, 2)]
-        // [InlineAutoMoqData(8, 3, 2)]
-        [InlineAutoMoqData(5, 0, 3)]
+        [InlineAutoMoqData(10, 2, 2)]
+        [InlineAutoMoqData(8, 3, 2)]
+        [InlineAutoMoqData(4, 0, 3)]
         public async Task WhenRampDownConcurrencyIsSpecified_ThenThreadsRpsDecreases(
             int concurrency,
             int holdForSeconds,
@@ -213,7 +213,7 @@ namespace Lupi.Tests
             Mock<IPlugin> plugin,
             Mock<ITestResultPublisher> testResultPublisher)
         {
-            var thinkTime = 195;
+            var thinkTime = 200;
             var config = GetConfig(
                 concurrency: concurrency, 
                 holdForSeconds: holdForSeconds, 
@@ -222,7 +222,7 @@ namespace Lupi.Tests
             await RunApp(config, plugin.Object, testResultPublisher.Object);
 
             var throughput = 6;
-            var expected = throughput * concurrency * holdForSeconds +
+            var expected = throughput * concurrency * (holdForSeconds + 1) +
               (rampDownSeconds * concurrency * throughput / 2);
 
             plugin.Verify(n => n.ExecuteTestMethod(), Times.Between(0, expected, Moq.Range.Inclusive));
@@ -257,6 +257,7 @@ namespace Lupi.Tests
                 {
                     Threads = concurrency,
                     RampUp = TimeSpan.FromSeconds(rampUpSeconds),
+                    HoldFor = TimeSpan.FromSeconds(holdForSeconds),
                     RampDown = TimeSpan.FromSeconds(rampDownSeconds),
                     OpenWorkload = openWorkload
                 },

@@ -23,9 +23,13 @@ namespace Lupi.Configuration
             }
             else
             {
-                return config.Throughput.RampUp.Add(
+                var throughputDuration = config.Throughput.RampUp.Add(
                        config.Throughput.HoldFor.Add(
                        config.Throughput.RampDown));
+                var concurrencyDuration = config.Concurrency.RampUp.Add(
+                       config.Concurrency.HoldFor.Add(
+                       config.Concurrency.RampDown));
+                return new TimeSpan[] { throughputDuration, concurrencyDuration }.Max();
             }
         }
 
@@ -45,21 +49,12 @@ namespace Lupi.Configuration
                     ToThreads = config.Concurrency.Threads
                 });
             }
-            if (config.Throughput.HoldFor.TotalMilliseconds > 0)
+
+            if (config.Concurrency.HoldFor.TotalMilliseconds > 0)
             {
                 phases.Add(new ConcurrencyPhase
                 {
-                    Duration = config.Throughput.HoldFor,
-                    Threads = config.Concurrency.Threads
-                });
-            }
-            else if (config.Throughput.Phases.Any())
-            {
-                phases.Add(new ConcurrencyPhase
-                {
-                    Duration = config.Throughput
-                        .Phases
-                        .Aggregate(TimeSpan.Zero, (acc, val) => acc.Add(val.Duration)),
+                    Duration = config.Concurrency.HoldFor,
                     Threads = config.Concurrency.Threads
                 });
             }
@@ -159,7 +154,7 @@ namespace Lupi.Configuration
                
             var lastY = lastX * gradient;
             var y = x * gradient;
-            var squareArea = Math.Abs(x - lastX) * lastY;
+            var squareArea = Math.Abs(x - lastX) * Math.Min(currentPhase.Phase.ToTps, currentPhase.Phase.FromTps);
             var triangleArea = Math.Abs(y - lastY) * Math.Abs(x - lastX) / 2;
             result += (triangleArea + squareArea) / 1000;
             return result;

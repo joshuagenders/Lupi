@@ -83,14 +83,13 @@ Throughput (the number of requests) and concurrency (the number of possible conc
 # Specifying load
 There are two ways to specify load for concurrency and throughput. The first is static values with optional ramp-up / ramp-down periods. 
 
-`throughput.holdFor` is used as the hold for value for both concurrency and throughput.
-
 For example:
 ```yaml
 concurrency:
     threads: 10
     rampUp: 10s
-    rampDown: 10s
+    holdFor: 2m30s
+    rampDown: 20s
 throughput:
     tps: 200
     rampUp: 30s

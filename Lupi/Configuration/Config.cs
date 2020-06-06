@@ -24,6 +24,7 @@ namespace Lupi.Configuration
     {
         public int Threads { get; set; }
         public TimeSpan RampUp { get; set; }
+        public TimeSpan HoldFor { get; set; }
         public TimeSpan RampDown { get; set; }
         public bool OpenWorkload { get; set; } // requires throughput
 
@@ -82,8 +83,8 @@ namespace Lupi.Configuration
 
     public class Engine
     {
-        public TimeSpan ResultPublishingInterval { get; set; } = TimeSpan.FromMilliseconds(250);
-        public TimeSpan CheckInterval { get; set; } = TimeSpan.FromMilliseconds(150);
+        public TimeSpan ResultPublishingInterval { get; set; } = TimeSpan.FromMilliseconds(500);
+        public TimeSpan CheckInterval { get; set; } = TimeSpan.FromMilliseconds(180);
     }
 
     public class Listeners

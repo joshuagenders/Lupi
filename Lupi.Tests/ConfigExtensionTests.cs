@@ -18,6 +18,8 @@ namespace Lupi.Tests
         [InlineAutoMoqData(5, 0, 2, 0, 0, 500, 2.5)]
         [InlineAutoMoqData(10, 20, 0, 0, 0, 1000, 0.25)]
         [InlineAutoMoqData(10, 20, 1, 0, 0, 20000, 100.24)]
+        [InlineAutoMoqData(1, 1, 0, 0, 0, 1000, 0.5)]
+        [InlineAutoMoqData(1, 0, 0, 1, 0, 1000, 0.5)]
         public void ThroughputForStandardPhasesIsCorrect(
             int throughput,
             int rampUpSeconds,
@@ -39,6 +41,32 @@ namespace Lupi.Tests
 
             };
             var phases = config.BuildStandardThroughputPhases();
+            var start = DateTime.UtcNow;
+            var result = phases.GetTokensForPeriod(start, start.AddMilliseconds(startMs), start.AddMilliseconds(endMs));
+            result.Should().Be(tokenCount);
+        }
+
+        [Theory]
+        [InlineAutoMoqData(0, 5, 10, 1, 0, 1000, 7.5)]
+        public void ThroughputForCustomPhasesIsCorrect(
+            int tps,
+            int fromTps,
+            int toTps,
+            int durationSeconds,
+            int startMs,
+            int endMs,
+            double tokenCount)
+        {
+            var phases = new List<Phase>
+            {
+                new Phase
+                {
+                    Duration = TimeSpan.FromSeconds(durationSeconds),
+                    FromTps = fromTps,
+                    ToTps = toTps,
+                    Tps = tps
+                }
+            };
             var start = DateTime.UtcNow;
             var result = phases.GetTokensForPeriod(start, start.AddMilliseconds(startMs), start.AddMilliseconds(endMs));
             result.Should().Be(tokenCount);

@@ -76,7 +76,8 @@ namespace Lupi.Tests
         {
             Concurrency = new Concurrency
             {
-                Threads = 1
+                Threads = 1,
+                HoldFor = TimeSpan.FromSeconds(1)
             },
             Test = new Test
             {
