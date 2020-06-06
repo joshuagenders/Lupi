@@ -57,7 +57,7 @@ throughput:
 
 ## I want to run tests at a specific rate, with a closed workload
 
-> E.g. A system that is normally invoked by a set of single-threaded workers.
+> E.g. A system that is normally invoked by a set of single-threaded workers of known quantity.
 
 ```yaml
 concurrency:
