@@ -65,16 +65,4 @@ concurrency:
     holdFor: 1m
 throughput:
     thinkTime: 150ms
-    holdFor: 1m
-```
-
-> OR throughput with a `concurrency.maxThreads` low enough that the thread count remains at max for the given throughput.
-
-```yaml
-concurrency:
-    maxThreads: 20
-    minThreads: 15
-throughput:
-    tps: 1000
-    holdFor: 1m
 ```
