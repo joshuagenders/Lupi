@@ -42,7 +42,7 @@
   "rows": [
     {
       "collapse": false,
-      "height": "250px",
+      "height": 250,
       "panels": [
         {
           "aliasColors": {},
@@ -57,12 +57,13 @@
             "current": false,
             "max": false,
             "min": false,
-            "show": true,
+            "show": false,
             "total": false,
             "values": false
           },
           "lines": true,
           "linewidth": 1,
+          "links": [],
           "nullPointMode": "null",
           "percentage": false,
           "pointradius": 5,
@@ -70,31 +71,20 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 12,
+          "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
+              "hide": false,
               "refId": "A",
-              "target": "stats.timers.Lupi.Examples.*.success.count"
-            },
-            {
-              "refId": "B",
-              "target": "stats.gauges.Lupi.Examples.*.totalreleasedtokens"
-            },
-            {
-              "refId": "C",
-              "target": "stats.counters.Lupi.Examples.*.*.count"
-            },
-            {
-              "refId": "D",
-              "target": "stats.gauges.*.*.*.threads"
+              "target": "aliasByNode(stats.timers.Lupi.Examples.$Test.success.count, 4)"
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Panel Title",
+          "title": "Executions",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -126,6 +116,93 @@
               "show": true
             }
           ]
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "${DS_LOCAL_GRAPHITE}",
+          "fill": 1,
+          "id": 3,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": false,
+            "hideEmpty": true,
+            "hideZero": true,
+            "max": true,
+            "min": false,
+            "rightSide": true,
+            "show": false,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 8,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "hide": false,
+              "refId": "A",
+              "target": "aliasByNode(stats.timers.Lupi.Examples.$Test.success.mean, 4, 5, 6)"
+            },
+            {
+              "hide": false,
+              "refId": "B",
+              "target": "aliasByNode(stats.timers.Lupi.Examples.$Test.success.upper, 4, 5, 6)"
+            },
+            {
+              "hide": false,
+              "refId": "C",
+              "target": "aliasByNode(stats.timers.Lupi.Examples.$Test.success.upper_99, 4, 5, 6)"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Timings",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "ms",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ]
         }
       ],
       "repeat": null,
@@ -137,7 +214,7 @@
     },
     {
       "collapse": false,
-      "height": 250,
+      "height": 403,
       "panels": [
         {
           "aliasColors": {},
@@ -146,7 +223,7 @@
           "dashes": false,
           "datasource": "${DS_LOCAL_GRAPHITE}",
           "fill": 1,
-          "id": 2,
+          "id": 5,
           "legend": {
             "avg": false,
             "current": false,
@@ -158,6 +235,7 @@
           },
           "lines": true,
           "linewidth": 1,
+          "links": [],
           "nullPointMode": "null",
           "percentage": false,
           "pointradius": 5,
@@ -165,16 +243,105 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 12,
+          "span": 6,
           "stack": false,
           "steppedLine": false,
           "targets": [
-            {}
+            {
+              "hide": true,
+              "refId": "A",
+              "target": "aliasByNode(stats.timers.Lupi.Examples.$Test.success.count, 4, 5, 6)"
+            },
+            {
+              "hide": false,
+              "refId": "B",
+              "target": "aliasByNode(stats.gauges.Lupi.Examples.$Test.threads, 4, 5)"
+            },
+            {
+              "hide": true,
+              "refId": "C",
+              "target": "aliasByNode(stats.counters.Lupi.Examples.$Test.*.count, 4, 5, 6)"
+            }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Panel Title",
+          "title": "Threads",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ]
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "${DS_LOCAL_GRAPHITE}",
+          "fill": 1,
+          "id": 4,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": false,
+            "max": true,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 6,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "hide": false,
+              "refId": "C",
+              "target": "aliasByNode(stats.counters.Lupi.Examples.$Test.*.count, 4, 5, 6)"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Lupi Internals",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -220,7 +387,28 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": "*",
+        "current": {},
+        "datasource": "${DS_LOCAL_GRAPHITE}",
+        "hide": 0,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "Test",
+        "options": [],
+        "query": "stats.timers.Lupi.Examples.*",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
   },
   "time": {
     "from": "now-30m",
@@ -253,5 +441,5 @@
   },
   "timezone": "",
   "title": "Lupi",
-  "version": 1
+  "version": 5
 }
