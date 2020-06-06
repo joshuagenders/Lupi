@@ -185,6 +185,20 @@ If `concurrency.openWorkload` is `true`, then the concurrency phases are ignored
 When concurrency phases are provided, then the number of threads is determined by the phases, and threads will wait until they are permitted to execute.
 In both scenarios, setting thread levels too low will result in a closed workload as new thread allocation will not be possible.
 
+## Dependency Injection
+Lupi will attempt to find and invoke a method in the provided test assembly that takes and returns an [AutoFac](https://autofac.org/) `ContainerBuilder`.
+The method must be defined as static or the owning class must have a default constructor.
+
+E.g.
+
+```csharp
+public ContainerBuilder RegisterType(ContainerBuilder builder)
+{
+    builder.RegisterAssemblyTypes(GetType().Assembly);
+    return builder;
+}
+```
+
 # Examples
 See the [Examples here](https://github.com/joshuagenders/Lupi/tree/master/Lupi.Examples)
 
