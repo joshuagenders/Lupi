@@ -172,3 +172,9 @@ If `concurrency.openWorkload` is `true`, then the concurrency phases are ignored
 
 When concurrency phases are provided, then the number of threads is determined by the phases, and threads will wait until they are permitted to execute.
 In both scenarios, setting thread levels too low will result in a closed workload as new thread allocation will not be possible.
+
+# Examples
+See the [Examples here](https://github.com/joshuagenders/Lupi/tree/master/Lupi.Examples)
+
+# License
+Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/master/LICENSE).
