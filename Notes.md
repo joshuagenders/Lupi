@@ -1,4 +1,10 @@
 # Remaining MVP
+- Aggregations with basic console reporting
+- validate input config
+    - no negative values
+    - no phases and standard phases
+    - valid bucket names (dot positions, special chars)
+    - required fields (some duration in provided/built phases)
 - add more unit tests
   - failed tests / exception handling
   - threads that hold on for too long/lock
@@ -7,17 +13,11 @@
   - result aggregation
   - only concurrency phases
   - only throughput phases
-- add grafana graphs pictures to readme + examples readme
-- complete grafana dashboard
-- Aggregations with basic console reporting
-- validate input config
-    - no negative values
-    - no phases and standard phases
-    - valid bucket names (dot positions, special chars)
-    - required fields (some duration in provided/built phases)
-- profile the load agent and address hotspots, generate flame graphs
-- Test actual examples against real site
 - Add configurable + verbose logging
+- profile the load agent and address hotspots, generate flame graphs
+- complete grafana dashboard
+- add grafana graphs pictures to readme + examples readme
+- Test actual examples against real site
 - Update docs and examples as required
   - make quickstart easier to follow, including how to publish properly
 - Publish repo and nuget packages
