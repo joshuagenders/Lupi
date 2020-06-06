@@ -5,7 +5,7 @@ Examples use [Puppeteer Sharp](https://github.com/hardkoded/puppeteer-sharp) and
 `dotnet publish -c Release`
 
 # Running the tests
-Update `test.assemblyPath` to match the relative path from the current working directory, then execute Lupi.
+Update `test.assemblyPath` in the configuration file(s) to match the relative path from the current working directory, then execute Lupi.
 
 E.g.
 `dotnet run --project ../Lupi/Lupi.csproj ./Configurations/OpenWorkload.yml`
