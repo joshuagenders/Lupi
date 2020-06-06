@@ -46,7 +46,7 @@ namespace Lupi
                 await Task.WhenAll(tasks);
                 if (!TestCompleted)
                 {
-                    await Task.Delay(_config.Engine.ResultPublishingInterval);
+                    await Task.Delay(_config.Engine.CheckInterval);
                 }
             }
         }

@@ -35,14 +35,7 @@ namespace Lupi.Tests
             Mock<ITestResultPublisher> testResultPublisher)
         {
             var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations);
-            var cts = new CancellationTokenSource();
-            var threadControl = new ThreadControl(config, plugin.Object, testResultPublisher.Object);
-            var app = new Application(threadControl, testResultPublisher.Object);
-
-            cts.CancelAfter(TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds + 2));
-            await app.Run(cts.Token);
-            // why this fails I have no idea
-            //await RunApp(concurrency, throughput, iterations: 0, rampUpSeconds, holdForSeconds, runner.Object);
+            await RunApp(config, plugin.Object, testResultPublisher.Object);
             
             plugin.Verify(n => n.ExecuteTestMethod(), Times.Exactly(iterations));
             testResultPublisher.Verify(s => s.Publish(It.IsAny<TestResult>()), Times.Exactly(iterations));

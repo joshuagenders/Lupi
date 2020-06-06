@@ -32,18 +32,14 @@ test:
     setupMethod: Init
     teardownClass: MyNamespace.TeardownClass
     teardownMethod: Teardown
-concurrency:
-    threads: 10 
-    rampUp: 2m
-    openWorkload: true # i.e. can add additional threads when throughput is not met
-    minConcurrency: 3 # requires open workload
-    maxConcurrency: 1500 # requires open workload
 throughput:
     tps: 20
     rampUp: 20s
     holdFor: 10m
     rampDown: 2m
-    phases:  # mutually exclusive to other throughput parameters. do not provide both phases AND tps, rampUp, holdFor or rampDown
+    # mutually exclusive to other throughput parameters.
+    # do not provide both phases AND tps, rampUp, holdFor or rampDown, as phases are generated from them when provided.
+    phases:
     -   # rampup
         duration: 2m
         from: 10
@@ -55,6 +51,14 @@ throughput:
         duration: 20s
         from: 20
         to: 0
+concurrency:
+    threads: 10 
+    rampUp: 2m
+    # holdFor is only specified once and is used for both concurrency and throughput
+    rampDown: 30s
+    openWorkload: true # i.e. can add additional threads when throughput is not met
+    minConcurrency: 3 # requires open workload
+    maxConcurrency: 1500 # requires open workload
 listeners:
     activeListeners:
     - file
@@ -68,9 +72,8 @@ listeners:
         prefix: my.prefix
         bucket: my.test.bucket
 engine:
-    tokenGenerationInterval: 100ms
-    resultPublishingInterval: 250ms
-    threadAllocationInterval: 150ms
+    resultPublishingInterval: 250ms # how often the result publishing handlers are invoked
+    checkInterval: 150ms # how often thread levels / throughput is assessed
 baseConfig: BaseConfig.yml
 ```
 

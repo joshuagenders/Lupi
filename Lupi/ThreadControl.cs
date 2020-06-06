@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Lupi.Configuration;
@@ -49,6 +47,7 @@ namespace Lupi
 
         public async Task Run(DateTime startTime, CancellationToken ct)
         {
+            //todo run setup and teardown methods
             var endTime = startTime.Add(_config.TestDuration());
             var lastTime = DateTime.UtcNow;
             var partialTokens = 0d;
@@ -124,10 +123,12 @@ namespace Lupi
                 DebugHelper.Write($"thread allocation loop complete. thread count {_tasks.Count}");
                 _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
 
-                await Task.Delay(_config.Engine.GenerationInterval, ct);
+                await Task.Delay(_config.Engine.CheckInterval, ct);
             }
 
             await Task.WhenAll(_tasks);
+            _tasks.RemoveAll(t => t.IsCompleted);
+            _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
         }
 
         public bool RequestTaskContinuedExecution()
@@ -142,7 +143,7 @@ namespace Lupi
             return true;
         }
 
-        private async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
+        public async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
         {
             DebugHelper.Write($"task execution request start");
             if (!RequestTaskContinuedExecution())
@@ -207,87 +208,13 @@ namespace Lupi
 
             if (!atMax)
             {
-                _tasks.Add(Task.Run(() => RunTestLoop(startTime, ct), ct));
+                _tasks.Add(Task.Run(() => 
+                    new TestThread(this, _plugin, _testResultPublisher, _stats, _config)
+                        .Run(startTime, ct), ct));
+
                 return true;
             }
             return false;
-        }
-
-        private async Task RunTestLoop(DateTime startTime, CancellationToken ct)
-        {
-            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskstart");
-            var threadName = $"worker_{Guid.NewGuid().ToString("N")}";
-            bool shouldExit = false;
-            var watch = new Stopwatch();
-            while (!ct.IsCancellationRequested && !shouldExit)
-            {
-                DebugHelper.Write($"request task execution {threadName}");
-                if (_config.Concurrency.OpenWorkload)
-                {
-                    var taskExecutionRequest = RequestTaskExecution(startTime, ct);
-                    var killDelay = Task.Delay(_config.Concurrency.ThreadIdleKillTime);
-                    var result = await Task.WhenAny(taskExecutionRequest, killDelay);
-                    if (result == killDelay)
-                    {
-                        DebugHelper.Write($"thread {threadName} got tired of waiting. waited {watch.ElapsedMilliseconds}ms then executed. dying.");
-                        break;
-                    }
-                    else
-                    {
-                        shouldExit = await taskExecutionRequest;
-                        DebugHelper.Write($"task execution request returned {threadName}");
-                    }
-                }
-                else
-                {
-                    shouldExit = await RequestTaskExecution(startTime, ct);
-                    DebugHelper.Write($"task execution request returned {threadName}");
-                }
-
-                if (!ct.IsCancellationRequested && !shouldExit)
-                {
-                    DebugHelper.Write($"test not complete - run method {threadName}");
-                    object result;
-                    try
-                    {
-                        watch.Restart();
-                        result = _plugin.ExecuteTestMethod();
-                        watch.Stop();
-                        //todo handle tuple result?
-                        var duration = result is TimeSpan ? (TimeSpan)result : watch.Elapsed;
-
-                        _testResultPublisher.Publish(
-                            new TestResult
-                            {
-                                Duration = duration,
-                                Passed = true,
-                                Result = result.GetType().IsValueType 
-                                    ? result.ToString() 
-                                    : JsonConvert.SerializeObject(result)
-                            });
-                    }
-                    catch (Exception ex)
-                    {
-                        watch.Stop();
-                        _testResultPublisher.Publish(
-                            new TestResult
-                            {
-                                Duration = watch.Elapsed,
-                                Passed = false,
-                                Result = JsonConvert.SerializeObject(ex)
-                            });
-                    }
-                    
-                    DebugHelper.Write($"method invoke complete {threadName}");
-                }
-                else
-                {
-                    DebugHelper.Write($"thread complete {threadName}");
-                    break;
-                }
-                await Task.Delay(_config.Throughput.ThinkTime);
-            }
-            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskcomplete");
         }
 
         private bool IsTestComplete(DateTime startTime, int iterationsRemaining) =>
@@ -298,5 +225,6 @@ namespace Lupi
     public interface IThreadControl
     {
         Task Run(DateTime startTime, CancellationToken ct);
+        Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct);
     }
 }

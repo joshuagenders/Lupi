@@ -9,7 +9,6 @@ namespace Lupi
     {
         private readonly IThreadControl _threadControl;
         private readonly ITestResultPublisher _testResultPublisher;
-        private readonly SemaphoreSlim _executionSemaphore;
 
         public Application(
             IThreadControl threadControl,
@@ -17,13 +16,10 @@ namespace Lupi
         {
             _threadControl = threadControl;
             _testResultPublisher = testResultPublisher;
-            _executionSemaphore = new SemaphoreSlim(1);
         }
 
         public async Task Run(CancellationToken ct)
         {
-            await _executionSemaphore.WaitAsync(ct);
-            DebugHelper.Write("==== run ====");
             try
             {
                 var startTime = DateTime.UtcNow;
@@ -35,10 +31,6 @@ namespace Lupi
             catch (TaskCanceledException) { }
             catch (OperationCanceledException) { }
             catch (AggregateException e) when (e.InnerExceptions.All(x => x is TaskCanceledException || x is OperationCanceledException)) { }
-            finally
-            {
-                _executionSemaphore.Release();
-            }
         }
     }
 

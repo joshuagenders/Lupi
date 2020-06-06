@@ -83,7 +83,7 @@ namespace Lupi.Configuration
     public class Engine
     {
         public TimeSpan ResultPublishingInterval { get; set; } = TimeSpan.FromMilliseconds(250);
-        public TimeSpan GenerationInterval { get; set; } = TimeSpan.FromMilliseconds(150);
+        public TimeSpan CheckInterval { get; set; } = TimeSpan.FromMilliseconds(150);
     }
 
     public class Listeners

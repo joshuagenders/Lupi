@@ -1,9 +1,15 @@
 # Remaining MVP
 - Fix problem system tests
-- Refactor thread control onto main thread
+  - add holdFor for concurrency
+  - complex phases fails to start
+  - high throughput high threads hangs at the end
+  - skylines with iterations fails to start
+  - open workload hangs too
+- improve test result metadata
 - Add thread count, tokens, kill tokens etc. to output of statsd listener
 - Test actual examples against real site
 - Aggregations with basic console reporting
+- profile the load agent and address hotspots, generate flame graphs
 - Verbose logging
 - Update docs and examples as required
 - Publish repo and nuget packages
