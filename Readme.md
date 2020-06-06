@@ -35,7 +35,7 @@ concurrency:
     rampUp: 10s
     holdFor: 2m
 throughput:
-    waitTime: 1s500ms
+    thinkTime: 1s500ms
 ```
 
 ### Run Lupi
@@ -55,7 +55,7 @@ test:
     teardownClass: MyNamespace.TeardownClass
     teardownMethod: Teardown # executed once at the end of the test
 throughput:
-    waitTime: 1s500ms
+    thinkTime: 1s500ms
     tps: 20 # tests per second
     rampUp: 20s
     holdFor: 10m
