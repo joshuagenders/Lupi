@@ -101,7 +101,7 @@ baseConfig: BaseConfig.yml
 ```
 
 # Concurrency and Throughput
-Throughput (the number of requests) and concurrency (the number of possible concurrent test executions) are separate concepts in Lupi. Each can be ramped up or down independently of eachother (though lowering concurrency may restrict the ability to meet desired throughput).
+Throughput (the number of requests) and concurrency (the number of possible concurrent test executions) are separate concepts in Lupi. Each can be ramped up or down independently of each other (though lowering concurrency may restrict the ability to meet desired throughput).
 
 # Specifying load
 There are two ways to specify load for concurrency and throughput. The first is static values with optional ramp-up / ramp-down periods. 

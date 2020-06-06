@@ -7,6 +7,8 @@
   - result aggregation
   - only concurrency phases
   - only throughput phases
+- add grafana graphs pictures to readme + examples readme
+- complete grafana dashboard
 - Aggregations with basic console reporting
 - validate input config
     - no negative values
