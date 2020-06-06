@@ -113,3 +113,5 @@ Then the average response time is 200ms
 
 ## Maybe - Website for the tool
 Static site generator
+
+# Maybe - interpreter or wizard

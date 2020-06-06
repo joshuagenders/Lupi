@@ -170,6 +170,13 @@ throughput:
 Any value type will be serialised with `toString()`, and other types will be JSON serialised.
 Exceptions are also JSON serialised.
 
+## Listeners
+Listeners are used to process the results of tests.
+The provided listeners are:
+* File - writes results to file
+* Statsd - sends results to statsd
+* Console - writes results to the console output
+
 ## Open Workload
 Whenever throughput is specified, an open workload is created. Threads will wait and execute as fast as possible.
 
