@@ -55,7 +55,7 @@ throughput:
     holdFor: 5m
 ```
 
-## I want to run tests at a specific rate, with a closed workload.
+## I want to run tests at a specific rate, with a closed workload
 
 > E.g. A system that is normally invoked by a set of single-threaded workers.
 
