@@ -98,14 +98,14 @@ namespace Lupi.Tests
         }
 
         [Theory]
-        //[InlineAutoMoqData(1, 1, 0, 4)]
-        //[InlineAutoMoqData(2, 1, 0, 4)]
-        //[InlineAutoMoqData(1, 0.8, 0, 4)]
-        //[InlineAutoMoqData(2, 2, 0, 3)]
-        //[InlineAutoMoqData(2, 20, 0, 4)]
-        //[InlineAutoMoqData(1, 1, 2, 5)]
-        //[InlineAutoMoqData(2, 1, 2, 4)]
-        //[InlineAutoMoqData(1, 0.8, 2, 5)]
+        [InlineAutoMoqData(1, 1, 0, 4)]
+        [InlineAutoMoqData(2, 1, 0, 4)]
+        [InlineAutoMoqData(1, 0.8, 0, 4)]
+        [InlineAutoMoqData(2, 2, 0, 3)]
+        [InlineAutoMoqData(2, 20, 0, 4)]
+        [InlineAutoMoqData(1, 1, 2, 5)]
+        [InlineAutoMoqData(2, 1, 2, 4)]
+        [InlineAutoMoqData(1, 0.8, 2, 5)]
         [InlineAutoMoqData(2, 2, 3, 2)]
         public async Task WhenThroughputIsSpecified_ThenRPSIsNotExceeded(
             int concurrency,
