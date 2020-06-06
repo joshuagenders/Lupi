@@ -20,5 +20,5 @@ concurrency:
     rampUp: 2m
     rampDown: 20s
 throughput:
-    holdFor: 15s
+    holdFor: 2m20s
     thinkTime: 500ms
