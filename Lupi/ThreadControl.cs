@@ -117,18 +117,19 @@ namespace Lupi
                     {
                         DebugHelper.Write("current greater than desired, requesting task kill");
                         _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
-                        _taskKill.Enqueue(true);
+                        for (int i = 0; i < current - desired; i++)
+                        {
+                            _taskKill.Enqueue(true);
+                        }
                     }
                 }
-                DebugHelper.Write($"thread allocation loop complete. thread count {_tasks.Count}");
+                DebugHelper.Write($"main loop complete. thread count {_tasks.Count}");
                 _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
 
                 await Task.Delay(_config.Engine.CheckInterval, ct);
             }
 
-            await Task.WhenAll(_tasks);
-            _tasks.RemoveAll(t => t.IsCompleted);
-            _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
+            _stats?.Gauge(0, $"{_config.Listeners.Statsd.Bucket}.threads");
         }
 
         public bool RequestTaskContinuedExecution()
@@ -174,9 +175,9 @@ namespace Lupi
                 DebugHelper.Write($"waiting complete");
             }
 
-            DebugHelper.Write($"executions {iterations}");
+            DebugHelper.Write($"executions remaining {iterations}");
             var isCompleted = IsTestComplete(startTime, iterations);
-            DebugHelper.Write($"is test completed {isCompleted} {iterations} {_config.Throughput.Iterations}");
+            DebugHelper.Write($"is test completed {isCompleted} iterations {iterations} max iterations {_config.Throughput.Iterations}");
             return isCompleted;
         }
 

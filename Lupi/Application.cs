@@ -24,9 +24,13 @@ namespace Lupi
             {
                 var startTime = DateTime.UtcNow;
                 var reportTask = Task.Run(() => _testResultPublisher.Process(ct), ct);
+
+                DebugHelper.Write($"Starting tests. Start Time {startTime}");
                 await _threadControl.Run(startTime, ct);
                 _testResultPublisher.TestCompleted = true;
+                DebugHelper.Write($"Tests completed. Awaiting reporting task.");
                 await reportTask;
+                DebugHelper.Write($"Reporting completed.");
             }
             catch (TaskCanceledException) { }
             catch (OperationCanceledException) { }
