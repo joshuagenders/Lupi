@@ -14,7 +14,7 @@ listeners:
         host: 127.0.0.1
         port: 8125
         prefix: Lupi.Examples
-        bucket: hightthroughputhighthreads
+        bucket: highthroughputhighthreads
 concurrency:
     threads: 500
 throughput:
