@@ -46,14 +46,14 @@ dotnet run --project Lupi/Lupi.csproj /path/to/myConfigFile.yml
 ## Configuration
 ```yaml
 test:
-    assemblyPath: path/to/my.dll
+    assemblyPath: path/to/my.dll # relative to the CWD, not to the configuration file
     singleTestClassInstance: true
     testClass: MyNamespace.MyClass
     testMethod: MyMethod
     setupClass: MyNamespace.SetupClass
-    setupMethod: Init
+    setupMethod: Init # executed once before test method execution
     teardownClass: MyNamespace.TeardownClass
-    teardownMethod: Teardown
+    teardownMethod: Teardown # executed once at the end of the test
 throughput:
     waitTime: 1s500ms
     tps: 20 # tests per second
@@ -100,13 +100,17 @@ engine:
 baseConfig: BaseConfig.yml
 ```
 
-# Concurrency and Throughput
+# Concepts
+## Concurrency and Throughput
 Throughput (the number of requests) and concurrency (the number of possible concurrent test executions) are separate concepts in Lupi. Each can be ramped up or down independently of each other (though lowering concurrency may restrict the ability to meet desired throughput).
 
-# Specifying load
-There are two ways to specify load for concurrency and throughput. The first is static values with optional ramp-up / ramp-down periods. 
+## Phases
+Concurrency and throughput in Lupi tests are divided into stages called phases.
+Each phase executes in order.
 
-For example:
+When you specify ramp up, holdFor and ramp down values, Lupi generates a phase for each at run time - known as standard phases.
+
+### Standard phases
 ```yaml
 concurrency:
     threads: 10
@@ -120,7 +124,8 @@ throughput:
     rampDown: 30s
 ```
 
-The second is to specify a series of phases. Phases can be constant, or a linear progression from one value to another.
+### Custom phases
+Phases can be constant, or a linear progression from one value to another.
 ```yaml
 concurrency:
     -
