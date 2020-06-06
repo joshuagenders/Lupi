@@ -15,10 +15,29 @@ Lupi supports a plugin system for loading and executing code from compatible DLL
 * Don't need local visualisations of test execution, just a reliable load agent.
 
 ## Quickstart
+### Publish test solution
+Lupi uses a plugin architecture. Start by writing a test and then publish your test solution.
 ```bash
 dotnet publish -c Release
-cd Lupi/bin/Release/netcoreapp3.0/publish
-dotnet run Lupi.dll <config path>
+```
+### Create configuration file
+Create a configuration file. Here's a simple example - the full configuration specification is found further below.
+```yaml
+test:
+    assemblyPath: path/to/my.dll
+    testClass: MyNamespace.MyClass
+    testMethod: MyMethod
+concurrency:
+    threads: 10 
+    rampUp: 10s
+    holdFor: 2m
+throughput:
+    waitTime: 1s500ms
+```
+
+### Run Lupi
+```bash
+dotnet run --project Lupi/Lupi.csproj /path/to/myConfigFile.yml
 ```
 
 ## Configuration
@@ -33,7 +52,8 @@ test:
     teardownClass: MyNamespace.TeardownClass
     teardownMethod: Teardown
 throughput:
-    tps: 20
+    waitTime: 1s500ms
+    tps: 20 # tests per second
     rampUp: 20s
     holdFor: 10m
     rampDown: 2m
@@ -53,9 +73,9 @@ throughput:
         to: 0
 concurrency:
     threads: 10 
-    rampUp: 2m
-    # holdFor is only specified once and is used for both concurrency and throughput
-    rampDown: 30s
+    rampUp: 10s
+    holdFor: 2m10s
+    rampDown: 10s
     openWorkload: true # i.e. can add additional threads when throughput is not met
     minConcurrency: 3 # requires open workload
     maxConcurrency: 1500 # requires open workload
@@ -122,6 +142,7 @@ which is equivalent to
 ```yaml
 concurrency:
     threads: 20
+    concurrency
 throughput:
     -   # rampup
         duration: 2m
@@ -140,3 +161,11 @@ throughput:
 `TimeSpan` objects returned from test methods will be used as the duration value in test results.
 Any value type will be serialised with `toString()`, and other types will be JSON serialised.
 Exceptions are also JSON serialised.
+
+## Open Workload
+Whenever throughput is specified, an open workload is created. Threads will wait and execute as fast as possible.
+
+If `concurrency.openWorkload` is `true`, then the concurrency phases are ignored and Lupi will try and allocate as many threads as it needs to in order to reach desired tests per second, within the `concurrency.minThreads` and `concurrency.maxThreads` limits.
+
+When concurrency phases are provided, then the number of threads is determined by the phases, and threads will wait until they are permitted to execute.
+In both scenarios, setting thread levels too low will result in a closed workload as new thread allocation will not be possible.

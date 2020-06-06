@@ -5,8 +5,14 @@
   - separate values for concurrency + throughput rampup/down
   - custom phases
   - result aggregation
+  - only concurrency phases
+  - only throughput phases
 - Aggregations with basic console reporting
-- validate input config, remove automapper
+- validate input config
+    - no negative values
+    - no phases and standard phases
+    - valid bucket names (dot positions, special chars)
+    - required fields (some duration in provided/built phases)
 - profile the load agent and address hotspots, generate flame graphs
 - Test actual examples against real site
 - Add configurable + verbose logging
@@ -16,20 +22,14 @@
 
 # Next Features
 
-## Configuration inheritance
-specify a base config - has bugs - test + fix
--write own mapper
-
 ## Aggregating listener
 - what are the requirements / use cases here?
-  - console listener
+  - console listener / other listeners
+  - moving avg? avg? configurable?
 
 ## Make console reporter report better
 - use aggregator results
 - Configurable file listener output formats
-
-## Config validation
-Required fields
 
 ---
 
