@@ -113,7 +113,7 @@ namespace Lupi
                         DebugHelper.Write("desired greater than current");
                         StartTask(startTime, ct);
                     }
-                    else if (desired > current)
+                    else if (desired < current)
                     {
                         DebugHelper.Write("current greater than desired, requesting task kill");
                         _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
@@ -202,19 +202,16 @@ namespace Lupi
         private bool StartTask(DateTime startTime, CancellationToken ct)
         {
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.starttask");
-            var atMax = _config.Concurrency.OpenWorkload
-                ? _tasks.Count >= _config.Concurrency.MaxThreads
-                : _tasks.Count >= _config.Concurrency.Threads;
-
-            if (!atMax)
+            if (_config.Concurrency.OpenWorkload 
+                && _tasks.Count >= _config.Concurrency.MaxThreads)
             {
-                _tasks.Add(Task.Run(() => 
-                    new TestThread(this, _plugin, _testResultPublisher, _stats, _config)
-                        .Run(startTime, ct), ct));
-
-                return true;
+                return false;
             }
-            return false;
+
+            _tasks.Add(Task.Run(() => 
+                new TestThread(this, _plugin, _testResultPublisher, _stats, _config)
+                    .Run(startTime, ct), ct));
+            return true;
         }
 
         private bool IsTestComplete(DateTime startTime, int iterationsRemaining) =>
