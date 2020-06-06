@@ -14,21 +14,76 @@ E.g.
 > I want to run as much load as I can
  - Specify an extremely high throughput with an open workload
 
+```yaml
+concurrency:
+    openWorkload: true
+    minThreads: 10
+    maxThreads: 1000
+throughput:
+    tps: 5000
+    holdFor: 2m
+```
+
  OR
  
  - Specify a high number of threads with no throughput control or think time
 
+```yaml
+concurrency:
+    threads: 250
+    holdFor: 2m
+```
 > I care both about the number of _concurrent_ tests and the _rate_ at which tests are executed
 
 i.e. I want to run tests at a specific rate, run this many threads, it should be enough
  - specific concurrency and throughput patterns
 
+```yaml
+concurrency:
+    threads: 20
+    holdFor: 5m
+throughput:
+    tps: 15.2
+    holdFor: 5m
+```
+
 > I want to run tests at a specific rate, run as many threads as necessary
 
  - throughput with open workload
+
+```yaml
+concurrency:
+    openWorkload: true
+    minThreads: 2
+    maxThreads: 300
+throughput:
+    tps: 15.2
+    holdFor: 5m
+```
 
 > I want to run tests at a specific rate, with a closed workload.
 
 E.g. A system that is normally invoked by a set of single-threaded workers.
  - concurrency only with think time
+
+```yaml
+concurrency:
+    threads: 20
+    holdFor: 1m
+throughput:
+    thinkTime: 150ms
+    holdFor: 1m
+```
+
+OR
+
  - throughput with a `concurrency.maxThreads` low enough that the thread count remains at max for the given throughput.
+
+```yaml
+concurrency:
+    maxThreads: 20
+    minThreads: 15
+throughput:
+    tps: 1000
+    holdFor: 1m
+```
