@@ -1,5 +1,4 @@
 # Remaining MVP
-- Fix token logic
 - add more unit tests
   - failed tests / exception handling
   - threads that hold on for too long/lock

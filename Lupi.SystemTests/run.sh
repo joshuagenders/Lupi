@@ -19,11 +19,10 @@ rm -rf Examples
 cp -r ../Lupi.Examples/bin/Release/netcoreapp3.0/publish/ Examples
 
 pushd Configurations
-# for i in *.yml; do
-#     run_file $i
-#     echo "sleeping to create a gap between runs"
-#     sleep 12s
-#     echo "awake"
-# done
-run_file RampUpRampDown.yml
+for i in *.yml; do
+    run_file $i
+    echo "sleeping to create a gap between runs"
+    sleep 12s
+    echo "awake"
+done
 popd
