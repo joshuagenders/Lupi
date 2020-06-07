@@ -97,37 +97,26 @@ namespace Lupi
                         if (threadCount < _config.Concurrency.MinThreads)
                         {
                             DebugHelper.Write("concurrency less than min");
-                            AdjustThreads(startTime, _config.Concurrency.MinThreads - threadCount, ct);
+                            SetThreadLevel(startTime, _config.Concurrency.MinThreads - threadCount, ct);
                         }
 
                         var currentCount = _taskExecution.CurrentCount;
                         if (currentCount > 1)
                         {
-                            AdjustThreads(startTime, currentCount - 1, ct);
+                            var amount = Math.Max(
+                                _config.Concurrency.MinThreads,
+                                Math.Min(_config.Concurrency.MaxThreads - threadCount, threadCount + currentCount));
+                            SetThreadLevel(startTime, amount, ct);
                         }
                     }
                     else
                     {
                         DebugHelper.Write("calculate threads for closed workload");
                         var desired = _config.Concurrency.Phases.CurrentDesiredThreadCount(startTime, now);
-                        var current = _tasks.Where(t => !t.IsCompleted).Count();
-                        DebugHelper.Write($"desired threads: {desired}. current threads: {current}");
-                        if (desired > current)
-                        {
-                            DebugHelper.Write("desired greater than current");
-                            StartTask(startTime, ct);
-                        }
-                        else if (desired < current)
-                        {
-                            DebugHelper.Write("current greater than desired, requesting task kill");
-                            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
-                            for (int i = 0; i < current - desired; i++)
-                            {
-                                _taskKill.Enqueue(true);
-                            }
-                        }
+                        DebugHelper.Write($"desired threads: {desired}. current threads: {threadCount}");
+                        SetThreadLevel(startTime, desired, ct);
                     }
-                    DebugHelper.Write($"main loop complete. thread count {_tasks.Count}");
+                    DebugHelper.Write($"main loop complete. thread count {threadCount}");
                     _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
 
                     await Task.Delay(_config.Engine.CheckInterval, ct);
@@ -189,38 +178,31 @@ namespace Lupi
             return isCompleted;
         }
 
-        private void AdjustThreads(DateTime startTime, int amount, CancellationToken ct)
+        private void SetThreadLevel(DateTime startTime, int threads, CancellationToken ct)
         {
-            if (amount > 0)
+            var taskCount = _tasks.Count;
+            var difference = threads - taskCount;
+            if (difference < 0)
             {
-                for (var i = 0; i < amount; i++)
+                var tasksToKill = Math.Abs(difference) - _taskKill.Count;
+                if (tasksToKill > 0)
                 {
-                    StartTask(startTime, ct);
+                    _stats?.Increment(tasksToKill, $"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
+                    for (var i = 0; i < tasksToKill; i++)
+                    {
+                        _taskKill.Enqueue(true);
+                    }
                 }
             }
-            else if (amount < 0)
+            else if (difference > 0)
             {
-                for (var i = 0; i > amount; i--)
-                {
-                    _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
-                    _taskKill.Enqueue(true);
-                }
+                _stats?.Increment(difference, $"{_config.Listeners.Statsd.Bucket}.starttask");
+                _tasks.AddRange(
+                    Enumerable.Range(0, difference).Select(_ => 
+                        Task.Run(() => 
+                            new TestThread(this, _plugin, _testResultPublisher, _stats, _config)
+                                .Run(startTime, ct), ct)));
             }
-        }
-
-        private bool StartTask(DateTime startTime, CancellationToken ct)
-        {
-            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.starttask");
-            if (_config.Concurrency.OpenWorkload 
-                && _tasks.Count >= _config.Concurrency.MaxThreads)
-            {
-                return false;
-            }
-
-            _tasks.Add(Task.Run(() => 
-                new TestThread(this, _plugin, _testResultPublisher, _stats, _config)
-                    .Run(startTime, ct), ct));
-            return true;
         }
 
         private bool IsTestComplete(DateTime startTime, int iterationsRemaining) =>

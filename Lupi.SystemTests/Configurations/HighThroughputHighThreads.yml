@@ -7,6 +7,7 @@ listeners:
 
 concurrency:
     threads: 500
+    holdFor: 30s
 
 throughput:
     tps: 400

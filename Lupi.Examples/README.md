@@ -66,3 +66,23 @@ concurrency:
 throughput:
     thinkTime: 150ms
 ```
+
+## I want to create a burst of load
+
+> Prepare threads first, then create high throughput
+
+```yaml
+concurrency:
+    phases:
+    - from: 1
+      to: 100
+      duration: 10s
+    - threads: 100
+      duration: 15s
+throughput:
+    phases:
+    - tps: 0
+      duration: 10s
+    - tps: 500
+      duration: 15s
+```

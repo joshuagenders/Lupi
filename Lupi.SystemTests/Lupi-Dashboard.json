@@ -34,11 +34,11 @@
   },
   "editable": true,
   "gnetId": null,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "hideControls": false,
   "id": null,
   "links": [],
-  "refresh": false,
+  "refresh": "10s",
   "rows": [
     {
       "collapse": false,
@@ -173,8 +173,8 @@
           "timeShift": null,
           "title": "Timings",
           "tooltip": {
-            "shared": true,
-            "sort": 2,
+            "shared": false,
+            "sort": 0,
             "value_type": "individual"
           },
           "type": "graph",
@@ -214,7 +214,7 @@
     },
     {
       "collapse": false,
-      "height": 403,
+      "height": 289,
       "panels": [
         {
           "aliasColors": {},
@@ -227,6 +227,8 @@
           "legend": {
             "avg": false,
             "current": false,
+            "hideEmpty": true,
+            "hideZero": true,
             "max": false,
             "min": false,
             "show": true,
@@ -236,7 +238,7 @@
           "lines": true,
           "linewidth": 1,
           "links": [],
-          "nullPointMode": "null",
+          "nullPointMode": "null as zero",
           "percentage": false,
           "pointradius": 5,
           "points": false,
@@ -248,19 +250,9 @@
           "steppedLine": false,
           "targets": [
             {
-              "hide": true,
-              "refId": "A",
-              "target": "aliasByNode(stats.timers.Lupi.Examples.$Test.success.count, 4, 5, 6)"
-            },
-            {
               "hide": false,
               "refId": "B",
               "target": "aliasByNode(stats.gauges.Lupi.Examples.$Test.threads, 4, 5)"
-            },
-            {
-              "hide": true,
-              "refId": "C",
-              "target": "aliasByNode(stats.counters.Lupi.Examples.$Test.*.count, 4, 5, 6)"
             }
           ],
           "thresholds": [],
@@ -311,6 +303,8 @@
             "alignAsTable": true,
             "avg": true,
             "current": false,
+            "hideEmpty": true,
+            "hideZero": true,
             "max": true,
             "min": false,
             "rightSide": false,
@@ -335,7 +329,7 @@
             {
               "hide": false,
               "refId": "C",
-              "target": "aliasByNode(stats.counters.Lupi.Examples.$Test.*.count, 4, 5, 6)"
+              "target": "aliasByNode(stats.counters.Lupi.Examples.$Test.*.count, 4, 5)"
             }
           ],
           "thresholds": [],
@@ -343,7 +337,7 @@
           "timeShift": null,
           "title": "Lupi Internals",
           "tooltip": {
-            "shared": true,
+            "shared": false,
             "sort": 0,
             "value_type": "individual"
           },
@@ -411,7 +405,7 @@
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {
@@ -441,5 +435,5 @@
   },
   "timezone": "",
   "title": "Lupi",
-  "version": 5
+  "version": 10
 }

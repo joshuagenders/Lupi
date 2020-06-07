@@ -11,6 +11,15 @@ namespace Lupi
 {
     class Program
     {
+        private static string LupiAsciiArt =
+@"
+██╗     ██╗   ██╗██████╗ ██╗
+██║     ██║   ██║██╔══██╗██║
+██║     ██║   ██║██████╔╝██║
+██║     ██║   ██║██╔═══╝ ██║
+███████╗╚██████╔╝██║     ██║
+╚══════╝ ╚═════╝ ╚═╝     ╚═╝
+";
         public static void Main(string[] args)
         {
             MainAsync(args).GetAwaiter().GetResult();
@@ -23,6 +32,7 @@ namespace Lupi
                 .ParseArguments<Options>(args)
                 .WithParsedAsync(async o =>
                 {
+                    Console.WriteLine(LupiAsciiArt);
                     Console.WriteLine($"config file: {o.ConfigFilepath}");
                     var config = await ConfigHelper.GetConfigFromFile(o.ConfigFilepath);
                     if (config == null)

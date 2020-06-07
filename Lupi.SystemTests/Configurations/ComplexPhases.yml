@@ -15,10 +15,10 @@ concurrency:
     -   duration: 50s
         threads: 35
     -   duration: 40s
-        from: 100
+        from: 35
         to: 50
     -   duration: 25s
-        from: 10
+        from: 50
         to: 75
             
 throughput:

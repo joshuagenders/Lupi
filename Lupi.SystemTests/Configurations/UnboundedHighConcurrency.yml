@@ -7,8 +7,6 @@ listeners:
 
 concurrency:
     threads: 500
-
-throughput:
     holdFor: 30s
 
 baseConfig: ../base-config.yml

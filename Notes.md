@@ -1,10 +1,5 @@
 # Remaining MVP
-- Aggregations with basic console reporting
-- validate input config
-    - no negative values
-    - no phases and standard phases
-    - valid bucket names (dot positions, special chars)
-    - required fields (some duration in provided/built phases)
+- Fix token logic
 - add more unit tests
   - failed tests / exception handling
   - threads that hold on for too long/lock
@@ -13,6 +8,12 @@
   - result aggregation
   - only concurrency phases
   - only throughput phases
+- Aggregations with basic console reporting
+- validate input config
+    - no negative values
+    - no phases and standard phases
+    - valid bucket names (dot positions, special chars)
+    - required fields (some duration in provided/built phases)
 - Add configurable + verbose logging
 - profile the load agent and address hotspots, generate flame graphs
 - complete grafana dashboard

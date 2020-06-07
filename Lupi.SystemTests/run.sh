@@ -21,6 +21,8 @@ cp -r ../Lupi.Examples/bin/Release/netcoreapp3.0/publish/ Examples
 pushd Configurations
 for i in *.yml; do
     run_file $i
-    sleep 4s
+    echo "sleeping to create a gap between runs"
+    sleep 12s
+    echo "awake"
 done
 popd

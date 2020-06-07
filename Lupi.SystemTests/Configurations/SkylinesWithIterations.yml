@@ -6,30 +6,31 @@ listeners:
         bucket: skylines
 
 concurrency:
-    threads: 10
+    threads: 20
+    holdFor: 4m
 
 throughput:
     iterations: 10000
     phases:
-    -   duration: 10s
+    -   duration: 20s
         tps: 2
-    -   duration: 10s
+    -   duration: 20s
         tps: 5
-    -   duration: 10s
+    -   duration: 20s
         tps: 7
-    -   duration: 10s
+    -   duration: 20s
         tps: 2
-    -   duration: 10s
+    -   duration: 20s
         tps: 3
-    -   duration: 10s
+    -   duration: 20s
         tps: 6
-    -   duration: 10s
+    -   duration: 20s
         tps: 20
-    -   duration: 10s
+    -   duration: 20s
         tps: 8
-    -   duration: 10s
+    -   duration: 20s
         tps: 4
-    -   duration: 3m
+    -   duration: 1m
         tps: 20
 
 baseConfig: ../base-config.yml
