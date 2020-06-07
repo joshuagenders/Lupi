@@ -155,7 +155,7 @@ namespace Lupi.Configuration
                 (p, i) => new
                 {
                     Phase = p,
-                    PhaseStart = phases.Where((x, n) => i < n)
+                    PhaseStart = phases.Where((x, n) => n < i)
                                        .Sum(x => x.Duration.TotalMilliseconds)
                 });
             var currentPhase = phaseStartTimes
