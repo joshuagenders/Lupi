@@ -66,19 +66,22 @@ namespace Lupi
                     var now = DateTime.UtcNow;
                     // execution tokens
                     var tokensToRelease = _config.Throughput.Phases.GetTokensForPeriod(startTime, lastTime, now);
-                    var wholeTokens = Convert.ToInt32(tokensToRelease);
+                    lastTime = now;
 
+                    var wholeTokens = Convert.ToInt32(tokensToRelease);
                     partialTokens += tokensToRelease - wholeTokens;
                     if (partialTokens >= 1)
                     {
                         wholeTokens += Convert.ToInt32(partialTokens);
                         partialTokens -= Math.Truncate(partialTokens);
                     }
-                    lastTime = now;
+                    
                     if (_config.Throughput.Iterations > 0 && iterationsRemaining - wholeTokens < 0)
                     {
                         wholeTokens = iterationsRemaining;
                     }
+
+                    DebugHelper.Write($"calculated tokens. {wholeTokens} tokens");
                     if (wholeTokens > 0)
                     {
                         DebugHelper.Write($"releasing {wholeTokens} tokens");
@@ -89,7 +92,6 @@ namespace Lupi
                     // threads
                     _tasks.RemoveAll(x => x.IsCompleted);
                     var threadCount = _tasks.Count;
-
                     DebugHelper.Write($"thread count {threadCount}");
                     if (_config.Concurrency.OpenWorkload)
                     {
@@ -144,13 +146,20 @@ namespace Lupi
         public async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
         {
             DebugHelper.Write($"task execution request start");
+            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecution");
+
             if (!RequestTaskContinuedExecution())
             {
                 DebugHelper.Write($"found kill token. dying.");
                 return true;
             }
+            if (_config.ThroughputEnabled)
+            {
+                DebugHelper.Write($"task execution enabled, waiting");
+                await _taskExecution.WaitAsync(ct);
+                DebugHelper.Write($"waiting complete");
+            }
 
-            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecution");
             int iterations = 0;
             if (_config.Throughput.Iterations > 0)
             {
@@ -164,12 +173,6 @@ namespace Lupi
                 {
                     _taskDecrement.Release();
                 }
-            }
-            if (_config.ThroughputEnabled)
-            {
-                DebugHelper.Write($"task execution enabled, waiting");
-                await _taskExecution.WaitAsync(ct);
-                DebugHelper.Write($"waiting complete");
             }
 
             DebugHelper.Write($"executions remaining {iterations}");

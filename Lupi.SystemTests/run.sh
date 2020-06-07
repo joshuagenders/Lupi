@@ -2,7 +2,7 @@
 function run_file {
     echo "running $1"
     dotnet run --project ../../Lupi/Lupi.csproj $1
-    rm -f results.log
+    # rm -f results.log
     echo "finished $1"
     echo "---"
 }
@@ -19,10 +19,11 @@ rm -rf Examples
 cp -r ../Lupi.Examples/bin/Release/netcoreapp3.0/publish/ Examples
 
 pushd Configurations
-for i in *.yml; do
-    run_file $i
-    echo "sleeping to create a gap between runs"
-    sleep 12s
-    echo "awake"
-done
+# for i in *.yml; do
+#     run_file $i
+#     echo "sleeping to create a gap between runs"
+#     sleep 12s
+#     echo "awake"
+# done
+run_file RampUpRampDown.yml
 popd

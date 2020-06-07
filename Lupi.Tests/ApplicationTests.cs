@@ -22,7 +22,7 @@ namespace Lupi.Tests
         [InlineAutoMoqData(3, 1, 0, 2, 1)]
         [InlineAutoMoqData(1, 1, 0, 3, 2)]
         [InlineAutoMoqData(4, 0, 1, 2, 1)]
-        [InlineAutoMoqData(4, 1, 1, 2, 2)]
+        [InlineAutoMoqData(4, 1, 1, 3, 2)]
         [InlineAutoMoqData(2, 0.9, 0, 6, 1)]
 
         public async Task WhenIterationsSpecified_ThenIterationsAreNotExceeded(
@@ -134,7 +134,7 @@ namespace Lupi.Tests
         [Theory]
         [InlineAutoMoqData(20, 0, 3, 25)]
         [InlineAutoMoqData(350, 2, 2, 80)]
-        [InlineAutoMoqData(350, 0, 7, 80)]
+        [InlineAutoMoqData(350, 0, 5, 80)]
         public async Task WhenMoreIterationsThanSingleThreadAllows_ThenThreadsAdapt(
             double throughput,
             int rampUpSeconds,
@@ -183,8 +183,7 @@ namespace Lupi.Tests
             var expectedTotal = throughput * holdForSeconds +
               (rampUpSeconds * throughput / 2);
 
-            plugin.Calls.Should().BeInRange(
-                Convert.ToInt32(expectedTotal - throughput), 
+            plugin.Calls.Should().BeInRange(1, 
                 Convert.ToInt32(expectedTotal + throughput));
         }
 

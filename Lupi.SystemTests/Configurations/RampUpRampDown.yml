@@ -1,0 +1,21 @@
+test:
+    testMethod: TimedGetTimespan
+
+listeners:
+    statsd:
+        bucket: rampuprampdown
+
+concurrency:
+    threads: 50
+    rampUp: 20s
+    holdFor: 20s
+    rampDown: 20s
+
+throughput:
+    tps: 20
+    rampUp: 20s
+    holdFor: 20s
+    rampDown: 20s
+    thinkTime: 100ms
+
+baseConfig: ../base-config.yml
