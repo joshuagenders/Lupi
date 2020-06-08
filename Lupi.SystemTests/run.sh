@@ -2,7 +2,7 @@
 function run_file {
     echo "running $1"
     dotnet run --project ../../Lupi/Lupi.csproj $1
-    # rm -f results.log
+    rm -f results.log
     echo "finished $1"
     echo "---"
 }

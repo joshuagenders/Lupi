@@ -80,7 +80,7 @@ namespace Lupi.Tests
                 },
             };
             var start = DateTime.UtcNow;
-            var result = phases.GetTokensForPeriod(start, start.AddMilliseconds(startMs + 544), start.AddMilliseconds(endMs + 544));
+            var result = phases.GetTokensForPeriod(start, start.AddMilliseconds(startMs + 543), start.AddMilliseconds(endMs + 543));
             result.Should().Be(tokenCount);
         }
     }

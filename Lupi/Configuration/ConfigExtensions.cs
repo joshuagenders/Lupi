@@ -7,7 +7,7 @@ namespace Lupi.Configuration
 {
     public static class ConfigExtensions
     {
-        public static TimeSpan TestDuration (this Config config)
+        public static TimeSpan TestDuration(this Config config)
         {
             if (config.Throughput.Phases.Any())
             {
@@ -108,25 +108,25 @@ namespace Lupi.Configuration
             var lastMsThroughTest = lastTime.Subtract(startTime).TotalMilliseconds;
             var msThroughTest = now.Subtract(startTime).TotalMilliseconds;
 
-            var x = phases.Select(
+            var phaseTimes = phases.Select(
                (p, i) => new
                {
                    Phase = p,
                    PhaseStart = phases.Where((x, n) => n < i)
-                                      .Sum(x => x.Duration.TotalMilliseconds + 1),
+                                      .Sum(x => x.Duration.TotalMilliseconds),
                    PhaseEnd = phases.Where((x, n) => n < i)
-                                      .Sum(x => x.Duration.TotalMilliseconds + 1) + p.Duration.TotalMilliseconds,
+                                      .Sum(x => x.Duration.TotalMilliseconds) + p.Duration.TotalMilliseconds,
                });
-            var y2 = x
-               .Where(p => p.PhaseStart <= msThroughTest
-                        && p.PhaseEnd >= msThroughTest);
-            var y = y2.Select(p => new
+            var currentPhases = phaseTimes
+               .Where(p => p.PhaseStart <= msThroughTest && msThroughTest < p.PhaseEnd
+                        || p.PhaseStart <= lastMsThroughTest && lastMsThroughTest < p.PhaseEnd);
+            var currentPhasesCoordinates = currentPhases.Select(p => new
             {
                 p.Phase,
                 x1 = Math.Max(p.PhaseStart, lastMsThroughTest) - p.PhaseStart,
                 x2 = Math.Min(p.PhaseEnd, msThroughTest) - p.PhaseStart
             });
-            var z = y.Select(p =>
+            var result = currentPhasesCoordinates.Select(p =>
             {
                 var length = Math.Abs(p.x2 - p.x1);
                 if (p.Phase.Tps > 0)
@@ -142,25 +142,33 @@ namespace Lupi.Configuration
                     var y = p.x2 * gradient;
                     var squareArea = length * Math.Min(p.Phase.ToTps, p.Phase.FromTps);
                     var triangleArea = length * Math.Abs(y - lastY) / 2;
-                    return (triangleArea + squareArea) / 1000;
+                    var result = (triangleArea + squareArea) / 1000;
+                    DebugHelper.Write(JsonConvert.SerializeObject(new {
+                        gradient, lastY, y, squareArea, triangleArea, length, result, p,
+                        msThroughTest, lastMsThroughTest
+                    }));
+                    return result;
                 }
             })
             .Sum();
-            return z;
+            return result;
         }
 
-        public static int CurrentDesiredThreadCount(this IEnumerable<ConcurrencyPhase> phases, DateTime startTime, DateTime now)
+        public static int CurrentDesiredThreadCount(
+            this IEnumerable<ConcurrencyPhase> phases, 
+            DateTime startTime, 
+            DateTime now)
         {
             var phaseStartTimes = phases.Select(
                 (p, i) => new
                 {
                     Phase = p,
-                    PhaseStart = phases.Where((x, n) => n < i)
-                                       .Sum(x => x.Duration.TotalMilliseconds)
+                    PhaseStart = startTime.AddMilliseconds(phases.Where((x, n) => n < i)
+                                          .Sum(x => x.Duration.TotalMilliseconds))
                 });
             var currentPhase = phaseStartTimes
-                .Where(p => startTime.AddMilliseconds(p.PhaseStart) <= now)
-                .Where(p => startTime.AddMilliseconds(p.PhaseStart).Add(p.Phase.Duration) >= now)
+                .Where(p => p.PhaseStart <= now
+                         && now < p.PhaseStart.Add(p.Phase.Duration))
                 .FirstOrDefault();
             if (currentPhase == null)
             {
@@ -177,10 +185,9 @@ namespace Lupi.Configuration
                 var gradient = 
                     (currentPhase.Phase.ToThreads - currentPhase.Phase.FromThreads)
                     / currentPhase.Phase.Duration.TotalMilliseconds;
-                var phaseStart = startTime.AddMilliseconds(currentPhase.PhaseStart);
-                var x = (now.Subtract(phaseStart).TotalMilliseconds);
+                var x = (now.Subtract(currentPhase.PhaseStart).TotalMilliseconds);
                 var result = Convert.ToInt32(currentPhase.Phase.FromThreads + x * gradient);
-                DebugHelper.Write($"THREADS: {JsonConvert.SerializeObject(new {gradient, x, phaseStart, result, currentPhase})}");
+                DebugHelper.Write($"THREADS: {JsonConvert.SerializeObject(new {gradient, x, result, currentPhase})}");
                 return result;
             }
         }

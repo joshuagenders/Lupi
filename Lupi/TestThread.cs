@@ -47,6 +47,7 @@ namespace Lupi
                     if (result == killDelay)
                     {
                         DebugHelper.Write($"{threadName} got tired of waiting. waited {watch.ElapsedMilliseconds}ms then executed. dying.");
+                        _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.diedofboredom");
                         shouldExit = true;
                         break;
                     }

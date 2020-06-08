@@ -6,7 +6,7 @@ namespace Lupi
     {
         public static void Write(string message)
         {
-            // Console.WriteLine($"{DateTime.UtcNow.ToString("H:mm:ss.fff")} - {message}");
+            Console.WriteLine($"{DateTime.UtcNow.ToString("H:mm:ss.fff")} - {message}");
             System.Diagnostics.Debug.WriteLine($"{DateTime.UtcNow.ToString("H:mm:ss.fff")} - {message}");
         }
     }

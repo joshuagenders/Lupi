@@ -81,7 +81,7 @@ namespace Lupi
                         wholeTokens = iterationsRemaining;
                     }
 
-                    DebugHelper.Write($"calculated tokens. {wholeTokens} tokens");
+                    DebugHelper.Write($"calculated tokens. {wholeTokens} tokens. {partialTokens} partialTokens");
                     if (wholeTokens > 0)
                     {
                         DebugHelper.Write($"releasing {wholeTokens} tokens");
@@ -146,11 +146,13 @@ namespace Lupi
         public async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
         {
             DebugHelper.Write($"task execution request start");
-            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecution");
+            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionstart");
 
             if (!RequestTaskContinuedExecution())
             {
                 DebugHelper.Write($"found kill token. dying.");
+                _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionend");
+                _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkill");
                 return true;
             }
             if (_config.ThroughputEnabled)
@@ -178,6 +180,7 @@ namespace Lupi
             DebugHelper.Write($"executions remaining {iterations}");
             var isCompleted = IsTestComplete(startTime, iterations);
             DebugHelper.Write($"is test completed {isCompleted} iterations {iterations} max iterations {_config.Throughput.Iterations}");
+            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionend");
             return isCompleted;
         }
 
