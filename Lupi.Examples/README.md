@@ -3,6 +3,8 @@ Examples use [Puppeteer Sharp](https://github.com/hardkoded/puppeteer-sharp) and
 
 ## Example Dashboard
 An [example dashboard](https://github.com/joshuagenders/lupi/blob/master/Lupi.SystemTests/Lupi-Dashboard.json) is provided.
+
+
 <img
     alt="Example Dashboard"
     src="https://github.com/joshuagenders/lupi/blob/master/Lupi.Examples/Lupi-Dashboard.png"
