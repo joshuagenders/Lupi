@@ -20,6 +20,7 @@ namespace Lupi.Tests
         [InlineAutoMoqData(10, 20, 1, 0, 0, 20000, 100)]
         [InlineAutoMoqData(1, 1, 0, 0, 0, 1000, 0.5)]
         [InlineAutoMoqData(1, 0, 0, 1, 0, 1000, 0.5)]
+        [InlineAutoMoqData(20, 0, 2, 60, 2000, 17000, 262.5)]
         public void ThroughputForStandardPhasesIsCorrect(
             int throughput,
             int rampUpSeconds,

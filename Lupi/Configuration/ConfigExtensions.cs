@@ -140,7 +140,15 @@ namespace Lupi.Configuration
                         / p.Phase.Duration.TotalMilliseconds;
                     var lastY = p.x1 * gradient;
                     var y = p.x2 * gradient;
-                    var squareArea = length * Math.Min(p.Phase.ToTps, p.Phase.FromTps);
+                    double squareArea = 0;
+                    if (p.Phase.FromTps < p.Phase.ToTps)
+                    {
+                        squareArea = length * p.Phase.FromTps;
+                    }
+                    else
+                    {
+                        squareArea = length * (p.Phase.FromTps - y);
+                    }
                     var triangleArea = length * Math.Abs(y - lastY) / 2;
                     var result = (triangleArea + squareArea) / 1000;
                     DebugHelper.Write(JsonConvert.SerializeObject(new {
