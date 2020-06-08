@@ -1,6 +1,25 @@
 # Lupi Examples
 Examples use [Puppeteer Sharp](https://github.com/hardkoded/puppeteer-sharp) and the [.NET HTTP client](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-3.1). The browser and Http Client are both accessed through the `GlobalState` class, where the setup, teardown and dependency injection methods are defined.
 
+## Example Dashboard
+An [example dashboard](https://github.com/joshuagenders/lupi/blob/master/Lupi.SystemTests/Lupi-Dashboard.json) is provided.
+<img
+    alt="Example Dashboard"
+    src="https://github.com/joshuagenders/lupi/blob/master/Lupi.Examples/Lupi-Dashboard.png"
+    width="600"
+/>
+
+### Running the dashboard
+Locally, I use [this](https://github.com/MariaLysik/docker-grafana-graphite) docker implementation to run Grafana with Graphite and Statsd.
+
+To run Grafana locally using Docker:
+- Run `docker run -d -p 80:80 -p 8125:8125/udp -p 8126:8126 --name grafana marial/grafana-graphite-statsd`
+- Open http://localhost:80
+- Login with Username and Password: 'Admin'
+- Import the example grafana dashboard from file (Upload .json File)
+- Update `listeners.statsd.host` in all Lupi config files to `127.0.0.1`
+- Run the tests and view them live in the dashboard
+
 # Publish
 `dotnet publish -c Release`
 
