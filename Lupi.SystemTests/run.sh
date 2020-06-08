@@ -25,5 +25,4 @@ for i in *.yml; do
     sleep 12s
     echo "awake"
 done
-# run_file ComplexPhases.yml
 popd
