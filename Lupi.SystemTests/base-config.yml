@@ -6,7 +6,7 @@ listeners:
     activeListeners:
     - file
     - statsd
-    # - console
+    - console
     file:
         path: results.log
     statsd:
