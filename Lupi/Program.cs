@@ -51,17 +51,30 @@ namespace Lupi
 
                     var plugin = new Plugin(config);
                     var testResultPublisher = new TestResultPublisher(config);
+                    var aggregator = new Aggregator(config);
                     var threadControl = new ThreadControl(config, plugin, testResultPublisher);
                     
-                    var listenerSubscribers = new Dictionary<string, Action>
+                    var testListenerSubscribers = new Dictionary<string, Action>
                     {
                         { "file", () => testResultPublisher.Subscribe(new FileListener(config)) },
-                        { "console", () => testResultPublisher.Subscribe(new ConsoleListener()) },
                         { "statsd", () => testResultPublisher.Subscribe(new StatsdListener(config)) }
                     };
-                    config.Listeners.ActiveListeners.ForEach(l => listenerSubscribers[l]());
+                    var aggregatorListenerSubscribers = new Dictionary<string, Action>
+                    {
+                        { "console", () => aggregator.Subscribe(new ConsoleAggregatorListener()) }
+                    };
+                    config.Listeners.ActiveListeners.ForEach(l => {
+                        if (testListenerSubscribers.ContainsKey(l))
+                        {
+                            testListenerSubscribers[l]();
+                        }
+                        if (aggregatorListenerSubscribers.ContainsKey(l))
+                        {
+                            aggregatorListenerSubscribers[l]();
+                        }
+                    });
 
-                    var app = new Application(threadControl, testResultPublisher);
+                    var app = new Application(threadControl, testResultPublisher, aggregator);
                     await app.Run(cts.Token);
                 });
         }

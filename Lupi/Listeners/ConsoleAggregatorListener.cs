@@ -1,0 +1,17 @@
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Lupi.Listeners
+{
+    public class ConsoleAggregatorListener : IAggregatorListener
+    {
+        public async Task OnResult(AggregatedResult result, CancellationToken ct)
+        {
+            Console.WriteLine($"Moving Average: {result.MovingAverage}ms, Min: {result.Min}ms, Max: {result.Max}ms");
+            Console.WriteLine($"Period Average: {result.PeriodAverage}ms, Period Min: {result.PeriodMin}ms, Period Max: {result.PeriodMax}ms");
+            Console.WriteLine($"Period Length: {result.PeriodLength}ms");
+            await Task.CompletedTask;
+        }
+    }
+}

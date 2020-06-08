@@ -8,6 +8,16 @@
   - only concurrency phases
   - only throughput phases
 - Aggregations with basic console reporting
+aggregate:
+  - executions, total, in period
+  - response times -moving average, current period avg,  min, max
+
+report:
+  - thread count
+  - current tps
+
+aggregator listener has bool sendToStatsd
+
 - validate input config
     - no negative values
     - no phases and standard phases
@@ -77,7 +87,7 @@ Parsed and passed into test method
 - Nuget?
 
 ```gherkin
-Given the default address http://blazedemo.com
+Given the site http://blazedemo.com
 And header Accept = Application/Json
 When 10 users arrive
 At 0 to 20 requests per second
@@ -88,7 +98,7 @@ Then the average response time is 200ms
 ```
 
 ```gherkin
-Given the default address http://blazedemo.com
+Given the site http://blazedemo.com
 When users request 0.5 to 0.1 requests per second over 1 minute
 And Then I request 1 to 20 times per second for for 1 minute
 And Then I request 20 times per second for for 5 minutes
@@ -96,9 +106,10 @@ Then the failure rate is below 2 percent
 ```
 
 ```gherkin
-Given the default address http://blazedemo.com
+Given the api http://blazedemo.com/api/examples?value={value}
 And header Accept = Application/Json
 And think time of 1 second
+And value is one of 1,2,3,4,5 # a valid date, a valid date after now, between 2 and 40 etc. come up with useful ways to describe data -> plug in faker
 When 10 users arrive over 30 seconds
 And then 10 users hold for 5 minutes
 Then the average response time is 200ms
@@ -114,4 +125,6 @@ Then the average response time is 200ms
 ## Maybe - Website for the tool
 Static site generator
 
-# Maybe - interpreter or wizard
+## Maybe - interpreter or wizard
+
+## Maybe - filters for statsd metrics sent (inclusive+exclusive)

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Lupi.Configuration;
+using Lupi.Listeners;
 
 namespace Lupi.Tests
 {
@@ -32,10 +33,11 @@ namespace Lupi.Tests
             int holdForSeconds,
             int iterations,
             Mock<IPlugin> plugin,
-            Mock<ITestResultPublisher> testResultPublisher)
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
         {
             var config = GetConfig(concurrency, throughput, rampUpSeconds, holdForSeconds, iterations);
-            await RunApp(config, plugin.Object, testResultPublisher.Object);
+            await RunApp(config, plugin.Object, testResultPublisher.Object, aggregator.Object);
             
             plugin.Verify(n => n.ExecuteTestMethod(), Times.Exactly(iterations));
             testResultPublisher.Verify(s => s.Publish(It.IsAny<TestResult>()), Times.Exactly(iterations));
@@ -54,7 +56,8 @@ namespace Lupi.Tests
             int rampUpSeconds,
             int holdForSeconds,
             Mock<IPlugin> plugin,
-            Mock<ITestResultPublisher> testResultPublisher)
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
         {
             var watch = new Stopwatch();
             watch.Start();
@@ -64,7 +67,7 @@ namespace Lupi.Tests
                 rampUpSeconds: rampUpSeconds, 
                 holdForSeconds: holdForSeconds);
 
-            await RunApp(config, plugin.Object, testResultPublisher.Object);
+            await RunApp(config, plugin.Object, testResultPublisher.Object, aggregator.Object);
             watch.Stop();
             watch.Elapsed.Should().BeGreaterOrEqualTo(
                 TimeSpan.FromSeconds(holdForSeconds + rampUpSeconds)
@@ -82,7 +85,8 @@ namespace Lupi.Tests
             int rampUpSeconds,
             int holdForSeconds,
             int iterations,
-            Mock<ITestResultPublisher> testResultPublisher)
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
         {
             var plugin = new PluginFake();
             var config = GetConfig(
@@ -92,7 +96,7 @@ namespace Lupi.Tests
                 holdForSeconds: holdForSeconds,
                 iterations: iterations);
 
-            await RunApp(config, plugin, testResultPublisher.Object);
+            await RunApp(config, plugin, testResultPublisher.Object, aggregator.Object);
             plugin.Calls.Should().BeLessThan(iterations);
             plugin.Calls.Should().BeGreaterThan(0);
         }
@@ -113,7 +117,8 @@ namespace Lupi.Tests
             int rampUpSeconds,
             int holdForSeconds,
             Mock<IPlugin> plugin,
-            Mock<ITestResultPublisher> testResultPublisher)
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
         {
             var config = GetConfig(
                 concurrency: concurrency,
@@ -121,7 +126,7 @@ namespace Lupi.Tests
                 rampUpSeconds: rampUpSeconds,
                 holdForSeconds: holdForSeconds);
 
-            await RunApp(config, plugin.Object, testResultPublisher.Object);
+            await RunApp(config, plugin.Object, testResultPublisher.Object, aggregator.Object);
 
             var expectedTotal = throughput * holdForSeconds +
                 (rampUpSeconds * throughput / 2);
@@ -140,7 +145,8 @@ namespace Lupi.Tests
             int rampUpSeconds,
             int holdForSeconds,
             int iterations,
-            Mock<ITestResultPublisher> testResultPublisher)
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
         {
             var plugin = new PluginFake();
             var config = GetConfig(
@@ -150,7 +156,7 @@ namespace Lupi.Tests
                 iterations: iterations,
                 openWorkload: true);
 
-            await RunApp(config, plugin, testResultPublisher.Object);
+            await RunApp(config, plugin, testResultPublisher.Object, aggregator.Object);
             plugin.Calls.Should().Be(iterations);
             testResultPublisher.Verify(s => s.Publish(It.IsAny<TestResult>()), Times.Exactly(iterations));
         }
@@ -168,7 +174,8 @@ namespace Lupi.Tests
             double throughput,
             int rampUpSeconds,
             int holdForSeconds,
-            Mock<ITestResultPublisher> testResultPublisher)
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
         {
             var plugin = new PluginFake();
             var config = GetConfig(
@@ -178,7 +185,7 @@ namespace Lupi.Tests
                 holdForSeconds: holdForSeconds,
                 openWorkload: true);
 
-            await RunApp(config, plugin, testResultPublisher.Object);
+            await RunApp(config, plugin, testResultPublisher.Object, aggregator.Object);
             
             var expectedTotal = throughput * holdForSeconds +
               (rampUpSeconds * throughput / 2);
@@ -194,10 +201,11 @@ namespace Lupi.Tests
             int thinkTimeMilliseconds,
             int expectedMax,
             Mock<IPlugin> plugin,
-            Mock<ITestResultPublisher> testResultPublisher)
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
         {
             var config = GetConfig(holdForSeconds: holdForSeconds, thinkTimeMilliseconds: thinkTimeMilliseconds);
-            await RunApp(config, plugin.Object, testResultPublisher.Object);
+            await RunApp(config, plugin.Object, testResultPublisher.Object, aggregator.Object);
             plugin.Verify(n => n.ExecuteTestMethod(), Times.Between(1, expectedMax, Moq.Range.Inclusive));
         }
 
@@ -210,7 +218,8 @@ namespace Lupi.Tests
             int holdForSeconds,
             int rampDownSeconds,
             Mock<IPlugin> plugin,
-            Mock<ITestResultPublisher> testResultPublisher)
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
         {
             var thinkTime = 200;
             var config = GetConfig(
@@ -218,7 +227,7 @@ namespace Lupi.Tests
                 holdForSeconds: holdForSeconds, 
                 rampDownSeconds: rampDownSeconds, 
                 thinkTimeMilliseconds: thinkTime);
-            await RunApp(config, plugin.Object, testResultPublisher.Object);
+            await RunApp(config, plugin.Object, testResultPublisher.Object, aggregator.Object);
 
             var throughput = 6;
             var expected = throughput * concurrency * (holdForSeconds + 1) +
@@ -230,11 +239,12 @@ namespace Lupi.Tests
         private async Task RunApp(
             Config config,
             IPlugin plugin,
-            ITestResultPublisher testResultPublisher)
+            ITestResultPublisher testResultPublisher,
+            IAggregator aggregator)
         {
             var cts = new CancellationTokenSource();
             var threadControl = new ThreadControl(config, plugin, testResultPublisher);
-            var app = new Application(threadControl, testResultPublisher);
+            var app = new Application(threadControl, testResultPublisher, aggregator);
 
             cts.CancelAfter(config.TestDuration().Add(TimeSpan.FromMilliseconds(250)));
             await app.Run(cts.Token);
