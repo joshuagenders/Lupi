@@ -163,7 +163,6 @@ which is equivalent to
 ```yaml
 concurrency:
     threads: 20
-    concurrency
 throughput:
     -   # rampup
         duration: 2m
