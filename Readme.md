@@ -105,6 +105,7 @@ listeners:
 engine:
     resultPublishingInterval: 250ms # how often the result publishing handlers are invoked
     checkInterval: 150ms # how often thread levels / throughput is assessed
+    aggregationInterval: 5s # how often results are aggregated
 baseConfig: BaseConfig.yml
 ```
 
