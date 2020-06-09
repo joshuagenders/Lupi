@@ -2,7 +2,9 @@
 Examples use [Puppeteer Sharp](https://github.com/hardkoded/puppeteer-sharp) and the [.NET HTTP client](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=netcore-3.1). The browser and Http Client are both accessed through the `GlobalState` class, where the setup, teardown and dependency injection methods are defined.
 
 # Publishing the tests
-Navigate to the solution folder and run `dotnet publish -c Release`.
+Lupi tests need to have all their dependencies present so ensure `publish` is used to produce packages instead of `build`.
+
+Navigate to the solution folder of your test solution and run `dotnet publish -c Release`.
 
 # Running the tests
 Update `test.assemblyPath` in the configuration file(s) to match the relative path from the current working directory or the full path, then execute Lupi.
