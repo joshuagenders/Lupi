@@ -7,16 +7,6 @@
   - result aggregation
   - only concurrency phases
   - only throughput phases
-- Aggregations with basic console reporting
-aggregate:
-  - executions, total, in period
-  - response times -moving average, current period avg,  min, max
-
-report:
-  - thread count
-  - current tps
-
-aggregator listener has bool sendToStatsd
 
 - validate input config
     - no negative values
@@ -33,18 +23,6 @@ aggregator listener has bool sendToStatsd
 - Publish repo and nuget packages
 
 # Next Features
-
-## Aggregating listener
-- what are the requirements / use cases here?
-  - console listener / other listeners
-  - moving avg? avg? configurable?
-
-## Make console reporter report better
-- use aggregator results
-- Configurable file listener output formats
-
----
-
 ## Returning pass/fail status from tests
  - Requires aggregator listener
  - Use exceptions or use Tuple<bool, string>?
@@ -84,7 +62,6 @@ Parsed and passed into test method
 
 ## Maybe - Gherkin syntax support - requests scenario
 - Because I can
-- Nuget?
 
 ```gherkin
 Given the site http://blazedemo.com

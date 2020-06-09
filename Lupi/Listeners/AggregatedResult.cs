@@ -10,5 +10,6 @@
         public double PeriodAverage { get; set; }
 
         public double PeriodLength { get; set; }
+        public int Count { get; set; }
     }
 }

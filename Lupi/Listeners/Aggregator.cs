@@ -1,5 +1,4 @@
 ﻿using Lupi.Configuration;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -73,7 +72,8 @@ namespace Lupi.Listeners
                         MovingAverage = _expMovingAverage,
                         PeriodMin = periodMin,
                         PeriodMax = periodMax,
-                        PeriodAverage = periodAvg
+                        PeriodAverage = periodAvg,
+                        Count = results.Count
                     };
                     await Task.WhenAll(_listeners.Select(l => l.OnResult(aggregated, ct)));
                 }

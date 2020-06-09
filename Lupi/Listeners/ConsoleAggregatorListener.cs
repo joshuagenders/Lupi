@@ -15,7 +15,7 @@ namespace Lupi.Listeners
         {
             Console.WriteLine($"Moving Average: {result.MovingAverage}ms, Min: {result.Min}ms, Max: {result.Max}ms");
             Console.WriteLine($"Period Average: {result.PeriodAverage}ms, Period Min: {result.PeriodMin}ms, Period Max: {result.PeriodMax}ms");
-            Console.WriteLine($"Period Length: {result.PeriodLength}ms");
+            Console.WriteLine($"Period Length: {result.PeriodLength}ms, Sample Count: {result.Count}");
             await Task.CompletedTask;
         }
     }
