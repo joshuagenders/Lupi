@@ -18,7 +18,7 @@ Lupi supports a plugin system for loading and executing code from compatible DLL
 ### Pre-requisites
 * [.NET Core SDK](https://dotnet.microsoft.com/download)
 
-# Examples
+### Examples
 See the [Examples here](https://github.com/joshuagenders/Lupi/tree/master/Lupi.Examples)
 
 ### Publish test solution
