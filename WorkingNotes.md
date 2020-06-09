@@ -1,4 +1,5 @@
 # Remaining MVP
+- file output formatting configuration
 - add more unit tests
   - failed tests / exception handling
   - threads that hold on for too long/lock

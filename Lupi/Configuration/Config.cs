@@ -26,16 +26,12 @@ namespace Lupi.Configuration
         public TimeSpan RampUp { get; set; }
         public TimeSpan HoldFor { get; set; }
         public TimeSpan RampDown { get; set; }
-        public bool OpenWorkload { get; set; } // requires throughput
-
-        //todo test how automapper plays with default values overriding base config set values
-        //probably either write own mapper and save the dependency or make everything nullable and don't use defaults
-        //..just write own mapper
-        public int MinThreads { get; set; } = 1; //requires open workload
-        public int MaxThreads { get; set; } = 300;//requires open workload
+        public bool OpenWorkload { get; set; }
+        public int MinThreads { get; set; } = 1;
+        public int MaxThreads { get; set; } = 300;
 
         public List<ConcurrencyPhase> Phases { get; set; } = new List<ConcurrencyPhase>();
-        public TimeSpan ThreadIdleKillTime { get; set; } = TimeSpan.FromSeconds(5); // requires open workload
+        public TimeSpan ThreadIdleKillTime { get; set; } = TimeSpan.FromSeconds(5);
     }
 
     public class Throughput

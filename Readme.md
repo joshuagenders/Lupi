@@ -80,8 +80,9 @@ concurrency:
     holdFor: 2m10s
     rampDown: 10s
     openWorkload: true # i.e. can add additional threads when throughput is not met
-    minConcurrency: 3 # requires open workload
-    maxConcurrency: 1500 # requires open workload
+    minThreads: 3 # requires open workload
+    maxThreads: 1500 # requires open workload
+    threadIdleKillTime: 5s # idle threads will exit if idle for too long. requires open workload.
     # phases are also supported for concurrency
     phases:
     -
