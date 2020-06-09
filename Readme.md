@@ -82,6 +82,14 @@ concurrency:
     openWorkload: true # i.e. can add additional threads when throughput is not met
     minConcurrency: 3 # requires open workload
     maxConcurrency: 1500 # requires open workload
+    # phases are also supported for concurrency
+    phases:
+    -
+        duration: 2m
+        threads: 20
+    -   duration: 30s
+        from: 20
+        to: 15
 listeners:
     activeListeners:
     - file
