@@ -49,6 +49,15 @@ namespace Lupi
                     {
                         config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
                     }
+
+                    var configErrors = config.Validate();
+                    if (configErrors.Any())
+                    {
+                        Console.WriteLine("There were configuration errors:");
+                        Console.WriteLine(string.Join(Environment.NewLine, configErrors));
+                        return;
+                    }
+
                     Console.WriteLine("========");
                     Console.WriteLine(" Config");
                     Console.WriteLine("========\n");

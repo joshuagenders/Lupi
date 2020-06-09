@@ -8,11 +8,6 @@
   - only concurrency phases
   - only throughput phases
 
-- validate input config
-    - no negative values
-    - no phases and standard phases
-    - valid bucket names (dot positions, special chars)
-    - required fields (some duration in provided/built phases)
 - Add configurable + verbose logging
 - profile the load agent and address hotspots, generate flame graphs
 - complete grafana dashboard

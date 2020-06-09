@@ -199,5 +199,13 @@ namespace Lupi.Configuration
                 return result;
             }
         }
+
+        public static List<string> Validate(this Config config)
+        {
+            var validator = new ConfigurationValidator();
+            var result = validator.Validate(config);
+            // TODO make more verbose
+            return result.Errors.Select(r => r.ErrorMessage).ToList();
+        }
     }
 }
