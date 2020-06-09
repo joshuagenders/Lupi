@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Lupi.Configuration;
 using Lupi.Listeners;
+using YamlDotNet.Serialization;
 
 namespace Lupi
 {
@@ -48,6 +49,12 @@ namespace Lupi
                     {
                         config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
                     }
+                    Console.WriteLine("========");
+                    Console.WriteLine(" Config");
+                    Console.WriteLine("========\n");
+                    var serializer = new Serializer();
+                    serializer.Serialize(Console.Out, config);
+                    Console.WriteLine("\n");
 
                     var plugin = new Plugin(config);
                     var testResultPublisher = new TestResultPublisher(config);

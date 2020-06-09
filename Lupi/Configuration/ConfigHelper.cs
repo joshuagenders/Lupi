@@ -80,8 +80,6 @@ namespace Lupi.Configuration
                     TestMethod = IfNotDefaultElse(config.Test.TestMethod, baseConfig.Test.TestMethod, default),
                 }
             };
-            Console.WriteLine("Merged Config:");
-            Console.WriteLine(JsonConvert.SerializeObject(newConfig));
             return newConfig;
         }
 
@@ -107,6 +105,7 @@ namespace Lupi.Configuration
             {
                 config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
             }
+
             return config;
         }
     }
