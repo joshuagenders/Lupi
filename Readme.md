@@ -18,6 +18,9 @@ Lupi supports a plugin system for loading and executing code from compatible DLL
 ### Pre-requisites
 * [.NET Core SDK](https://dotnet.microsoft.com/download)
 
+# Examples
+See the [Examples here](https://github.com/joshuagenders/Lupi/tree/master/Lupi.Examples)
+
 ### Publish test solution
 Lupi uses a plugin architecture. Start by writing a test and then publish your test solution.
 ```bash
@@ -208,9 +211,6 @@ public ContainerBuilder RegisterType(ContainerBuilder builder)
     return builder;
 }
 ```
-
-# Examples
-See the [Examples here](https://github.com/joshuagenders/Lupi/tree/master/Lupi.Examples)
 
 # License
 Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/master/LICENSE).
