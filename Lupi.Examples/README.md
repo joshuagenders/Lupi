@@ -5,10 +5,26 @@ Examples use [Puppeteer Sharp](https://github.com/hardkoded/puppeteer-sharp) and
 Navigate to the solution folder and run `dotnet publish -c Release`.
 
 # Running the tests
-Update `test.assemblyPath` in the configuration file(s) to match the relative path from the current working directory, then execute Lupi.
+Update `test.assemblyPath` in the configuration file(s) to match the relative path from the current working directory or the full path, then execute Lupi.
+
 
 E.g.
-`dotnet run --project ../Lupi/Lupi.csproj ./Configurations/OpenWorkload.yml`
+- Lupi/
+- AnExample/ `(CWD)`
+    - bin/
+    - AnExample.sln
+    - Configurations
+        - AnExample.yml 
+
+Update `AnExample.yml`
+```yml
+test:
+    assemblyPath: ./bin/Release/netcoreapp3.0/publish/AnExample.dll
+```
+
+
+then
+`dotnet run --project ../Lupi/Lupi.csproj ./Configurations/AnExample.yml`
 
 # Configuration Examples
 ## I want to run as much load as I can
