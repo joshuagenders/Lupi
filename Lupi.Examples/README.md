@@ -12,9 +12,11 @@ E.g.
 - Lupi/
 - AnExample/ `(CWD)`
     - bin/
+    - AnExample.csproj
     - AnExample.sln
     - Configurations
-        - AnExample.yml 
+        - AnExample.yml
+    - ...
 
 Update `AnExample.yml`
 ```yml
