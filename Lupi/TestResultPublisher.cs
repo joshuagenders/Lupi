@@ -27,8 +27,13 @@ namespace Lupi
         public void Publish(TestResult result) =>
             _results.Enqueue(result);
 
-        public void Subscribe(ITestResultListener listener) =>
-            _listeners.Add(listener);
+        public void Subscribe(ITestResultListener listener)
+        {
+            if (!_listeners.Contains(listener))
+            {
+                _listeners.Add(listener);
+            }
+        }
 
         public async Task Process(CancellationToken ct)
         {

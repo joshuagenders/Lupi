@@ -53,15 +53,17 @@ namespace Lupi
                     var testResultPublisher = new TestResultPublisher(config);
                     var aggregator = new Aggregator(config);
                     var threadControl = new ThreadControl(config, plugin, testResultPublisher);
-                    
+
+                    var consoleAggregatorListener = new ConsoleAggregatorListener();
                     var testListenerSubscribers = new Dictionary<string, Action>
                     {
                         { "file", () => testResultPublisher.Subscribe(new FileListener(config)) },
-                        { "statsd", () => testResultPublisher.Subscribe(new StatsdListener(config)) }
+                        { "statsd", () => testResultPublisher.Subscribe(new StatsdListener(config)) },
+                        { "console", () => testResultPublisher.Subscribe(aggregator) }
                     };
                     var aggregatorListenerSubscribers = new Dictionary<string, Action>
                     {
-                        { "console", () => aggregator.Subscribe(new ConsoleAggregatorListener()) }
+                        { "console", () => aggregator.Subscribe(consoleAggregatorListener) }
                     };
                     config.Listeners.ActiveListeners.ForEach(l => {
                         if (testListenerSubscribers.ContainsKey(l))

@@ -6,6 +6,11 @@ namespace Lupi.Listeners
 {
     public class ConsoleAggregatorListener : IAggregatorListener
     {
+        public ConsoleAggregatorListener()
+        {
+            Console.WriteLine("Console Listener");
+            Console.WriteLine("----------------");
+        }
         public async Task OnResult(AggregatedResult result, CancellationToken ct)
         {
             Console.WriteLine($"Moving Average: {result.MovingAverage}ms, Min: {result.Min}ms, Max: {result.Max}ms");
