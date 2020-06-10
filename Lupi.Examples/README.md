@@ -127,7 +127,7 @@ Locally, I use [this](https://github.com/MariaLysik/docker-grafana-graphite) doc
 To run Grafana locally using Docker:
 - Run `docker run -d -p 80:80 -p 8125:8125/udp -p 8126:8126 --name grafana marial/grafana-graphite-statsd`
 - Open http://localhost:80
-- Login with Username and Password: 'Admin'
+- Login with Username and Password: 'admin'
 - Import the example grafana dashboard from file (Upload .json File)
 - Update `listeners.statsd.host` in all Lupi config files to `127.0.0.1`
 - Run the tests and view them live in the dashboard
