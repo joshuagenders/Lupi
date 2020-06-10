@@ -88,6 +88,20 @@ And then 10 users hold for 5 minutes
 Then the average response time is 200ms
 ```
 
+public GherkinDocument ParseTokenString(string statements)
+{
+    return new Parser().Parse(new TokenScanner(new StringReader(statements)),
+                                                new TokenMatcher());
+}
+
+public List<Pickle> GetPickles(GherkinDocument document)
+{
+    return new Compiler().Compile(document);
+}
+map regex -> func
+func takes parsed arguments
+executes relevant step handler
+
 ## Maybe - Attribute Framework
 - Test attributes
 - Method attribute filtering

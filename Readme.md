@@ -190,7 +190,7 @@ The provided listeners are:
 * Console - writes results to the console output
 
 ## Open Workload
-Whenever throughput is specified, an open workload is created. Threads will wait and execute as fast as possible.
+Whenever throughput is specified, an open workload is created. Specifying concurrency values along with throughput will create threads as desired, but they will wait until they are allowed to execute.
 
 If `concurrency.openWorkload` is `true`, then the concurrency phases are ignored and Lupi will try and allocate as many threads as it needs to in order to reach desired tests per second, within the `concurrency.minThreads` and `concurrency.maxThreads` limits.
 
