@@ -87,9 +87,16 @@ namespace Lupi
                             var task = (Task)_testMethod.Invoke(
                                 GetInstance(_config.Test.TestClass),
                                 GetParameters(_testMethod));
-                            await task;
-                            var result = task.GetType().GetProperty("Result").GetValue(task);
-                            return result;
+                            if (task != null)
+                            {
+                                await task;
+                                var result = task.GetType().GetProperty("Result").GetValue(task);
+                                return result;
+                            }
+                            else
+                            {
+                                return null;
+                            }
                         });
                     }
                     else
