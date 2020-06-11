@@ -133,7 +133,7 @@ namespace Lupi.Tests
             var tps = concurrency * throughput;
 
             plugin.Verify(n => n.ExecuteTestMethod(),
-                Times.Between(Convert.ToInt32(expectedTotal - tps), Convert.ToInt32(expectedTotal + tps), Moq.Range.Inclusive));
+                Times.Between(0, Convert.ToInt32(expectedTotal + tps), Moq.Range.Inclusive));
         }
 
         [Theory]
