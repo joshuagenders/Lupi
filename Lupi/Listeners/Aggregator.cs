@@ -73,7 +73,9 @@ namespace Lupi.Listeners
                         PeriodMin = periodMin,
                         PeriodMax = periodMax,
                         PeriodAverage = periodAvg,
-                        Count = results.Count
+                        Count = results.Count,
+                        PeriodErrorCount = results.Count(r => !r.Passed),
+                        PeriodSuccessCount = results.Count(r => r.Passed)
                     };
                     await Task.WhenAll(_listeners.Select(l => l.OnResult(aggregated, ct)));
                 }

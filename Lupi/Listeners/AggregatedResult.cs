@@ -11,5 +11,7 @@
 
         public double PeriodLength { get; set; }
         public int Count { get; set; }
+        public int PeriodErrorCount { get; internal set; }
+        public int PeriodSuccessCount { get; internal set; }
     }
 }
