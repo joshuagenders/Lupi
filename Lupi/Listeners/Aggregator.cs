@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,7 +76,8 @@ namespace Lupi.Listeners
                         PeriodAverage = periodAvg,
                         Count = results.Count,
                         PeriodErrorCount = results.Count(r => !r.Passed),
-                        PeriodSuccessCount = results.Count(r => r.Passed)
+                        PeriodSuccessCount = results.Count(r => r.Passed),
+                        PeriodLength = periodLength.TotalMilliseconds
                     };
                     await Task.WhenAll(_listeners.Select(l => l.OnResult(aggregated, ct)));
                 }

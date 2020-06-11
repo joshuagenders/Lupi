@@ -3,11 +3,7 @@
 - add more unit tests
   - failed tests / exception handling
   - threads that hold on for too long/lock
-  - separate values for concurrency + throughput rampup/down
-  - custom phases
   - result aggregation
-  - only concurrency phases
-  - only throughput phases
 
 - Add configurable + verbose logging
 - profile the load agent and address hotspots, generate flame graphs
