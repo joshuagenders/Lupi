@@ -1,4 +1,6 @@
 # Remaining MVP
+- fix config validation and add unit tests
+- improve visuals of console output and output validate+setup+teardown start/stop stages etc.
 - file output formatting configuration
 - add more unit tests
   - failed tests / exception handling
@@ -16,14 +18,14 @@
 
 # Next Features
 ## Returning pass/fail status from tests
- - Requires aggregator listener
  - Use exceptions or use Tuple<bool, string>?
 
 ## Exit Conditions
-- Requires aggregator listener
+- Requires aggregator listener - or process output file
 - Failure rate/percentage
 - Failure count
-- Latency over x average / max in y period
+- test duration over/under x average / max in y period
+pass/fail
 
 ## Other
 - Write blog post(s?)
