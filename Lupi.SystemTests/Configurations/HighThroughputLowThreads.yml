@@ -13,4 +13,4 @@ throughput:
     tps: 400
     holdFor: 30s
 
-baseConfig: ../base-config.yml
+baseConfig: base-config.yml

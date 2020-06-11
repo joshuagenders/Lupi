@@ -39,4 +39,4 @@ throughput:
     -   duration: 25s
         tps: 3
 
-baseConfig: ../base-config.yml
+baseConfig: base-config.yml

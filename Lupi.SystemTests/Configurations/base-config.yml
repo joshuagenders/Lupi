@@ -1,5 +1,5 @@
 test:
-    assemblyPath: ../Examples/Lupi.Examples.dll
+    assemblyPath: ./test/Lupi.Examples.dll
     singleTestClassInstance: true
     testClass: Lupi.Examples.InMemory
 listeners:
