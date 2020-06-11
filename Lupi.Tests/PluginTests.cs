@@ -62,6 +62,28 @@ namespace Lupi.Tests
         }
 
         [Fact]
+        public async Task StaticAsyncSetupMethodCanBeExecuted()
+        {
+            var config = GetConfig("GetIntAsync");
+            config.Test.SetupClass = config.Test.TestClass;
+            config.Test.SetupMethod = config.Test.TestMethod;
+            var plugin = new Plugin(config);
+            var result = (int)await plugin.ExecuteSetupMethod();
+            result.Should().Be(42);
+        }
+
+        [Fact]
+        public async Task StaticAsyncNoGenericReturnSetupMethodCanBeExecuted()
+        {
+            var config = GetConfig("RunDelayAsync");
+            config.Test.SetupClass = config.Test.TestClass;
+            config.Test.SetupMethod = config.Test.TestMethod;
+            var plugin = new Plugin(config);
+            var result = await plugin.ExecuteSetupMethod();
+            result.Should().BeNull();
+        }
+
+        [Fact]
         public async Task TeardownCanBeExecuted()
         {
             var config = GetConfig("GetIntWithDependency");

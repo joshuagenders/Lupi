@@ -17,6 +17,8 @@ namespace Lupi.Examples
         }
 
         public static int GetInt() => 42;
+        public static async Task<int> GetIntAsync() => await Task.FromResult(42);
+        public static async Task RunDelayAsync() => await Task.Delay(42);
         public static int GetIntWithDependency(IInternalDependency dependency) => 
             dependency.GetData();
 

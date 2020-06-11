@@ -134,26 +134,16 @@ namespace Lupi
 
         public async Task<object> RunMethod(MethodInfo method, object[] parameters, object instance = null)
         {
-            if (method.IsStatic)
+            var parms = GetParameters(method);
+            if (IsAsyncMethod(method))
             {
-                return _testMethod.Invoke(null, GetParameters(_testMethod));
-            }
-            else if (instance == null)
-            {
-                instance = GetInstanceFromType(method.DeclaringType);
-            }
-            if (IsAsyncMethod(_testMethod))
-            {
-                if (_testMethod.ReturnType.GetGenericArguments().Any())
+                if (method.ReturnType.GetGenericArguments().Any())
                 {
-                    var task = (Task)method.Invoke(instance, parameters);
+                    var task = (Task)_testMethod.Invoke(instance, parms);
                     if (task != null)
                     {
                         await task;
-                        var resultProperty = typeof(Task<>)
-                            .MakeGenericType(_testMethod.ReturnType.GetGenericArguments().First())
-                            .GetProperty("Result");
-                        object result = resultProperty.GetValue(task);
+                        var result = task.GetType().GetProperty("Result").GetValue(task);
                         return result;
                     }
                     else
@@ -163,15 +153,18 @@ namespace Lupi
                 }
                 else
                 {
-                    var task = (Task)method.Invoke(instance, parameters);
-                    await task;
+                    var task = (Task)_testMethod.Invoke(instance, parms);
+                    if (task != null)
+                    {
+                        await task;
+                    }
                     return null;
                 }
+                
             }
             else
             {
-                var result = method.Invoke(instance, parameters);
-                return result;
+                return method.Invoke(instance, parms);
             }
         }
 
@@ -273,7 +266,8 @@ namespace Lupi
         {
             if (_setupMethod != null)
             {
-                return await RunMethod(_setupMethod, GetParameters(_setupMethod));
+                var instance = _setupMethod.IsStatic ? null : GetInstance(_config.Test.SetupClass);
+                return await RunMethod(_setupMethod, GetParameters(_setupMethod), instance);
             }
             return null;
         } 
@@ -284,7 +278,8 @@ namespace Lupi
         {
             if (_teardownMethod != null)
             {
-                return await RunMethod(_teardownMethod, GetParameters(_teardownMethod));
+                var instance = _teardownMethod.IsStatic ? null : GetInstance(_config.Test.TeardownClass);
+                return await RunMethod(_teardownMethod, GetParameters(_teardownMethod), instance);
             }
             return null;
         }
