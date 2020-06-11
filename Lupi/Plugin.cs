@@ -136,12 +136,19 @@ namespace Lupi
                 if (_testMethod.ReturnType.GetGenericArguments().Any())
                 {
                     var task = (Task)method.Invoke(instance, parameters);
-                    await task;
-                    var resultProperty = typeof(Task<>)
-                        .MakeGenericType(_testMethod.ReturnType.GetGenericArguments().First())
-                        .GetProperty("Result");
-                    object result = resultProperty.GetValue(task);
-                    return result;
+                    if (task != null)
+                    {
+                        await task;
+                        var resultProperty = typeof(Task<>)
+                            .MakeGenericType(_testMethod.ReturnType.GetGenericArguments().First())
+                            .GetProperty("Result");
+                        object result = resultProperty.GetValue(task);
+                        return result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
