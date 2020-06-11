@@ -44,6 +44,10 @@ namespace Lupi
 
         private void SetupTestFunc()
         {
+            if (_testMethod == null)
+            {
+                throw new ArgumentException("Test method not found");
+            }
             //todo refactor this
             if (_testMethod.IsStatic)
             {
