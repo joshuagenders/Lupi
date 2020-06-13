@@ -3,13 +3,14 @@ using System;
 using Xunit;
 using Lupi.Configuration;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Lupi.Tests
 {
     public class ConfigurationValidationTests
     {
         #region ConfigStrings
-        private static string AllConfigBasic = @"
+        private const string AllConfigBasic = @"
 test:
     assemblyPath: path/to/my.dll
     singleTestClassInstance: true
@@ -34,7 +35,7 @@ throughput:
     rampDown: 2m
     thinkTime: 500ms
 ";
-        private static string AllConfigPhases = @"
+        private const string AllConfigPhases = @"
 test:
     assemblyPath: path/to/my.dll
     singleTestClassInstance: true
@@ -73,14 +74,18 @@ throughput:
 ";
 
         #endregion
-        [Fact]
-        public async Task WhenBasicConfigurationIsValidated_ThenValidationPasses()
+        [Theory]
+        [InlineData(AllConfigBasic)]
+        [InlineData(AllConfigPhases)]
+        public async Task WhenBasicConfigurationIsValidated_ThenValidationPasses(string config)
         {
             var validator = new ConfigurationValidator();
             
-            var parsed = await ConfigHelper.GetConfigFromString(AllConfigBasic);
-            parsed.Throughput.Phases = parsed.BuildStandardThroughputPhases();
-            parsed.Concurrency.Phases = parsed.BuildStandardConcurrencyPhases();
+            var parsed = await ConfigHelper.GetConfigFromString(config);
+            if (!parsed.Throughput.Phases.Any())
+                parsed.Throughput.Phases = parsed.BuildStandardThroughputPhases();
+            if (!parsed.Concurrency.Phases.Any())
+                parsed.Concurrency.Phases = parsed.BuildStandardConcurrencyPhases();
             var result = validator.Validate(parsed);
             result.Errors.Should().BeEmpty();
             result.IsValid.Should().BeTrue();
