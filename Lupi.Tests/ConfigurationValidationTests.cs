@@ -80,12 +80,7 @@ throughput:
         public async Task WhenBasicConfigurationIsValidated_ThenValidationPasses(string config)
         {
             var validator = new ConfigurationValidator();
-            
             var parsed = await ConfigHelper.GetConfigFromString(config);
-            if (!parsed.Throughput.Phases.Any())
-                parsed.Throughput.Phases = parsed.BuildStandardThroughputPhases();
-            if (!parsed.Concurrency.Phases.Any())
-                parsed.Concurrency.Phases = parsed.BuildStandardConcurrencyPhases();
             var result = validator.Validate(parsed);
             result.Errors.Should().BeEmpty();
             result.IsValid.Should().BeTrue();

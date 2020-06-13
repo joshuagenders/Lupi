@@ -1,5 +1,4 @@
 # Remaining MVP
-- fix config validation and add unit tests
 - improve visuals of console output and output validate+setup+teardown start/stop stages etc.
 - file output formatting configuration
 - add more unit tests
