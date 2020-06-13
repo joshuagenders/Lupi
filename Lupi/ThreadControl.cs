@@ -153,7 +153,7 @@ namespace Lupi
                 DebugHelper.Write($"found kill token. dying.");
                 _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionend");
                 _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkill");
-                return true;
+                return false;
             }
             if (_config.ThroughputEnabled)
             {
@@ -181,7 +181,7 @@ namespace Lupi
             var isCompleted = IsTestComplete(startTime, iterations);
             DebugHelper.Write($"is test completed {isCompleted} iterations {iterations} max iterations {_config.Throughput.Iterations}");
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionend");
-            return isCompleted;
+            return !isCompleted;
         }
 
         private void SetThreadLevel(DateTime startTime, int threads, CancellationToken ct)

@@ -53,9 +53,8 @@ namespace Lupi.Tests
         [Fact]
         public async Task SetupMethodCanBeExecuted()
         {
-            var config = GetConfig("GetIntWithDependency");
+            var config = GetConfig("TimedGetString","GetIntWithDependency");
             config.Test.SetupClass = config.Test.TestClass;
-            config.Test.SetupMethod = config.Test.TestMethod;
             var plugin = new Plugin(config);
             var result = (int)await plugin.ExecuteSetupMethod();
             result.Should().BeInRange(1, 100);
@@ -64,9 +63,8 @@ namespace Lupi.Tests
         [Fact]
         public async Task StaticAsyncSetupMethodCanBeExecuted()
         {
-            var config = GetConfig("GetIntAsync");
+            var config = GetConfig("GetIntAsync", "GetIntAsync");
             config.Test.SetupClass = config.Test.TestClass;
-            config.Test.SetupMethod = config.Test.TestMethod;
             var plugin = new Plugin(config);
             var result = (int)await plugin.ExecuteSetupMethod();
             result.Should().Be(42);
@@ -75,9 +73,7 @@ namespace Lupi.Tests
         [Fact]
         public async Task StaticAsyncNoGenericReturnSetupMethodCanBeExecuted()
         {
-            var config = GetConfig("RunDelayAsync");
-            config.Test.SetupClass = config.Test.TestClass;
-            config.Test.SetupMethod = config.Test.TestMethod;
+            var config = GetConfig("RunDelayAsync", "Init");
             var plugin = new Plugin(config);
             var result = await plugin.ExecuteSetupMethod();
             result.Should().BeNull();
@@ -94,7 +90,7 @@ namespace Lupi.Tests
             result.Should().BeInRange(1, 100);
         }
 
-        private Config GetConfig(string method) => new Config
+        private Config GetConfig(string method, string setupMethod = null, string teardownMethod = null) => new Config
         {
             Concurrency = new Concurrency
             {
@@ -105,7 +101,11 @@ namespace Lupi.Tests
             {
                 AssemblyPath = "Examples/Lupi.Examples.dll",
                 TestClass = "Lupi.Examples.InMemory",
-                TestMethod = method
+                TestMethod = method,
+                SetupClass = string.IsNullOrWhiteSpace(setupMethod) ? null : "Lupi.Examples.StaticClass",
+                SetupMethod = setupMethod,
+                TeardownClass = string.IsNullOrWhiteSpace(teardownMethod) ? null : "Lupi.Examples.StaticClass",
+                TeardownMethod = teardownMethod
             },
             Throughput = new Throughput
             {

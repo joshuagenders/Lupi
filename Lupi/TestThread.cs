@@ -30,40 +30,41 @@ namespace Lupi
             _config = config;
         }
 
+        private async Task<bool> CanExecute(string threadName, DateTime startTime, CancellationToken ct)
+        {
+            DebugHelper.Write($"{threadName} request task execution");
+            if (_config.Concurrency.OpenWorkload)
+            {
+                var taskExecutionRequest = _threadControl.RequestTaskExecution(startTime, ct);
+                var killDelay = Task.Delay(_config.Concurrency.ThreadIdleKillTime);
+                var result = await Task.WhenAny(taskExecutionRequest, killDelay);
+                if (result == killDelay)
+                {
+                    DebugHelper.Write($"{threadName} got tired of waiting. dying.");
+                    _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.diedofboredom");
+                    return false;
+                }
+                else
+                {
+                    return await taskExecutionRequest;
+                }
+            }
+            else
+            {
+                return await _threadControl.RequestTaskExecution(startTime, ct);
+            }
+        }
+
         public async Task Run(DateTime startTime, CancellationToken ct)
         {
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskstart");
             var threadName = $"worker {Guid.NewGuid().ToString("N")}";
-            bool shouldExit = false;
             var watch = new Stopwatch();
-            while (!ct.IsCancellationRequested && !shouldExit)
+            do
             {
-                DebugHelper.Write($"{threadName} request task execution");
-                if (_config.Concurrency.OpenWorkload)
-                {
-                    var taskExecutionRequest = _threadControl.RequestTaskExecution(startTime, ct);
-                    var killDelay = Task.Delay(_config.Concurrency.ThreadIdleKillTime);
-                    var result = await Task.WhenAny(taskExecutionRequest, killDelay);
-                    if (result == killDelay)
-                    {
-                        DebugHelper.Write($"{threadName} got tired of waiting. waited {watch.ElapsedMilliseconds}ms then executed. dying.");
-                        _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.diedofboredom");
-                        shouldExit = true;
-                        break;
-                    }
-                    else
-                    {
-                        shouldExit = await taskExecutionRequest;
-                        DebugHelper.Write($"{threadName} task execution request returned. should exit {shouldExit}");
-                    }
-                }
-                else
-                {
-                    shouldExit = await _threadControl.RequestTaskExecution(startTime, ct);
-                    DebugHelper.Write($"{threadName} task execution request returned. should exit {shouldExit}");
-                }
+                var canExecute = await CanExecute(threadName, startTime, ct);
 
-                if (!ct.IsCancellationRequested && !shouldExit)
+                if (!ct.IsCancellationRequested && canExecute)
                 {
                     DebugHelper.Write($"{threadName} test not complete - run method");
                     object result;
@@ -108,8 +109,10 @@ namespace Lupi
                     DebugHelper.Write($"{threadName} thread complete");
                     break;
                 }
+
                 await Task.Delay(_config.Throughput.ThinkTime);
-            }
+            } while (!ct.IsCancellationRequested);
+
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskcomplete");
         }
     }
