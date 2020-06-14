@@ -65,7 +65,7 @@ namespace Lupi
                 {
                     if (_config.Throughput.Iterations > 0 && iterationsRemaining <= 0)
                     {
-                        //here?
+                        _logger.LogInformation("Iteration count reached");
                         return;
                     }
                     var now = DateTime.UtcNow;

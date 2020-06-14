@@ -44,9 +44,18 @@ namespace Lupi
                 await Task.WhenAll(tasks);
                 _logger.LogInformation($"Reporting complete. Run Complete.");
             }
-            catch (TaskCanceledException) { }
-            catch (OperationCanceledException) { }
-            catch (AggregateException e) when (e.InnerExceptions.All(x => x is TaskCanceledException || x is OperationCanceledException)) { }
+            catch (TaskCanceledException ex) 
+            {
+                _logger.LogError("A task was cancelled.", ex);
+            }
+            catch (OperationCanceledException ex) 
+            {
+                _logger.LogError("An operation was cancelled.", ex);
+            }
+            catch (AggregateException ex) when (ex.InnerExceptions.All(x => x is TaskCanceledException || x is OperationCanceledException)) 
+            {
+                _logger.LogError("An aggregate exception occured where all inner exceptions are Task or Operation cancellations.", ex);
+            }
         }
     }
 
