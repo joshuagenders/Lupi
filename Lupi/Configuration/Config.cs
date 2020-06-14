@@ -89,7 +89,7 @@ namespace Lupi.Configuration
         public List<string> ActiveListeners { get; set; } = new List<string>();
         public Statsd Statsd { get; set; } = new Statsd();
         public File File { get; set; } = new File();
-        public ConsoleConfig Console { get; set; }
+        public ConsoleConfig Console { get; set; } = new ConsoleConfig();
     }
 
     public class File
