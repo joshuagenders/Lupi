@@ -13,13 +13,13 @@ namespace Lupi
         private readonly IThreadControl _threadControl;
         private readonly ITestResultPublisher _testResultPublisher;
         private readonly IAggregator _aggregator;
-        private readonly ILogger _logger;
+        private readonly ILogger<IApplication> _logger;
 
         public Application(
             IThreadControl threadControl,
             ITestResultPublisher testResultPublisher,
             IAggregator aggregator,
-            ILogger logger)
+            ILogger<IApplication> logger)
         {
             _threadControl = threadControl;
             _testResultPublisher = testResultPublisher;

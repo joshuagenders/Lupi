@@ -15,7 +15,7 @@ namespace Lupi
         private readonly Config _config;
         private readonly IPlugin _plugin;
         private readonly ITestResultPublisher _testResultPublisher;
-        private readonly ILogger _logger;
+        private readonly ILogger<IThreadControl> _logger;
         private readonly ILoggerFactory _loggerFactory;
 
         private readonly StatsDPublisher _stats;
@@ -27,7 +27,12 @@ namespace Lupi
 
         private int _iterationsRemaining;
         
-        public ThreadControl(Config config, IPlugin plugin, ITestResultPublisher testResultPublisher, ILogger logger, ILoggerFactory loggerFactory)
+        public ThreadControl(
+            Config config, 
+            IPlugin plugin, 
+            ITestResultPublisher testResultPublisher, 
+            ILogger<ThreadControl> logger, 
+            ILoggerFactory loggerFactory)
         {
             _config = config;
             _plugin = plugin;

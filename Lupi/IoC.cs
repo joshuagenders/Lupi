@@ -11,6 +11,7 @@ namespace Lupi
         public static IServiceProvider GetServiceProvider(Config config)
         {
             var serviceCollection = new ServiceCollection()
+                .AddLogging()
                 .AddSingleton(config)
                 .AddSingleton<IThreadControl, ThreadControl>()
                 .AddSingleton<IApplication, Application>()
@@ -47,8 +48,6 @@ namespace Lupi
             serviceCollection
                 .AddSingleton<ITestResultPublisher>(testResultPublisher)
                 .AddSingleton<IAggregator>(aggregator);
-
-            serviceCollection.AddLogging();
 
             return serviceCollection.BuildServiceProvider();
         }

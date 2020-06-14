@@ -15,7 +15,7 @@ namespace Lupi
         private readonly ITestResultPublisher _testResultPublisher;
         private readonly StatsDPublisher _stats;
         private readonly Config _config;
-        private readonly ILogger _logger;
+        private readonly ILogger<TestThread> _logger;
         private readonly IPlugin _plugin;
 
         public TestThread(
@@ -24,7 +24,7 @@ namespace Lupi
             ITestResultPublisher testResultPublisher,
             StatsDPublisher stats,
             Config config,
-            ILogger logger)
+            ILogger<TestThread> logger)
         {
             _threadControl = threadControl;
             _plugin = plugin;
