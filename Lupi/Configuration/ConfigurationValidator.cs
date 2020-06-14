@@ -36,6 +36,8 @@ namespace Lupi.Configuration
                 .WithMessage("Concurrency phases must not contain both Threads and From/To");
             RuleFor(c => c.Throughput.Phases.All(p => !(p.Tps > 0 && (p.FromTps > 0 || p.ToTps > 0)))).Equal(true)
                 .WithMessage("Throughput phases must not contain both Tps and From/To");
+            RuleFor(c => (c.Concurrency.MinThreads > 0 || c.Concurrency.MaxThreads > 0) && !c.Concurrency.OpenWorkload).Equal(true)
+                .WithMessage("Min and Max Threads are only valid when openWorkload is true");
         }
     }
 }
