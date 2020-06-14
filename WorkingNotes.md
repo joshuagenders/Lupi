@@ -1,12 +1,11 @@
 # Remaining MVP
-- add configurable + verbose logging + DI
+- add configurable + verbose logging
 - add formatting to console output and add unit tests for formatter
-- update docs for file output formatting, list available fields
 - add standard deviation to aggregator
 - implement exit conditions for avg response time, error count, error rate, std-dev
-- think about checking returned strings from methods for exit condition (what is the use case - particular error codes?)
 - add validation for plugin (class/method/assembly not exists)
 - add validation+setup+teardown start/stop stages etc. to console output
+- refactor and cleanup
 - complete grafana dashboard
 - add better grafana graphs + pictures to readme/examples readme
 - Test actual examples against real site
@@ -39,6 +38,11 @@ pass/fail
 
 ## Maybe - Website for the tool
 Static site generator
+
+## Maybe - add returned string count to exit conditions
+- think about checking returned strings from methods for exit condition (what is the use case - particular error codes?)
+  - would need to keep track of matches
+
 
 ## Maybe - Datasources
 Thread-safe implementations of datasources, making scope access and lifetime obvious
