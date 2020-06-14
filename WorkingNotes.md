@@ -1,19 +1,17 @@
 # Remaining MVP
-- improve visuals of console output and output validate+setup+teardown start/stop stages etc.
-- file output formatting configuration
-- add more unit tests
-  - failed tests / exception handling
-  - threads that hold on for too long/lock
-  - result aggregation
-
-- Add configurable + verbose logging
-- profile the load agent and address hotspots, generate flame graphs
+- add configurable + verbose logging + DI
+- add formatting to console output and add unit tests for formatter
+- update docs for file output formatting, list available fields
+- add standard deviation to aggregator
+- implement exit conditions for avg response time, error count, error rate, std-dev
+- think about checking returned strings from methods for exit condition (what is the use case - particular error codes?)
+- add validation for plugin (class/method/assembly not exists)
+- add validation+setup+teardown start/stop stages etc. to console output
 - complete grafana dashboard
-- add grafana graphs pictures to readme + examples readme
+- add better grafana graphs + pictures to readme/examples readme
 - Test actual examples against real site
 - Update docs and examples as required
-  - make quickstart easier to follow, including how to publish properly
-- Publish repo and nuget packages
+- Publish nuget packages + docker images
 
 # Next Features
 ## Returning pass/fail status from tests
@@ -28,10 +26,28 @@ pass/fail
 
 ## Other
 - Write blog post(s?)
+- Validate implementation with peers
+- Add to Taurus
 
-## Maybe - Docker image
+## Docker image
 - Create docker compose / container image
 - Publish image
+
+--------
+# Maybes in order of likelihood
+## Maybe - filters for statsd metrics sent (inclusive+exclusive)
+
+## Maybe - Website for the tool
+Static site generator
+
+## Maybe - Datasources
+Thread-safe implementations of datasources, making scope access and lifetime obvious
+- HTTP
+- file
+  - CSV
+  - JSON
+  - raw line reader
+Parsed and passed into test method
 
 ## Maybe - "Requests" scenario generation
 - Browser, browser emulator and http client options
@@ -43,15 +59,6 @@ pass/fail
   - Actions to perform on screen
 - Maybe allow js scripts and assertions through puppeteer
 - Is there a nice page object pattern in yaml? is that taurus 'scenarios'
-
-## Maybe - Datasources
-Thread-safe implementations of datasources, making scope access and lifetime obvious
-- HTTP
-- file
-  - CSV
-  - JSON
-  - raw line reader
-Parsed and passed into test method
 
 ## Maybe - Gherkin syntax support - requests scenario
 - Because I can
@@ -106,9 +113,6 @@ executes relevant step handler
 - Datasource input attributes
 - Scoping/Threading attributes
 
-## Maybe - Website for the tool
-Static site generator
-
-## Maybe - interpreter or wizard
-
-## Maybe - filters for statsd metrics sent (inclusive+exclusive)
+## Maybe - interpreter or wizard CLI
+- create new tests and base configurations
+- if using gherkin, can make builder interface

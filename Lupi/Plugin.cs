@@ -8,6 +8,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Lupi.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 
 namespace Lupi
 {
@@ -16,7 +18,7 @@ namespace Lupi
         private readonly Config _config;
         private readonly CancellationToken _ct;
         private readonly Assembly _assembly;
-        private readonly IContainer _ioc;
+        private readonly IServiceProvider _ioc;
 
         private readonly MethodInfo _testMethod;
         private readonly MethodInfo _setupMethod;
@@ -38,7 +40,7 @@ namespace Lupi
             _testMethod = GetMethod(_config.Test.TestClass, _config.Test.TestMethod);
             _setupMethod = GetMethod(_config.Test.SetupClass, _config.Test.SetupMethod);
             _teardownMethod = GetMethod(_config.Test.TeardownClass, _config.Test.TeardownMethod);
-            _ioc = GetIocContainer().GetAwaiter().GetResult();
+            _ioc = GetServiceProvider().GetAwaiter().GetResult();
             SetupTestFunc();
         }
 
@@ -171,7 +173,7 @@ namespace Lupi
         private static bool IsAsyncMethod(MethodInfo method) =>
             (AsyncStateMachineAttribute)method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) != null;
 
-        private async Task<ContainerBuilder> GetIocBuilder()
+        private async Task<IServiceProvider> GetServiceProvider()
         {  
             var startup = _assembly
                 .GetTypes()
@@ -187,17 +189,15 @@ namespace Lupi
                 var builder = new ContainerBuilder();
                 builder.RegisterAssemblyTypes(_assembly)
                        .AsImplementedInterfaces();
-                return builder;
+                var serviceCollection = new ServiceCollection();
+                builder.Populate(serviceCollection);
+                return serviceCollection.BuildServiceProvider();
             }
             else
             {
-                return (ContainerBuilder)await RunMethod(startup, GetParameters(startup));
+                return (ServiceProvider)await RunMethod(startup, GetParameters(startup));
             }
         }
-
-        //todo -> also pass to startup class if matching signature / configured
-        private async Task<IContainer> GetIocContainer() =>
-            (await GetIocBuilder()).Build();
 
         private object GetInstance(string className)
         {
@@ -216,9 +216,9 @@ namespace Lupi
             {
                 return _ct;
             }
-            if (type.IsInterface || _ioc.IsRegistered(type))
+            if (type.IsInterface ||(_ioc.GetAutofacRoot()?.IsRegistered(type) ?? false))
             {
-                return _ioc.Resolve(type);
+                return _ioc.GetService(type);
             }
             var defaultConstructor = type.GetConstructor(Type.EmptyTypes);
             if (defaultConstructor == null)

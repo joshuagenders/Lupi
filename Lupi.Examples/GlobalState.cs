@@ -1,5 +1,6 @@
-﻿using Autofac;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PuppeteerSharp;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -46,10 +47,9 @@ namespace Lupi.Examples
             await Browser?.CloseAsync();
         }
 
-        public static ContainerBuilder Startup(ContainerBuilder builder)
-        {
-            builder.RegisterAssemblyTypes(typeof(GlobalState).Assembly);
-            return builder;
-        }
+        public static IServiceProvider BuildServiceProvider() =>
+            new ServiceCollection()
+                .AddTransient<IInternalDependency, InternalDependency>()
+                .BuildServiceProvider();
     }
 }

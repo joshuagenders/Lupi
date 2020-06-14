@@ -1,4 +1,4 @@
-using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 
 namespace Lupi.Examples
@@ -15,10 +15,9 @@ namespace Lupi.Examples
             await Task.Delay(2);
         }
 
-        public static ContainerBuilder Startup(ContainerBuilder builder)
-        {
-            builder.RegisterAssemblyTypes(typeof(GlobalState).Assembly);
-            return builder;
-        }
+        public static ServiceProvider BuildServiceProvider() =>
+            new ServiceCollection()
+                .AddTransient<IInternalDependency, InternalDependency>()
+                .BuildServiceProvider();
     }
 }

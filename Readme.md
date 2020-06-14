@@ -185,9 +185,40 @@ Exceptions are also JSON serialised.
 ## Listeners
 Listeners are used to process the results of tests.
 The provided listeners are:
-* File - writes results to file
-* Statsd - sends results to statsd
-* Console - writes results to the console output
+### File
+On each test result, the file listener writes the `TestResult` to file. By default the format is JSON.
+The `Format` configuration parameter is a string.Format string that uses variable names instead of integer indexes of an array.
+Availble fields are:
+- string ThreadName
+- bool Passed
+- string Result
+- TimeSpan Duration
+- DateTime FinishedTime
+
+E.g.
+`{FinishedTime:dd/MM/yy H:mm:ss zzz} - {Passed,5} - {Duration}`
+
+### Statsd
+The statsd listener sends test metrics to the configured statsd host.
+metrics are prefixed with the configured prefix and bucket parameters.
+
+Timers:
+- success
+- failure
+Guages:
+- threads
+Counters (Lupi internals):
+- diedofboredom
+- taskstart
+- taskcomplete
+- requesttaskexecutionstart
+- requesttaskexecutionend
+- taskkill
+- starttask
+- taskkillrequested
+
+### Console
+The console listener rites results to the console output.
 
 ## Open Workload
 Whenever throughput is specified, an open workload is created. Specifying concurrency values along with throughput will create threads as desired, but they will wait until they are allowed to execute.
@@ -198,17 +229,17 @@ When concurrency phases are provided, then the number of threads is determined b
 In both scenarios, setting thread levels too low will result in a closed workload as new thread allocation will not be possible.
 
 ## Dependency Injection
-Lupi will attempt to find and invoke a method in the provided test assembly that takes and returns an [AutoFac](https://autofac.org/) `ContainerBuilder`.
+Lupi will attempt to find and invoke a method in the provided test assembly that returns a `Microsoft.Extensions.DependencyInjection.IServiceProvider`.
 The method must be defined as static or the owning class must have a default constructor.
 
 E.g.
 
 ```csharp
-public ContainerBuilder RegisterType(ContainerBuilder builder)
-{
-    builder.RegisterAssemblyTypes(GetType().Assembly);
-    return builder;
-}
+public static IServiceProvider BuildServiceProvider() =>
+    new ServiceCollection()
+        .AddTransient<IInternalDependency, InternalDependency>()
+        .BuildServiceProvider();
+
 ```
 
 # License

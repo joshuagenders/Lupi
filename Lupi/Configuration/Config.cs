@@ -94,6 +94,7 @@ namespace Lupi.Configuration
     public class File
     {
         public string Path { get; set; }
+        public string Format { get; set; }
     }
 
     public class Statsd
