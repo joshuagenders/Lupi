@@ -26,7 +26,7 @@ namespace Lupi
                         { "console", () => testResultPublisher.Subscribe(aggregator) }
                     };
 
-            var consoleAggregatorListener = new ConsoleAggregatorListener();
+            var consoleAggregatorListener = new ConsoleAggregatorListener(config);
 
             var aggregatorListenerSubscribers = new Dictionary<string, Action>
                     {

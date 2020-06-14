@@ -101,6 +101,9 @@ listeners:
     - console
     file:
         path: results.log
+        format: {FinishedTime:dd/MM/yy H:mm:ss zzz};{Passed,5};{Duration}
+    console:
+        format: {FinishedTime:dd/MM/yy H:mm:ss zzz} - Passed: {Passed,5} - Duration: {Duration}
     statsd:
         host: 10.0.0.1
         port: 8125
@@ -219,6 +222,18 @@ Counters (Lupi internals):
 
 ### Console
 The console listener rites results to the console output.
+It also takes a named format string.
+Available fields are:
+- double Min
+- double Max
+- double MovingAverage
+- double PeriodMin
+- double PeriodMax
+- double PeriodAverage
+- double PeriodLength
+- int Count
+- int PeriodErrorCount
+- int PeriodSuccessCount
 
 ## Open Workload
 Whenever throughput is specified, an open workload is created. Specifying concurrency values along with throughput will create threads as desired, but they will wait until they are allowed to execute.
