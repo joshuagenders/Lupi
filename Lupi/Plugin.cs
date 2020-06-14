@@ -178,10 +178,8 @@ namespace Lupi
             var startup = _assembly
                 .GetTypes()
                 .SelectMany(t => t.GetMethods())
-                .Where(m => 
-                    m.GetParameters().Any(p => p.ParameterType == typeof(ContainerBuilder))
-                    && (m.ReturnType == typeof(ContainerBuilder) 
-                        || m.ReturnType.GetGenericArguments().FirstOrDefault() == typeof(ContainerBuilder)))
+                .Where(m => m.ReturnType == typeof(IServiceProvider) 
+                    || m.ReturnType.GetGenericArguments().FirstOrDefault() == typeof(IServiceProvider))
                 .FirstOrDefault();
 
             if (startup == null)
@@ -195,7 +193,7 @@ namespace Lupi
             }
             else
             {
-                return (ServiceProvider)await RunMethod(startup, GetParameters(startup));
+                return (IServiceProvider)await RunMethod(startup, GetParameters(startup));
             }
         }
 
@@ -216,7 +214,7 @@ namespace Lupi
             {
                 return _ct;
             }
-            if (type.IsInterface ||(_ioc.GetAutofacRoot()?.IsRegistered(type) ?? false))
+            if (type.IsInterface && _ioc != null)
             {
                 return _ioc.GetService(type);
             }

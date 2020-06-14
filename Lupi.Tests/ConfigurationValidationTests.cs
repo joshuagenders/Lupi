@@ -78,7 +78,8 @@ test:
     testClass: MyNamespace.MyClass # optional if method name is unique in the assembly
     testMethod: MyMethod
 concurrency:
-    threads: 10 
+    threads: 10
+    holdFor: 2m
 throughput:
     thinkTime: 1s
 ";
@@ -113,6 +114,13 @@ test:
         {
             var validator = new ConfigurationValidator();
             var parsed = await ConfigHelper.GetConfigFromString(config);
+
+            if (!parsed.Concurrency.Phases.Any())
+                parsed.Concurrency.Phases = parsed.BuildStandardConcurrencyPhases();
+
+            if (!parsed.Throughput.Phases.Any())
+                parsed.Throughput.Phases = parsed.BuildStandardThroughputPhases();
+
             var result = validator.Validate(parsed);
             result.Errors.Should().BeEmpty();
             result.IsValid.Should().BeTrue();
