@@ -48,6 +48,8 @@ namespace Lupi
                 .AddSingleton<ITestResultPublisher>(testResultPublisher)
                 .AddSingleton<IAggregator>(aggregator);
 
+            serviceCollection.AddLogging();
+
             return serviceCollection.BuildServiceProvider();
         }
     }

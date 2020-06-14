@@ -1,5 +1,6 @@
 ﻿using JustEat.StatsD;
 using Lupi.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
@@ -14,6 +15,7 @@ namespace Lupi
         private readonly ITestResultPublisher _testResultPublisher;
         private readonly StatsDPublisher _stats;
         private readonly Config _config;
+        private readonly ILogger _logger;
         private readonly IPlugin _plugin;
 
         public TestThread(
@@ -21,18 +23,20 @@ namespace Lupi
             IPlugin plugin, 
             ITestResultPublisher testResultPublisher,
             StatsDPublisher stats,
-            Config config)
+            Config config,
+            ILogger logger)
         {
             _threadControl = threadControl;
             _plugin = plugin;
             _testResultPublisher = testResultPublisher;
             _stats = stats;
             _config = config;
+            _logger = logger;
         }
 
         private async Task<bool> CanExecute(string threadName, DateTime startTime, CancellationToken ct)
         {
-            DebugHelper.Write($"{threadName} request task execution");
+            _logger.LogInformation($"{threadName} request task execution");
             if (_config.Concurrency.OpenWorkload)
             {
                 var taskExecutionRequest = _threadControl.RequestTaskExecution(startTime, ct);
@@ -40,7 +44,7 @@ namespace Lupi
                 var result = await Task.WhenAny(taskExecutionRequest, killDelay);
                 if (result == killDelay)
                 {
-                    DebugHelper.Write($"{threadName} got tired of waiting. dying.");
+                    _logger.LogInformation($"{threadName} got tired of waiting. dying.");
                     _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.diedofboredom");
                     return false;
                 }
@@ -66,7 +70,7 @@ namespace Lupi
 
                 if (!ct.IsCancellationRequested && canExecute)
                 {
-                    DebugHelper.Write($"{threadName} test not complete - run method");
+                    _logger.LogInformation($"{threadName} test not complete - run method");
                     object result;
                     try
                     {
@@ -102,11 +106,11 @@ namespace Lupi
                             });
                     }
 
-                    DebugHelper.Write($"{threadName} method invoke complete");
+                    _logger.LogInformation($"{threadName} method invoke complete");
                 }
                 else
                 {
-                    DebugHelper.Write($"{threadName} thread complete");
+                    _logger.LogInformation($"{threadName} thread complete");
                     break;
                 }
 

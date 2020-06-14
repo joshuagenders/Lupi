@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Lupi.Configuration;
 using Lupi.Listeners;
+using Microsoft.Extensions.Logging;
 
 namespace Lupi.Tests
 {
@@ -243,8 +244,8 @@ namespace Lupi.Tests
             IAggregator aggregator)
         {
             var cts = new CancellationTokenSource();
-            var threadControl = new ThreadControl(config, plugin, testResultPublisher);
-            var app = new Application(threadControl, testResultPublisher, aggregator);
+            var threadControl = new ThreadControl(config, plugin, testResultPublisher, Mock.Of<ILogger>(), Mock.Of<ILoggerFactory>());
+            var app = new Application(threadControl, testResultPublisher, aggregator, Mock.Of<ILogger>());
 
             cts.CancelAfter(config.TestDuration().Add(TimeSpan.FromMilliseconds(250)));
             await app.Run(cts.Token);

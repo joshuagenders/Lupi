@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -151,10 +150,6 @@ namespace Lupi.Configuration
                     }
                     var triangleArea = length * Math.Abs(y - lastY) / 2;
                     var result = (triangleArea + squareArea) / 1000;
-                    DebugHelper.Write(JsonConvert.SerializeObject(new {
-                        gradient, lastY, y, squareArea, triangleArea, length, result, p,
-                        msThroughTest, lastMsThroughTest
-                    }));
                     return result;
                 }
             })
@@ -180,8 +175,6 @@ namespace Lupi.Configuration
                 .FirstOrDefault();
             if (currentPhase == null)
             {
-                DebugHelper.Write($"Could not determine current concurrency phase.");
-                DebugHelper.Write(JsonConvert.SerializeObject(phases));
                 return 0;
             }
             if (currentPhase.Phase.Threads > 0)
@@ -194,9 +187,7 @@ namespace Lupi.Configuration
                     (currentPhase.Phase.ToThreads - currentPhase.Phase.FromThreads)
                     / currentPhase.Phase.Duration.TotalMilliseconds;
                 var x = (now.Subtract(currentPhase.PhaseStart).TotalMilliseconds);
-                var result = Convert.ToInt32(currentPhase.Phase.FromThreads + x * gradient);
-                DebugHelper.Write($"THREADS: {JsonConvert.SerializeObject(new {gradient, x, result, currentPhase})}");
-                return result;
+                return Convert.ToInt32(currentPhase.Phase.FromThreads + x * gradient);
             }
         }
 
@@ -204,7 +195,6 @@ namespace Lupi.Configuration
         {
             var validator = new ConfigurationValidator();
             var result = validator.Validate(config);
-            // TODO make more verbose
             return result.Errors.Select(r => r.ErrorMessage).ToList();
         }
     }

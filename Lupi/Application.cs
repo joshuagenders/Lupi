@@ -1,4 +1,5 @@
 ﻿using Lupi.Listeners;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +13,18 @@ namespace Lupi
         private readonly IThreadControl _threadControl;
         private readonly ITestResultPublisher _testResultPublisher;
         private readonly IAggregator _aggregator;
+        private readonly ILogger _logger;
 
         public Application(
             IThreadControl threadControl,
             ITestResultPublisher testResultPublisher,
-            IAggregator aggregator)
+            IAggregator aggregator,
+            ILogger logger)
         {
             _threadControl = threadControl;
             _testResultPublisher = testResultPublisher;
             _aggregator = aggregator;
+            _logger = logger;
         }
 
         public async Task Run(CancellationToken ct)
@@ -32,13 +36,13 @@ namespace Lupi
                     Task.Run(() => _testResultPublisher.Process(ct), ct),
                     Task.Run(() => _aggregator.Process(ct), ct)
                 };
-                DebugHelper.Write($"Starting tests. Start Time {startTime}");
+                _logger.LogInformation("Starting tests. Start Time {startTime}", startTime);
                 await _threadControl.Run(startTime, ct);
                 _testResultPublisher.TestCompleted = true;
                 _aggregator.TestCompleted = true;
-                DebugHelper.Write($"Tests completed. Awaiting reporting tasks.");
+                _logger.LogInformation($"Tests completed. Awaiting reporting tasks.");
                 await Task.WhenAll(tasks);
-                DebugHelper.Write($"Reporting completed.");
+                _logger.LogInformation($"Reporting completed.");
             }
             catch (TaskCanceledException) { }
             catch (OperationCanceledException) { }
