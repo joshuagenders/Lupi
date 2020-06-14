@@ -17,7 +17,7 @@ FROM mcr.microsoft.com/dotnet/core/runtime:3.1
 WORKDIR /app
 
 COPY --from=build /source/out .
-COPY --from=build /source/out ./test
+COPY --from=build-test /source/out ./test
 COPY Lupi.SystemTests/Configurations ./configurations
 
 # e.g. docker run --network=host lupi ./configurations/ComplexPhases.yml 

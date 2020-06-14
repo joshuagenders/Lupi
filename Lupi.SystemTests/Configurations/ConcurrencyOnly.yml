@@ -14,4 +14,4 @@ throughput:
     holdFor: 2m20s
     thinkTime: 500ms
 
-baseConfig: base-config.yml
+baseConfig: ./configurations/base-config.yml

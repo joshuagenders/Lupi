@@ -45,10 +45,8 @@ namespace Lupi
             });
 
             serviceCollection
-                .AddSingleton(testResultPublisher)
-                .AddSingleton(aggregator)
-                .AddSingleton(testListenerSubscribers)
-                .AddSingleton(consoleAggregatorListener);
+                .AddSingleton<ITestResultPublisher>(testResultPublisher)
+                .AddSingleton<IAggregator>(aggregator);
 
             return serviceCollection.BuildServiceProvider();
         }

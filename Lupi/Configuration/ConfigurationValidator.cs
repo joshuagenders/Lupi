@@ -32,7 +32,7 @@ namespace Lupi.Configuration
                 .WithMessage("To (Concurrency) must be positive");
             RuleFor(c => c.Concurrency.Phases.All(p => p.Threads >= 0)).Equal(true)
                 .WithMessage("Threads must be positive");
-            RuleFor(c => c.Concurrency.Phases.All(p => !(p.FromThreads > 0 && (p.ToThreads > 0 || p.Threads > 0)))).Equal(true)
+            RuleFor(c => c.Concurrency.Phases.All(p => !(p.Threads > 0 && (p.FromThreads > 0 || p.ToThreads > 0)))).Equal(true)
                 .WithMessage("Concurrency phases must not contain both Threads and From/To");
             RuleFor(c => c.Throughput.Phases.All(p => !(p.Tps > 0 && (p.FromTps > 0 || p.ToTps > 0)))).Equal(true)
                 .WithMessage("Throughput phases must not contain both Tps and From/To");
