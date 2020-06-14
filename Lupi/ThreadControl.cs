@@ -54,7 +54,6 @@ namespace Lupi
 
         public async Task Run(DateTime startTime, CancellationToken ct)
         {
-            //todo refactor into private methods
             await _plugin.ExecuteSetupMethod();
             try 
             {

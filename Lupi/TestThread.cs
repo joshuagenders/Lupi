@@ -77,7 +77,7 @@ namespace Lupi
                         watch.Restart();
                         result = await _plugin.ExecuteTestMethod();
                         watch.Stop();
-                        //todo handle tuple result?
+
                         var duration = result is TimeSpan ? (TimeSpan)result : watch.Elapsed;
 
                         _testResultPublisher.Publish(

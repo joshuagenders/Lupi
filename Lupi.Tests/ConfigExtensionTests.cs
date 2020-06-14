@@ -9,7 +9,6 @@ namespace Lupi.Tests
 {
     public class ConfigExtensionTests
     {
-        //todo
         [Theory]
         [InlineAutoMoqData(1, 0, 1, 0, 0, 500, 0.5)]
         [InlineAutoMoqData(1, 0, 1, 0, 0, 999, 0.999)]
