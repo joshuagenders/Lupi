@@ -31,7 +31,7 @@ namespace Lupi
             Config config, 
             IPlugin plugin, 
             ITestResultPublisher testResultPublisher, 
-            ILogger<ThreadControl> logger, 
+            ILogger<IThreadControl> logger, 
             ILoggerFactory loggerFactory)
         {
             _config = config;

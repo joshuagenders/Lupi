@@ -244,8 +244,8 @@ namespace Lupi.Tests
             IAggregator aggregator)
         {
             var cts = new CancellationTokenSource();
-            var threadControl = new ThreadControl(config, plugin, testResultPublisher, Mock.Of<ILogger>(), Mock.Of<ILoggerFactory>());
-            var app = new Application(threadControl, testResultPublisher, aggregator, Mock.Of<ILogger>());
+            var threadControl = new ThreadControl(config, plugin, testResultPublisher, Mock.Of<ILogger<IThreadControl>>(), Mock.Of<ILoggerFactory>());
+            var app = new Application(threadControl, testResultPublisher, aggregator, Mock.Of<ILogger<IApplication>>());
 
             cts.CancelAfter(config.TestDuration().Add(TimeSpan.FromMilliseconds(250)));
             await app.Run(cts.Token);
