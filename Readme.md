@@ -213,14 +213,13 @@ Guages:
 - threads
 
 Counters (Lupi internals):
-- diedofboredom
 - taskstart
 - taskcomplete
 - requesttaskexecutionstart
 - requesttaskexecutionend
-- taskkill
-- starttask
 - taskkillrequested
+- taskkill
+- diedofboredom
 
 ### Console
 The console listener writes results to the console output.

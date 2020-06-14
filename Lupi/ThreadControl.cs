@@ -202,7 +202,6 @@ namespace Lupi
             }
             else if (difference > 0)
             {
-                _stats?.Increment(difference, $"{_config.Listeners.Statsd.Bucket}.starttask");
                 _tasks.AddRange(
                     Enumerable.Range(0, difference).Select(_ => 
                         Task.Run(() => 
