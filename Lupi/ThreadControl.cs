@@ -86,10 +86,10 @@ namespace Lupi
                         wholeTokens = iterationsRemaining;
                     }
 
-                    _logger.LogInformation($"calculated tokens. {wholeTokens} tokens. {partialTokens} partialTokens");
+                    _logger.LogInformation("Calculated tokens. {wholeTokens} tokens. {partialTokens} partialTokens", wholeTokens, partialTokens);
                     if (wholeTokens > 0)
                     {
-                        _logger.LogInformation($"releasing {wholeTokens} tokens");
+                        _logger.LogInformation("Releasing {wholeTokens} tokens", wholeTokens);
                         _stats?.Increment(wholeTokens, $"{_config.Listeners.Statsd.Bucket}.releasedtoken");
                         _taskExecution.Release(wholeTokens);
                     }
@@ -97,13 +97,12 @@ namespace Lupi
                     // threads
                     _tasks.RemoveAll(x => x.IsCompleted);
                     var threadCount = _tasks.Count;
-                    _logger.LogInformation($"thread count {threadCount}");
+                    _logger.LogInformation("Thread count {threadCount}", threadCount);
                     if (_config.Concurrency.OpenWorkload)
                     {
-                        _logger.LogInformation("calculate threads for open workload");
+                        _logger.LogInformation("Calculate threads for open workload");
                         if (threadCount < _config.Concurrency.MinThreads)
                         {
-                            _logger.LogInformation("concurrency less than min");
                             SetThreadLevel(startTime, _config.Concurrency.MinThreads - threadCount, ct);
                         }
 
@@ -118,12 +117,12 @@ namespace Lupi
                     }
                     else
                     {
-                        _logger.LogInformation("calculate threads for closed workload");
+                        _logger.LogInformation("Calculate threads for closed workload");
                         var desired = _config.Concurrency.Phases.CurrentDesiredThreadCount(startTime, now);
-                        _logger.LogInformation($"desired threads: {desired}. current threads: {threadCount}");
+                        _logger.LogInformation("Desired threads: {desired}. Current threads: {threadCount}", desired, threadCount);
                         SetThreadLevel(startTime, desired, ct);
                     }
-                    _logger.LogInformation($"main loop complete. thread count {threadCount}");
+                    _logger.LogInformation("Main loop complete. thread count {threadCount}", threadCount);
                     _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
 
                     await Task.Delay(_config.Engine.CheckInterval, ct);
@@ -150,21 +149,21 @@ namespace Lupi
 
         public async Task<bool> RequestTaskExecution(DateTime startTime, CancellationToken ct)
         {
-            _logger.LogInformation($"task execution request start");
+            _logger.LogInformation($"Task execution request start");
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionstart");
 
             if (!RequestTaskContinuedExecution())
             {
-                _logger.LogInformation($"found kill token. dying.");
+                _logger.LogInformation($"Found kill token. dying.");
                 _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionend");
                 _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkill");
                 return false;
             }
             if (_config.ThroughputEnabled)
             {
-                _logger.LogInformation($"task execution enabled, waiting");
+                _logger.LogInformation($"Task execution enabled, waiting");
                 await _taskExecution.WaitAsync(ct);
-                _logger.LogInformation($"waiting complete");
+                _logger.LogInformation($"Waiting complete");
             }
 
             int iterations = 0;
@@ -174,7 +173,7 @@ namespace Lupi
                 {
                     await _taskDecrement.WaitAsync(ct);
                     iterations = Interlocked.Decrement(ref _iterationsRemaining);
-                    _logger.LogInformation($"iterations: {_config.Throughput.Iterations}. iterations left {iterations}");
+                    _logger.LogInformation("Iterations: {iterations}. Iterations left: {iterationsRemaining}", _config.Throughput.Iterations, iterations);
                 }
                 finally
                 {
@@ -182,9 +181,8 @@ namespace Lupi
                 }
             }
 
-            _logger.LogInformation($"executions remaining {iterations}");
             var isCompleted = IsTestComplete(startTime, iterations);
-            _logger.LogInformation($"is test completed {isCompleted} iterations {iterations} max iterations {_config.Throughput.Iterations}");
+            _logger.LogInformation("Is test completed: {isCompleted}. Iterations: {iterations}. Max iterations: {maxIterations}", isCompleted, iterations, _config.Throughput.Iterations);
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionend");
             return !isCompleted;
         }

@@ -36,7 +36,7 @@ namespace Lupi
 
         private async Task<bool> CanExecute(string threadName, DateTime startTime, CancellationToken ct)
         {
-            _logger.LogInformation($"{threadName} request task execution");
+            _logger.LogInformation("{threadName} request task execution", threadName);
             if (_config.Concurrency.OpenWorkload)
             {
                 var taskExecutionRequest = _threadControl.RequestTaskExecution(startTime, ct);
@@ -44,7 +44,7 @@ namespace Lupi
                 var result = await Task.WhenAny(taskExecutionRequest, killDelay);
                 if (result == killDelay)
                 {
-                    _logger.LogInformation($"{threadName} got tired of waiting. dying.");
+                    _logger.LogInformation("{threadName} got tired of waiting. Dying.", threadName);
                     _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.diedofboredom");
                     return false;
                 }
@@ -70,7 +70,7 @@ namespace Lupi
 
                 if (!ct.IsCancellationRequested && canExecute)
                 {
-                    _logger.LogInformation($"{threadName} test not complete - run method");
+                    _logger.LogInformation("{threadName} test not complete - run method", threadName);
                     object result;
                     try
                     {
@@ -106,11 +106,11 @@ namespace Lupi
                             });
                     }
 
-                    _logger.LogInformation($"{threadName} method invoke complete");
+                    _logger.LogInformation("{threadName} method invoke complete", threadName);
                 }
                 else
                 {
-                    _logger.LogInformation($"{threadName} thread complete");
+                    _logger.LogInformation("{threadName} thread complete", threadName);
                     break;
                 }
 

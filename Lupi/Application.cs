@@ -36,13 +36,13 @@ namespace Lupi
                     Task.Run(() => _testResultPublisher.Process(ct), ct),
                     Task.Run(() => _aggregator.Process(ct), ct)
                 };
-                _logger.LogInformation("Starting tests. Start Time {startTime}", startTime);
+                _logger.LogInformation("Starting tests. Start time: {startTime}", startTime);
                 await _threadControl.Run(startTime, ct);
                 _testResultPublisher.TestCompleted = true;
                 _aggregator.TestCompleted = true;
-                _logger.LogInformation($"Tests completed. Awaiting reporting tasks.");
+                _logger.LogInformation($"Tests completed. Awaiting reporting tasks");
                 await Task.WhenAll(tasks);
-                _logger.LogInformation($"Reporting completed.");
+                _logger.LogInformation($"Reporting complete. Run Complete.");
             }
             catch (TaskCanceledException) { }
             catch (OperationCanceledException) { }
