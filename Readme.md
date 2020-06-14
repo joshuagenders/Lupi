@@ -208,8 +208,10 @@ metrics are prefixed with the configured prefix and bucket parameters.
 Timers:
 - success
 - failure
+
 Guages:
 - threads
+
 Counters (Lupi internals):
 - diedofboredom
 - taskstart
