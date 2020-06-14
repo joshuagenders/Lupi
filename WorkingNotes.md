@@ -1,4 +1,5 @@
 # Remaining MVP
+- allow for base config to be relative to config file directory instead of cwd
 - add unit tests for formatting
 - add standard deviation to aggregator
 - implement exit conditions for avg response time, error count, error rate, std-dev
