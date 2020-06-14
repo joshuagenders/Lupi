@@ -221,7 +221,7 @@ Counters (Lupi internals):
 - taskkillrequested
 
 ### Console
-The console listener rites results to the console output.
+The console listener writes results to the console output.
 It also takes a named format string.
 Available fields are:
 - double Min
