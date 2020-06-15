@@ -16,4 +16,4 @@ listeners:
     statsd:
         bucket: openworkload
 
-baseConfig: ./configurations/base-config.yml
+baseConfig: base-config.yml

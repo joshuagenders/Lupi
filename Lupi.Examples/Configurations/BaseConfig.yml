@@ -1,5 +1,5 @@
 test:
-    assemblyPath: ../bin/Release/netcoreapp3.0/publish/Lupi.Examples.dll
+    assemblyPath: ../Lupi.Examples.dll
     singleTestClassInstance: true
     testClass: Lupi.Examples.InMemory
     testMethod: Increment

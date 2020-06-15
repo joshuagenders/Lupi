@@ -18,4 +18,4 @@ throughput:
     rampDown: 20s
     thinkTime: 100ms
 
-baseConfig: ./configurations/base-config.yml
+baseConfig: base-config.yml

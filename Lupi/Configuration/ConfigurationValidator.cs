@@ -8,10 +8,6 @@ namespace Lupi.Configuration
     {
         public ConfigurationValidator()
         {
-            RuleFor(c => c.Concurrency.MinThreads).GreaterThan(0)
-                .WithMessage("Min Threads must be greater than 0");
-            RuleFor(c => c.Concurrency.MaxThreads).GreaterThan(0)
-                .WithMessage("Max Threads must be greater than 0");
             RuleFor(c => c.Concurrency.Threads).GreaterThanOrEqualTo(0)
                 .WithMessage("Threads must be positive");
             RuleFor(c => c.Throughput.Phases.Any() || c.Concurrency.Phases.Any()).Equal(true)
@@ -36,8 +32,6 @@ namespace Lupi.Configuration
                 .WithMessage("Concurrency phases must not contain both Threads and From/To");
             RuleFor(c => c.Throughput.Phases.All(p => !(p.Tps > 0 && (p.FromTps > 0 || p.ToTps > 0)))).Equal(true)
                 .WithMessage("Throughput phases must not contain both Tps and From/To");
-            RuleFor(c => (c.Concurrency.MinThreads > 0 || c.Concurrency.MaxThreads > 0) && !c.Concurrency.OpenWorkload).Equal(true)
-                .WithMessage("Min and Max Threads are only valid when openWorkload is true");
         }
     }
 }

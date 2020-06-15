@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
@@ -12,14 +13,10 @@ namespace Lupi.Configuration
             !itemIfNotDefault?.Equals(defaultVal) ?? defaultVal != null 
                 ? itemIfNotDefault 
                 : elseItem;
-        public static async Task<Config> GetConfigFromFile(string filepath)
-        {
-            var configText = await System.IO.File.ReadAllTextAsync(filepath);
-            return await GetConfigFromString(configText);
-        }
 
         public static Config MapBaseConfig(Config config, Config baseConfig)
         {
+            //todo rewrite this
             var newConfig = new Config
             {
                 Concurrency = new Concurrency
@@ -27,8 +24,8 @@ namespace Lupi.Configuration
                     HoldFor = IfNotDefaultElse(config.Concurrency.HoldFor, baseConfig.Concurrency.HoldFor, TimeSpan.Zero),
                     RampUp = IfNotDefaultElse(config.Concurrency.RampUp, baseConfig.Concurrency.RampUp, TimeSpan.Zero),
                     RampDown = IfNotDefaultElse(config.Concurrency.RampDown, baseConfig.Concurrency.RampDown, TimeSpan.Zero),
-                    MaxThreads = IfNotDefaultElse(config.Concurrency.MaxThreads, baseConfig.Concurrency.MaxThreads, 300),
-                    MinThreads = IfNotDefaultElse(config.Concurrency.MinThreads, baseConfig.Concurrency.MinThreads, 1),
+                    MaxThreads = IfNotDefaultElse(config.Concurrency.MaxThreads, baseConfig.Concurrency.MaxThreads, default),
+                    MinThreads = IfNotDefaultElse(config.Concurrency.MinThreads, baseConfig.Concurrency.MinThreads, default),
                     OpenWorkload = IfNotDefaultElse(config.Concurrency.OpenWorkload, baseConfig.Concurrency.OpenWorkload, default),
                     Phases = config.Concurrency.Phases?.Any() ?? false ? config.Concurrency.Phases : baseConfig.Concurrency.Phases,
                     ThreadIdleKillTime = IfNotDefaultElse(config.Concurrency.ThreadIdleKillTime, baseConfig.Concurrency.ThreadIdleKillTime, TimeSpan.FromSeconds(5)),
@@ -58,6 +55,7 @@ namespace Lupi.Configuration
                     File = new File
                     {
                         Path = IfNotDefaultElse(config.Listeners.File.Path, baseConfig.Listeners.File.Path, default),
+                        Format = IfNotDefaultElse(config.Listeners.File.Format, baseConfig.Listeners.File.Format, default)
                     },
                     Statsd = new Statsd
                     {
@@ -65,6 +63,10 @@ namespace Lupi.Configuration
                         Bucket = IfNotDefaultElse(config.Listeners.Statsd.Bucket, baseConfig.Listeners.Statsd.Bucket, default),
                         Host = IfNotDefaultElse(config.Listeners.Statsd.Host, baseConfig.Listeners.Statsd.Host, default),
                         Port = IfNotDefaultElse(config.Listeners.Statsd.Port, baseConfig.Listeners.Statsd.Port, default)
+                    },
+                    Console = new ConsoleConfig 
+                    {
+                        Format = IfNotDefaultElse(config.Listeners.Console.Format, baseConfig.Listeners.Console.Format, default)
                     }
                 },
                 Test = new Test
@@ -82,24 +84,44 @@ namespace Lupi.Configuration
             return newConfig;
         }
 
-        public static async Task<Config> GetConfigFromString(string configText)
+        public static async Task<Config> GetConfigFromFile(string configFilepath)
+        {
+            var file = await System.IO.File.ReadAllTextAsync(configFilepath);
+            return await GetConfigFromString(file, Path.GetDirectoryName(configFilepath));
+        }
+
+        private static Config Deserialize(string configText)
         {
             var deserializer = new DeserializerBuilder()
                 .WithTypeConverter(new TimeSpanTypeConverter())
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
+            return deserializer.Deserialize<Config>(configText);
+        }
 
-            var config = deserializer.Deserialize<Config>(configText);
+        public static async Task<Config> GetConfigFromString(string configText, string path)
+        {
+            var config = Deserialize(configText);
             if (!string.IsNullOrWhiteSpace(config.BaseConfig))
             {
-                var baseConfig = await GetConfigFromFile(config.BaseConfig);
+                var relativePath = Path.IsPathRooted(config.BaseConfig)
+                    ? config.BaseConfig
+                    : Path.Join(path, config.BaseConfig);
+                var file = await System.IO.File.ReadAllTextAsync(relativePath);
+                var baseConfig = Deserialize(file);
                 config = MapBaseConfig(config, baseConfig);
+            }
+
+            if (!Path.IsPathRooted(config.Test.AssemblyPath))
+            {
+                config.Test.AssemblyPath = Path.Combine(path, config.Test.AssemblyPath);
             }
 
             if (!config.Throughput.Phases.Any())
             {
                 config.Throughput.Phases = config.BuildStandardThroughputPhases();
             }
+
             if (!config.Concurrency.Phases.Any())
             {
                 config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();

@@ -9,4 +9,4 @@ concurrency:
     threads: 500
     holdFor: 30s
 
-baseConfig: ./configurations/base-config.yml
+baseConfig: base-config.yml

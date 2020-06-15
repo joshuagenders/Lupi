@@ -3,6 +3,7 @@ using System;
 using Xunit;
 using Lupi.Configuration;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Lupi.Tests
 {
@@ -76,7 +77,7 @@ throughput:
         [Fact]
         public async Task WhenConfigurationStringIsParsed_ThenConfigIsDeserialised()
         {
-            var parsed = await ConfigHelper.GetConfigFromString(AllConfigBasic);
+            var parsed = await ConfigHelper.GetConfigFromString(AllConfigBasic, null);
             parsed.Should().NotBeNull();
             parsed.Throughput.Phases.Should().HaveCount(3);
             parsed.Throughput.RampUp.Should().BeGreaterThan(TimeSpan.Zero);
@@ -91,7 +92,7 @@ throughput:
         [Fact]
         public async Task WhenConfigurationStringIsParsed_ThenConfigIsDeserialisedPhases()
         {
-            var parsed = await ConfigHelper.GetConfigFromString(AllConfigPhases);
+            var parsed = await ConfigHelper.GetConfigFromString(AllConfigPhases, null);
             parsed.Should().NotBeNull();
             parsed.Throughput.Phases.Should().HaveCount(4);
             parsed.Concurrency.RampUp.Should().BeGreaterThan(TimeSpan.Zero);
@@ -101,7 +102,7 @@ throughput:
         [Fact]
         public async Task BaseConfigurationCanBeMapped()
         {
-            var baseConfig = await ConfigHelper.GetConfigFromString(AllConfigPhases);
+            var baseConfig = await ConfigHelper.GetConfigFromString(AllConfigPhases, Environment.CurrentDirectory);
             var config = new Config();
             ConfigHelper.MapBaseConfig(config, baseConfig).Should().BeEquivalentTo(baseConfig);
         }

@@ -244,8 +244,10 @@ namespace Lupi.Tests
             IAggregator aggregator)
         {
             var cts = new CancellationTokenSource();
-            var threadControl = new ThreadControl(config, plugin, testResultPublisher, Mock.Of<ILogger<IThreadControl>>(), Mock.Of<ILoggerFactory>());
-            var app = new Application(threadControl, testResultPublisher, aggregator, Mock.Of<ILogger<IApplication>>());
+            var threadControl = new ThreadControl(
+                config, plugin, testResultPublisher, 
+                TestLogger<IThreadControl>.Create(), new TestLoggerFactory());
+            var app = new Application(threadControl, testResultPublisher, aggregator, TestLogger<IApplication>.Create());
 
             cts.CancelAfter(config.TestDuration().Add(TimeSpan.FromMilliseconds(250)));
             await app.Run(cts.Token);
@@ -269,7 +271,9 @@ namespace Lupi.Tests
                     RampUp = TimeSpan.FromSeconds(rampUpSeconds),
                     HoldFor = TimeSpan.FromSeconds(holdForSeconds),
                     RampDown = TimeSpan.FromSeconds(rampDownSeconds),
-                    OpenWorkload = openWorkload
+                    OpenWorkload = openWorkload,
+                    MaxThreads = 300,
+                    MinThreads = 1
                 },
                 Throughput = new Throughput
                 {

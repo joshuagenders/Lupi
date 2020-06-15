@@ -27,8 +27,8 @@ namespace Lupi.Configuration
         public TimeSpan HoldFor { get; set; }
         public TimeSpan RampDown { get; set; }
         public bool OpenWorkload { get; set; }
-        public int MinThreads { get; set; } = 1;
-        public int MaxThreads { get; set; } = 300;
+        public int MinThreads { get; set; }
+        public int MaxThreads { get; set; }
 
         public List<ConcurrencyPhase> Phases { get; set; } = new List<ConcurrencyPhase>();
         public TimeSpan ThreadIdleKillTime { get; set; } = TimeSpan.FromSeconds(5);
