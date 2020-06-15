@@ -4,6 +4,7 @@
 - add validation for plugin (class/method/assembly not exists)
 - add validation+setup+teardown start/stop stages etc. to console output
 - refactor, unit testing and cleanup
+  - use internal modifiers where appropriate
 - complete grafana dashboard
 - add better grafana graphs + pictures to readme/examples readme
 - Test actual examples against real site
