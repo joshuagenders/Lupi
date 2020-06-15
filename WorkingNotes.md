@@ -1,5 +1,6 @@
 # Remaining MVP
 - implement exit conditions for avg response time, error count, error rate, std-dev
+- return pass/fail status from test (true/false, tuple(T,U) where T : bool, tuple(T,U,V) where T : bool, U : timespan)?
 - add validation for plugin (class/method/assembly not exists)
 - add validation+setup+teardown start/stop stages etc. to console output
 - refactor and cleanup
