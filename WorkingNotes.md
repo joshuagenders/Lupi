@@ -3,7 +3,7 @@
 - return pass/fail status from test (true/false, tuple(T,U) where T : bool, tuple(T,U,V) where T : bool, U : timespan)?
 - add validation for plugin (class/method/assembly not exists)
 - add validation+setup+teardown start/stop stages etc. to console output
-- refactor and cleanup
+- refactor, unit testing and cleanup
 - complete grafana dashboard
 - add better grafana graphs + pictures to readme/examples readme
 - Test actual examples against real site
