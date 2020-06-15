@@ -1,5 +1,4 @@
 # Remaining MVP
-- add unit tests for formatting
 - add standard deviation to aggregator
 - implement exit conditions for avg response time, error count, error rate, std-dev
 - add validation for plugin (class/method/assembly not exists)
