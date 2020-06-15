@@ -20,6 +20,7 @@ namespace Lupi.Listeners
             if (string.IsNullOrWhiteSpace(_config.Listeners.Console.Format))
             {
                 Console.WriteLine("----------------");
+                Console.WriteLine($"Mean: {result.Mean}ms, Variance: {result.Variance}, Std dev: {result.StandardDeviation}");
                 Console.WriteLine($"Moving Average: {result.MovingAverage}ms, Min: {result.Min}ms, Max: {result.Max}ms");
                 Console.WriteLine($"Period Average: {result.PeriodAverage}ms, Period Min: {result.PeriodMin}ms, Period Max: {result.PeriodMax}ms");
                 Console.WriteLine($"Period Length: {result.PeriodLength}ms, Sample Count: {result.Count}");

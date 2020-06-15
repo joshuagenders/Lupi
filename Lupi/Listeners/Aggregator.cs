@@ -28,6 +28,9 @@ namespace Lupi.Listeners
         private double _min { get; set; } = double.MaxValue;
         private long _counter { get; set; }
 
+        private double _dSquared { get; set; }
+        private double _mean { get; set; }
+        
         public bool TestCompleted { get; set; } = false;
         public Aggregator(Config config)
         {
@@ -56,6 +59,13 @@ namespace Lupi.Listeners
                     _expMovingAverage =
                         _expMovingAverage + (r.Duration.TotalMilliseconds - _expMovingAverage) /
                         Math.Min(_counter, FACTOR);
+                    var meanDifferential = (r.Duration.TotalMilliseconds - _mean) / _counter;
+                    var newMean = _mean + meanDifferential;
+                    var dSquaredIncrement =  (r.Duration.TotalMilliseconds - newMean) * (r.Duration.TotalMilliseconds - _mean);
+                    var newDSquared = _dSquared + dSquaredIncrement;
+                    _mean = newMean;
+                    _dSquared = newDSquared;
+
                     results.Add(r);
                 }
                 if (results.Any())
@@ -84,6 +94,11 @@ namespace Lupi.Listeners
                 await Task.Delay(_config.Engine.AggregationInterval, ct);
             }
         }
+
+
+
+
+        
 
         public async Task OnResult(TestResult[] results, CancellationToken ct)
         {

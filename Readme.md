@@ -225,14 +225,17 @@ Counters (Lupi internals):
 The console listener writes results to the console output.
 It also takes a named format string.
 Available fields are:
+- double Mean
+- double Variance
+- double StandardDeviation
+- int Count
+- double MovingAverage
 - double Min
 - double Max
-- double MovingAverage
 - double PeriodMin
 - double PeriodMax
 - double PeriodAverage
 - double PeriodLength
-- int Count
 - int PeriodErrorCount
 - int PeriodSuccessCount
 
