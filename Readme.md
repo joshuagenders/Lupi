@@ -49,7 +49,7 @@ dotnet run --project Lupi/Lupi.csproj /path/to/myConfigFile.yml
 ## Configuration
 ```yaml
 test:
-    assemblyPath: path/to/my.dll # relative to the the configuration file
+    assemblyPath: path/to/my.dll # relative to the the configuration file or full path
     singleTestClassInstance: true
     testClass: MyNamespace.MyClass
     testMethod: MyMethod
