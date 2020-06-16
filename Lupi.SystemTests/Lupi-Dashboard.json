@@ -38,7 +38,7 @@
   "hideControls": false,
   "id": null,
   "links": [],
-  "refresh": "10s",
+  "refresh": false,
   "rows": [
     {
       "collapse": false,
@@ -146,7 +146,21 @@
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
-          "seriesOverrides": [],
+          "seriesOverrides": [
+            {
+              "alias": "/mean/",
+              "color": "#508642",
+              "fill": 4
+            },
+            {
+              "alias": "/upper_99$/",
+              "color": "#C15C17"
+            },
+            {
+              "alias": "/upper$/",
+              "color": "#890F02"
+            }
+          ],
           "spaceLength": 10,
           "span": 8,
           "stack": false,
@@ -238,7 +252,7 @@
           "lines": true,
           "linewidth": 1,
           "links": [],
-          "nullPointMode": "null as zero",
+          "nullPointMode": "null",
           "percentage": false,
           "pointradius": 5,
           "points": false,
@@ -247,12 +261,12 @@
           "spaceLength": 10,
           "span": 6,
           "stack": false,
-          "steppedLine": false,
+          "steppedLine": true,
           "targets": [
             {
               "hide": false,
               "refId": "B",
-              "target": "aliasByNode(stats.gauges.Lupi.Examples.$Test.threads, 4, 5)"
+              "target": "aliasByNode(stats.gauges.Lupi.Examples.$Test.threads, 4)"
             }
           ],
           "thresholds": [],
@@ -405,8 +419,8 @@
     ]
   },
   "time": {
-    "from": "now-5m",
-    "to": "now"
+    "from": "2020-06-16T18:31:52.431Z",
+    "to": "2020-06-16T18:34:40.035Z"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -435,5 +449,5 @@
   },
   "timezone": "",
   "title": "Lupi",
-  "version": 10
+  "version": 3
 }
