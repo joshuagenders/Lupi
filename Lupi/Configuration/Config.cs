@@ -10,6 +10,7 @@ namespace Lupi.Configuration
         public Concurrency Concurrency { get; set; } = new Concurrency();
         public Throughput Throughput { get; set; } = new Throughput();
         public Test Test { get; set; } = new Test();
+        public List<ExitCondition> ExitConditions { get; set; } = new List<ExitCondition>();
 
         public Engine Engine { get; set; } = new Engine();
         public Listeners Listeners { get; set; } = new Listeners();
@@ -109,5 +110,14 @@ namespace Lupi.Configuration
         public int Port { get; set; }
         public string Prefix { get; set; }
         public string Bucket { get; set; }
+    }
+
+    public class ExitCondition
+    {
+        public string Property { get; set; }
+        public string Operator { get; set; }
+        public double Value { get; set; }
+        public TimeSpan Duration { get; set; }
+        public int Periods { get; set; }
     }
 }

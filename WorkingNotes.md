@@ -1,11 +1,11 @@
 # Remaining MVP
+- find and fix bug in openworkload rampup
 - implement exit conditions for avg response time, error count, error rate, std-dev
 - return pass/fail status from test (true/false, tuple(T,U) where T : bool, tuple(T,U,V) where T : bool, U : timespan)?
 - add validation for plugin (class/method/assembly not exists)
 - add validation+setup+teardown start/stop stages etc. to console output
 - refactor, unit testing and cleanup
   - use internal modifiers where appropriate
-- complete grafana dashboard
 - add better grafana graphs + pictures to readme/examples readme
 - Test actual examples against real site
 - Update docs and examples as required

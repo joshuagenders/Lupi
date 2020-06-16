@@ -114,7 +114,7 @@ namespace Lupi.Configuration
 
             if (!Path.IsPathRooted(config.Test.AssemblyPath))
             {
-                config.Test.AssemblyPath = Path.Combine(path, config.Test.AssemblyPath);
+                config.Test.AssemblyPath = Path.Combine(path ?? "./", config.Test.AssemblyPath);
             }
 
             if (!config.Throughput.Phases.Any())

@@ -27,7 +27,6 @@ namespace Lupi
 
         private static async Task MainAsync(string[] args)
         {
-            var cts = new CancellationTokenSource();
             await Parser.Default
                 .ParseArguments<Options>(args)
                 .WithParsedAsync(async o =>
@@ -57,15 +56,23 @@ namespace Lupi
                         return;
                     }
 
-                    Console.WriteLine("========");
-                    Console.WriteLine(" Config");
-                    Console.WriteLine("========\n");
-                    var serializer = new Serializer();
-                    serializer.Serialize(Console.Out, config);
-                    Console.WriteLine("\n");
+                    if (config.Listeners.ActiveListeners.Any(l => l.Equals("console", StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        Console.WriteLine("========");
+                        Console.WriteLine(" Config");
+                        Console.WriteLine("========\n");
+                        var serializer = new Serializer();
+                        serializer.Serialize(Console.Out, config);
+                        Console.WriteLine("\n");
+                    }
+
                     var serviceProvider = IoC.GetServiceProvider(config);
                     var app = serviceProvider.GetService<IApplication>();
-                    await app.Run(cts.Token);
+                    var result = await app.Run();
+                    if (result != 0)
+                    {
+                        throw new Exception($"Non-zero return code: {result}");
+                    }
                 });
         }
     }

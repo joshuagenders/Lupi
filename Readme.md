@@ -113,6 +113,11 @@ engine:
     resultPublishingInterval: 250ms # how often the result publishing handlers are invoked
     checkInterval: 150ms # how often thread levels / throughput is assessed
     aggregationInterval: 2s # how often results are aggregated
+exitConditions:
+ - PeriodAverage > 30 for 10 periods
+ - Min < 30.42 for 10 seconds
+ - Mean >= 30 for 10 minutes
+
 baseConfig: BaseConfig.yml
 ```
 
@@ -259,6 +264,27 @@ public static IServiceProvider BuildServiceProvider() =>
         .AddTransient<IInternalDependency, InternalDependency>()
         .BuildServiceProvider();
 
+```
+
+## Exit Conditions
+Exit conditions are assessed in each aggregation period and the test exits with a non-zero exit code if they are violated.
+The format is:
+`<Property> <operator> <value> for <period> <periodType>`
+
+Valid property names are those available in aggregated results.
+
+Valid operators are `<`, `>`, `>=`, `<=` and `=`.
+
+Timing values (e.g. min, max) are in milliseconds.
+
+Valid periodTypes are `seconds`, `minutes`, `periods`.
+
+E.g.
+
+```
+PeriodAverage > 30 for 10 periods
+Min < 30.42 for 10 seconds
+Mean = 30 for 10 minutes
 ```
 
 # License

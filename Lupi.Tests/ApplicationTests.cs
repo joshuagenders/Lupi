@@ -243,14 +243,12 @@ namespace Lupi.Tests
             ITestResultPublisher testResultPublisher,
             IAggregator aggregator)
         {
-            var cts = new CancellationTokenSource();
             var threadControl = new ThreadControl(
                 config, plugin, testResultPublisher, 
                 TestLogger<IThreadControl>.Create(), new TestLoggerFactory());
-            var app = new Application(threadControl, testResultPublisher, aggregator, TestLogger<IApplication>.Create());
+            var app = new Application(threadControl, testResultPublisher, aggregator, new ExitSignal(), TestLogger<IApplication>.Create());
 
-            cts.CancelAfter(config.TestDuration().Add(TimeSpan.FromMilliseconds(250)));
-            await app.Run(cts.Token);
+            await app.Run();
         }
 
         private Config GetConfig(
