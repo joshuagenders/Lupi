@@ -1,6 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Reflection;
+using System;
+using Newtonsoft.Json;
 
 namespace Lupi.Listeners
 {
@@ -8,7 +10,7 @@ namespace Lupi.Listeners
     {
         //Formatting implementation from http://james.newtonking.com/archive/2008/03/29/formatwith-2-0-string-formatting-with-named-variables
         private static readonly Regex _formatRegex = new Regex(@"(?<start>\{)+(?<property>[\w\.\[\]]+)(?<format>[:,][^}]+)?(?<end>\})+",
-              RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+              RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
         public static string FormatWith(this string format, object source)
         {
             var values = new List<object>();
@@ -18,7 +20,6 @@ namespace Lupi.Listeners
                 Group propertyGroup = m.Groups["property"];
                 Group formatGroup = m.Groups["format"];
                 Group endGroup = m.Groups["end"];
-
                 var val = source.GetType().GetProperty(propertyGroup.Value)?.GetValue(source);
                 val ??= source.GetType().GetField(propertyGroup.Value)?.GetValue(source);
                 values.Add(val ?? string.Empty);
@@ -26,7 +27,16 @@ namespace Lupi.Listeners
                 return new string('{', startGroup.Captures.Count) + (values.Count - 1) + formatGroup.Value
                   + new string('}', endGroup.Captures.Count);
             });
-            return string.Format(rewrittenFormat, values.ToArray());
+            try 
+            {
+                return string.Format(rewrittenFormat, values.ToArray());
+            } 
+            catch (FormatException ex)
+            {
+                Console.WriteLine("Invalid format string");
+                Console.WriteLine(JsonConvert.SerializeObject(ex)); 
+                return format;
+            }
         }
     }
 }

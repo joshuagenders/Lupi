@@ -9,22 +9,26 @@ namespace Lupi.Listeners
     {
         private readonly Config _config;
 
+        private const string DefaultFormat = @"
+----------------
+
+Mean:           {Mean,10:N}ms  Std dev:   {StandardDeviation,10:N}
+Moving Average: {MovingAverage,10:N}ms  Min:        {Min,10:N}ms  Max:        {Max,10:N}ms
+Period Average: {PeriodAverage,10:N}ms  Period Min: {PeriodMin,10:N}ms  Period Max: {PeriodMax,10:N}ms
+Period Length:  {PeriodLength,10:N}ms
+
+Sample Count: {Count,5}  Success: {PeriodSuccessCount,5}  Failure: {PeriodErrorCount,5}.";
+
         public ConsoleAggregatorListener(Config config)
         {
             _config = config;
-            Console.WriteLine("Console Listener");
-            Console.WriteLine("----------------");
         }
+
         public async Task OnResult(AggregatedResult result, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(_config.Listeners.Console.Format))
             {
-                Console.WriteLine("----------------");
-                Console.WriteLine($"Mean: {result.Mean}ms, Variance: {result.Variance}, Std dev: {result.StandardDeviation}");
-                Console.WriteLine($"Moving Average: {result.MovingAverage}ms, Min: {result.Min}ms, Max: {result.Max}ms");
-                Console.WriteLine($"Period Average: {result.PeriodAverage}ms, Period Min: {result.PeriodMin}ms, Period Max: {result.PeriodMax}ms");
-                Console.WriteLine($"Period Length: {result.PeriodLength}ms, Sample Count: {result.Count}");
-                Console.WriteLine($"Success: {result.PeriodSuccessCount} Failure: {result.PeriodErrorCount}.");
+                Console.WriteLine(DefaultFormat.FormatWith(result));
             }
             else
             {

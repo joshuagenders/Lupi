@@ -4,7 +4,7 @@
 docker build -t lupi-system-tests -f ./Lupi.SystemTests/Dockerfile .
 
 # start Grafana
-[ ! "$(docker ps -a | grep grafana)" ] && docker run -d -p 80:80 -p 8125:8125/udp -p 8126:8126 --name grafana marial/grafana-graphite-statsd
+docker run -d -p 80:80 -p 8125:8125/udp -p 8126:8126 --name grafana marial/grafana-graphite-statsd
 
 function run_file {
     echo "executing $1"

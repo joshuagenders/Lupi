@@ -87,18 +87,16 @@ namespace Lupi.Listeners
                         Count = results.Count,
                         PeriodErrorCount = results.Count(r => !r.Passed),
                         PeriodSuccessCount = results.Count(r => r.Passed),
-                        PeriodLength = periodLength.TotalMilliseconds
+                        PeriodLength = periodLength.TotalMilliseconds,
+                        Mean = _mean,
+                        Variance = _dSquared / _counter,
+                        StandardDeviation = Math.Sqrt(_dSquared / _counter)
                     };
                     await Task.WhenAll(_listeners.Select(l => l.OnResult(aggregated, ct)));
                 }
                 await Task.Delay(_config.Engine.AggregationInterval, ct);
             }
         }
-
-
-
-
-        
 
         public async Task OnResult(TestResult[] results, CancellationToken ct)
         {
