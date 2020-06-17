@@ -90,25 +90,16 @@ namespace Lupi.Configuration
             return await GetConfigFromString(file, Path.GetDirectoryName(configFilepath));
         }
 
-        private static Config Deserialize(string configText)
-        {
-            var deserializer = new DeserializerBuilder()
-                .WithTypeConverter(new TimeSpanTypeConverter())
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
-            return deserializer.Deserialize<Config>(configText);
-        }
-
         public static async Task<Config> GetConfigFromString(string configText, string path)
         {
-            var config = Deserialize(configText);
+            var config = YamlHelper.Deserialize<Config>(configText);
             if (!string.IsNullOrWhiteSpace(config.BaseConfig))
             {
                 var relativePath = Path.IsPathRooted(config.BaseConfig)
                     ? config.BaseConfig
                     : Path.Join(path, config.BaseConfig);
                 var file = await System.IO.File.ReadAllTextAsync(relativePath);
-                var baseConfig = Deserialize(file);
+                var baseConfig = YamlHelper.Deserialize<Config>(file);
                 config = MapBaseConfig(config, baseConfig);
             }
 

@@ -11,34 +11,79 @@ namespace Lupi.Listeners
     {
         private readonly Config _config;
         private readonly ExitSignal _exitSignal;
-        private readonly Dictionary<int, Queue<bool>> _resultCache;
+        private readonly Dictionary<int, Queue<(bool passed, double value)>> _resultCache;
+        private readonly Dictionary<string, Func<double, double, bool>> operatorFunctions = 
+            new Dictionary<string, Func<double, double, bool>>
+            {
+                { "<", new Func<double, double, bool>((a, b) => a < b) },
+                { ">", new Func<double, double, bool>((a, b) => a > b) },
+                { ">=", new Func<double, double, bool>((a, b) => a >= b) },
+                { "<=", new Func<double, double, bool>((a, b) => a <= b) },
+                { "=", new Func<double, double, bool>((a, b) => a == b) }
+            };
 
         public ExitConditionAggregatorListener(Config config, ExitSignal exitSignal)
         {
             _config = config;
             _exitSignal = exitSignal;
-            _resultCache = new Dictionary<int, Queue<bool>>();
+            _resultCache = new Dictionary<int, Queue<(bool, double)>>();
         }
 
         public async Task OnResult(AggregatedResult result, CancellationToken ct)
         {
-            foreach (var c in _config.ExitConditions.Select((condition, index) => (condition, index)))
-            {
-                //todo
-                //get prop
-                //switch operator
-                //  test value
-                //  store result in cache -> removing old from queue when too long
-                // for duration, calculate length from int (duration/aggregationperiod + 1)
-            }
-            //go through cache and check for any that break rules, 
-            foreach (var r in _resultCache)
-            {
+            var exitConditions = _config
+                .ExitConditions
+                .Select((condition, index) => (condition, index))
+                .Select(c => new {
+                    c.condition,
+                    c.index,
+                    maxResults = c.condition.Periods > 0
+                        ? c.condition.Periods
+                        : Convert.ToInt32(
+                            c.condition.Duration.TotalMilliseconds / _config.Engine.AggregationInterval.TotalMilliseconds + 1)
+                })
+                .Where(e => operatorFunctions.ContainsKey(e.condition.Operator))
+                .ToList();
 
-            }
-            if (_resultCache.Any(r => r.Value.All(r => r)))
+            foreach (var c in exitConditions)
             {
-                _exitSignal.Signal("the reason");
+                var propertyValue = result.GetType().GetProperty(c.condition.Property)?.GetValue(result);
+                if (propertyValue == null)
+                {
+                    continue;
+                }
+                
+                double value;
+                try 
+                {
+                    value = Convert.ToDouble(propertyValue);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+                var predicateResult = operatorFunctions[c.condition.Operator](value, c.condition.Value);
+
+                if (!_resultCache.ContainsKey(c.index))
+                {
+                    _resultCache[c.index] = new Queue<(bool, double)>();
+                }
+                _resultCache[c.index].Enqueue((predicateResult, value));
+                if (_resultCache[c.index].Count > c.maxResults)
+                {
+                    _resultCache[c.index].Dequeue();
+                }
+                if (_resultCache[c.index].Count == c.maxResults)
+                {
+                    //assess
+                    if (_resultCache[c.index].All(r => r.passed))
+                    {
+                        var conditionText = YamlHelper.Serialize(c.condition);
+
+                        _exitSignal.Signal($"Exit Condition Met.\nCondition:\n{conditionText}");
+                        break;
+                    }                    
+                }
             }
             await Task.CompletedTask;
         }

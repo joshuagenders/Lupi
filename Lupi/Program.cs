@@ -58,11 +58,10 @@ namespace Lupi
 
                     if (config.Listeners.ActiveListeners.Any(l => l.Equals("console", StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        Console.WriteLine("========");
+                        Console.WriteLine("=========");
                         Console.WriteLine(" Config");
-                        Console.WriteLine("========\n");
-                        var serializer = new Serializer();
-                        serializer.Serialize(Console.Out, config);
+                        Console.WriteLine("=========\n");
+                        YamlHelper.SerializeConsoleOut(config);
                         Console.WriteLine("\n");
                     }
 
