@@ -193,9 +193,10 @@ Exceptions are also JSON serialised.
 ## Listeners
 Listeners are used to process the results of tests.
 The provided listeners are:
+
 ### File
 On each test result, the file listener writes the `TestResult` to file. By default the format is JSON.
-The `Format` configuration parameter is a string.Format string that uses variable names instead of integer indexes of an array.
+The `Format` configuration parameter is a `string.Format` string that uses variable names instead of integer indexes of an array.
 Availble fields are:
 - string ThreadName
 - bool Passed
@@ -228,19 +229,23 @@ Counters (Lupi internals):
 
 ### Console
 The console listener writes results to the console output.
-It also takes a named format string.
+
+The `Format` configuration parameter is a `string.Format` string that uses variable names instead of integer indexes of an array.
+
 Available fields are:
-- double Mean
-- double Variance
+
+`Lupi.Listeners.AggregatedResult`
+
+- double Mean (ms)
 - double StandardDeviation
 - int Count
-- double MovingAverage
-- double Min
-- double Max
-- double PeriodMin
-- double PeriodMax
-- double PeriodAverage
-- double PeriodLength
+- double MovingAverage (ms)
+- double Min (ms)
+- double Max (ms)
+- double PeriodMin (ms)
+- double PeriodMax (ms)
+- double PeriodAverage (ms)
+- double PeriodLength (ms)
 - int PeriodErrorCount
 - int PeriodSuccessCount
 
@@ -271,7 +276,7 @@ Exit conditions are assessed in each aggregation period and the test exits with 
 The format is:
 `<Property> <operator> <value> for <period> <periodType>`
 
-Valid property names are those available in aggregated results.
+Valid property names are the same properties available in the console listener (`Lupi.Listeners.AggregatedResult`).
 
 Valid operators are `<`, `>`, `>=`, `<=` and `=`.
 
@@ -282,9 +287,9 @@ Valid periodTypes are `seconds`, `minutes`, `periods`.
 E.g.
 
 ```
-PeriodAverage > 30 for 10 periods
+PeriodAverage > 150 for 10 periods
 Min < 30.42 for 10 seconds
-Mean = 30 for 10 minutes
+Mean >= 600 for 10 minutes
 ```
 
 # License

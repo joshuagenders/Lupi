@@ -1,7 +1,8 @@
 # Remaining MVP
-- find and fix bug in openworkload rampup
 - implement exit conditions for avg response time, error count, error rate, std-dev
- - add tests single period, multiple periods, single period duration (>engine.aggt) multiple period duration, various field types, non-existant field ignored, test that doesn't fail in the first set of periods
+ - add 'as passed/failed' to parser+logic+return code
+ - add tests single period, multiple periods, single period duration (>engine.aggt) multiple period duration, various field types, non-existant field - find and fix bug in openworkload rampup
+ignored, test that doesn't fail in the first set of periods
 - return pass/fail status from test (true/false, tuple(T,U) where T : bool, tuple(T,U,V) where T : bool, U : timespan)?
 - add validation for plugin (class/method/assembly not exists)
 - add validation+setup+teardown start/stop stages etc. to console output
