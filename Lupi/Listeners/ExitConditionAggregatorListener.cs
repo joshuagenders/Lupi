@@ -62,17 +62,21 @@ namespace Lupi.Listeners
                 {
                     continue;
                 }
+                
                 var predicateResult = operatorFunctions[c.condition.Operator](value, c.condition.Value);
 
                 if (!_resultCache.ContainsKey(c.index))
                 {
                     _resultCache[c.index] = new Queue<(bool, double)>();
                 }
+                
                 _resultCache[c.index].Enqueue((predicateResult, value));
+                
                 if (_resultCache[c.index].Count > c.maxResults)
                 {
                     _resultCache[c.index].Dequeue();
                 }
+                
                 if (_resultCache[c.index].Count == c.maxResults)
                 {
                     //assess
@@ -80,7 +84,7 @@ namespace Lupi.Listeners
                     {
                         var conditionText = YamlHelper.Serialize(c.condition);
 
-                        _exitSignal.Signal($"Exit Condition Met.\nCondition:\n{conditionText}");
+                        _exitSignal.Signal($"Exit Condition was triggered.\nCondition:\n{conditionText}");
                         break;
                     }                    
                 }
