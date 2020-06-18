@@ -28,6 +28,7 @@
 # Maybes in order of likelihood
 ## Maybe - add an IDatetimeService to speed up unit tests
 Makes the component integration tests at IApplication level run faster
+Another option would be to fake thread control but that requires a level of complexity
 
 ## Maybe - filters for statsd metrics sent (inclusive+exclusive)
 
