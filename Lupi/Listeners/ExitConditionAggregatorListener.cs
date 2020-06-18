@@ -10,7 +10,7 @@ namespace Lupi.Listeners
     public class ExitConditionAggregatorListener : IAggregatorListener
     {
         private readonly Config _config;
-        private readonly ExitSignal _exitSignal;
+        private readonly IExitSignal _exitSignal;
         private readonly Dictionary<int, Queue<(bool passed, double value)>> _resultCache;
         private readonly Dictionary<string, Func<double, double, bool>> operatorFunctions = 
             new Dictionary<string, Func<double, double, bool>>
@@ -22,7 +22,7 @@ namespace Lupi.Listeners
                 { "=", new Func<double, double, bool>((a, b) => a == b) }
             };
 
-        public ExitConditionAggregatorListener(Config config, ExitSignal exitSignal)
+        public ExitConditionAggregatorListener(Config config, IExitSignal exitSignal)
         {
             _config = config;
             _exitSignal = exitSignal;
@@ -79,12 +79,14 @@ namespace Lupi.Listeners
                 
                 if (_resultCache[c.index].Count == c.maxResults)
                 {
-                    //assess
+                    //assess if condition is met
                     if (_resultCache[c.index].All(r => r.passed))
                     {
                         var conditionText = YamlHelper.Serialize(c.condition);
 
-                        _exitSignal.Signal($"Exit Condition was triggered.\nCondition:\n{conditionText}");
+                        _exitSignal.Signal(
+                            $"Exit Condition was triggered.\nCondition:\n{conditionText}",
+                            c.condition.PassedFailed.Equals("passed", StringComparison.InvariantCultureIgnoreCase));
                         break;
                     }                    
                 }

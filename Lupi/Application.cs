@@ -41,7 +41,7 @@ namespace Lupi
                 cts.Cancel();
                 Console.WriteLine(_exitSignal.SignalReason);
                 _testResultPublisher.TestCompleted = true;
-                return 1;
+                return _exitSignal.Passed ? 0 : 1;
             }
             return await runTask;
         }
@@ -62,6 +62,7 @@ namespace Lupi
                 _logger.LogInformation($"Tests completed. Awaiting reporting tasks");
                 await Task.WhenAll(tasks);
                 _logger.LogInformation($"Reporting complete. Run Complete.");
+                return 0;
             }
             catch (TaskCanceledException ex) 
             {
@@ -78,7 +79,6 @@ namespace Lupi
                 _logger.LogError("An aggregate exception occured where all inner exceptions are Task or Operation cancellations.", ex);
                 return 1;
             }
-            return 0;
         }
     }
 

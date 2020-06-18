@@ -9,7 +9,7 @@ namespace Lupi.Configuration
     public class ExitConditionTypeConverter : IYamlTypeConverter
     {
         private static Regex TimeStringRegex = 
-            new Regex(@"^(\w)* [<>=]{1,2} (\d+\.{0,1}\d*) for (\d+) [(seconds)|(periods)|(minutes)]+$", 
+            new Regex(@"^([passed|failed]) if (\w)* [<>=]{1,2} (\d+\.{0,1}\d*) for (\d+) [(seconds)|(periods)|(minutes)]+$",
                 RegexOptions.Compiled);
 
         public bool Accepts(Type type)
@@ -35,17 +35,19 @@ namespace Lupi.Configuration
 
             var values = new
             {
-                property = ParseGroup(parsed.Groups[1].Value),
-                op = parsed.Groups[2].Value,
-                value = ParseGroup(parsed.Groups[3].Value),
-                period = ParseGroup(parsed.Groups[4].Value),
-                periodType = parsed.Groups[5].Value
+                passedFailed = parsed.Groups[1].Value,
+                property = ParseGroup(parsed.Groups[2].Value),
+                op = parsed.Groups[3].Value,
+                value = ParseGroup(parsed.Groups[4].Value),
+                period = ParseGroup(parsed.Groups[5].Value),
+                periodType = parsed.Groups[6].Value,                
             };
 
             var exitCondition = new ExitCondition
             {
                 Operator = values.op,
-                Value = values.value
+                Value = values.value,
+                PassedFailed = values.passedFailed
             };
             switch (values.periodType)
             {
@@ -65,7 +67,7 @@ namespace Lupi.Configuration
         public void WriteYaml(IEmitter emitter, object value, Type type)
         {
             var exitCondition = (ExitCondition)value!;
-            var formatted = $"{exitCondition.Property} {exitCondition.Operator} {exitCondition.Value} for ";
+            var formatted = $"{exitCondition.PassedFailed} if {exitCondition.Property} {exitCondition.Operator} {exitCondition.Value} for ";
             if (exitCondition.Periods > 0)
             {
                 formatted += $"{exitCondition.Periods} periods";

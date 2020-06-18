@@ -119,5 +119,6 @@ namespace Lupi.Configuration
         public double Value { get; set; }
         public TimeSpan Duration { get; set; }
         public int Periods { get; set; }
+        public string PassedFailed { get; set; }
     }
 }

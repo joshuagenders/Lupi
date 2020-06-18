@@ -1,8 +1,6 @@
 # Remaining MVP
-- implement exit conditions for avg response time, error count, error rate, std-dev
- - add 'as passed/failed' to parser+logic+return code
- - add tests single period, multiple periods, single period duration (>engine.aggt) multiple period duration, various field types, non-existant field - find and fix bug in openworkload rampup
-ignored, test that doesn't fail in the first set of periods
+- add tests for exit conditions:
+  - single period, multiple periods, single period duration (>engine.aggt) multiple period duration, various field types, non-existant field - find and fix bug in openworkload rampup, ignored test that doesn't fail in the first set of periods
 - return pass/fail status from test (true/false, tuple(T,U) where T : bool, tuple(T,U,V) where T : bool, U : timespan)?
 - add validation for plugin (class/method/assembly not exists)
 - add validation+setup+teardown start/stop stages etc. to console output
@@ -16,13 +14,6 @@ ignored, test that doesn't fail in the first set of periods
 # Next Features
 ## Returning pass/fail status from tests
  - Use exceptions or use Tuple<bool, string>?
-
-## Exit Conditions
-- Requires aggregator listener - or process output file
-- Failure rate/percentage
-- Failure count
-- test duration over/under x average / max in y period
-pass/fail
 
 ## Other
 - Write blog post(s?)

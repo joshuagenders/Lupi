@@ -54,7 +54,7 @@ namespace Lupi
             serviceCollection
                 .AddSingleton<ITestResultPublisher>(testResultPublisher)
                 .AddSingleton<IAggregator>(aggregator)
-                .AddSingleton(exitSignal);
+                .AddSingleton<IExitSignal>(exitSignal);
 
             return serviceCollection.BuildServiceProvider();
         }

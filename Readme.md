@@ -114,9 +114,9 @@ engine:
     checkInterval: 150ms # how often thread levels / throughput is assessed
     aggregationInterval: 2s # how often results are aggregated
 exitConditions:
- - PeriodAverage > 30 for 10 periods
- - Min < 30.42 for 10 seconds
- - Mean >= 30 for 10 minutes
+ - failed if PeriodAverage > 150 for 10 periods
+ - passed if Min < 30.42 for 10 seconds
+ - failed if Mean >= 600 for 10 minutes
 
 baseConfig: BaseConfig.yml
 ```
@@ -274,7 +274,7 @@ public static IServiceProvider BuildServiceProvider() =>
 ## Exit Conditions
 Exit conditions are assessed in each aggregation period and the test exits with a non-zero exit code if they are violated.
 The format is:
-`<Property> <operator> <value> for <period> <periodType>`
+`<PassedFailed> if <Property> <operator> <value> for <period> <periodType>`
 
 Valid property names are the same properties available in the console listener (`Lupi.Listeners.AggregatedResult`).
 
@@ -287,9 +287,9 @@ Valid periodTypes are `seconds`, `minutes`, `periods`.
 E.g.
 
 ```
-PeriodAverage > 150 for 10 periods
-Min < 30.42 for 10 seconds
-Mean >= 600 for 10 minutes
+failed if PeriodAverage > 150 for 10 periods
+passed if Min < 30.42 for 10 seconds
+failed if Mean >= 600 for 10 minutes
 ```
 
 # License
