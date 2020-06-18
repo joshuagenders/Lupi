@@ -9,7 +9,7 @@ namespace Lupi.Configuration
     public class ExitConditionTypeConverter : IYamlTypeConverter
     {
         private static Regex TimeStringRegex = 
-            new Regex(@"^([passed|failed]) if (\w)* [<>=]{1,2} (\d+\.{0,1}\d*) for (\d+) [(seconds)|(periods)|(minutes)]+$",
+            new Regex(@"^([passed|failed]) if (\w)+ [<>=]{1,2} (\d+\.{0,1}\d*) for (\d+) [(seconds)|(periods)|(minutes)]+$",
                 RegexOptions.Compiled);
 
         public bool Accepts(Type type)

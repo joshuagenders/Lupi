@@ -272,7 +272,7 @@ public static IServiceProvider BuildServiceProvider() =>
 ```
 
 ## Exit Conditions
-Exit conditions are assessed in each aggregation period and the test exits with a non-zero exit code if they are violated.
+Exit conditions are assessed in each aggregation period and the test exits with passed (`0`) or failed(`1`) return code.
 The format is:
 `<PassedFailed> if <Property> <operator> <value> for <period> <periodType>`
 
