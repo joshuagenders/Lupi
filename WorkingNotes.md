@@ -26,6 +26,9 @@
 
 --------
 # Maybes in order of likelihood
+## Maybe - add an IDatetimeService to speed up unit tests
+Makes the component integration tests at IApplication level run faster
+
 ## Maybe - filters for statsd metrics sent (inclusive+exclusive)
 
 ## Maybe - Website for the tool
