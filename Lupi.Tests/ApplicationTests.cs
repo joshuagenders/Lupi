@@ -139,7 +139,7 @@ namespace Lupi.Tests
 
         [Theory]
         [InlineAutoMoqData(20, 0, 3, 25)]
-        [InlineAutoMoqData(350, 2, 2, 80)]
+        [InlineAutoMoqData(350, 2, 2, 50)]
         [InlineAutoMoqData(350, 0, 5, 80)]
         public async Task WhenMoreIterationsThanSingleThreadAllows_ThenThreadsAdapt(
             double throughput,

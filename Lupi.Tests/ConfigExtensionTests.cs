@@ -47,7 +47,7 @@ namespace Lupi.Tests
         }
 
         [Theory]
-        [InlineAutoMoqData(0, 5, 10, 1, 0, 1000, 7.5)]
+        [InlineAutoMoqData(0, 5, 10, 1, 0, 1000, 2.5)]
         [InlineAutoMoqData(0, 0, 10, 1, 0, 1000, 5)]
         [InlineAutoMoqData(20, 0, 0, 1, 0, 1000, 20)]
         public void ThroughputForCustomPhasesIsCorrect(
