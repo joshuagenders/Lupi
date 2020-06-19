@@ -72,7 +72,7 @@ namespace Lupi.Listeners
                 
                 _resultCache[c.index].Enqueue((predicateResult, value));
                 
-                if (_resultCache[c.index].Count > c.maxResults)
+                while (_resultCache[c.index].Count > c.maxResults && c.maxResults > 0)
                 {
                     _resultCache[c.index].Dequeue();
                 }
