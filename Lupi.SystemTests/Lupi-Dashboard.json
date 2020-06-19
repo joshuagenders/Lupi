@@ -408,7 +408,7 @@
         "options": [],
         "query": "stats.timers.Lupi.Examples.*",
         "refresh": 1,
-        "regex": "",
+        "regex": ".*",
         "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
@@ -419,8 +419,8 @@
     ]
   },
   "time": {
-    "from": "2020-06-16T18:31:52.431Z",
-    "to": "2020-06-16T18:34:40.035Z"
+    "from": "2020-06-19T19:43:21.622Z",
+    "to": "2020-06-19T19:52:32.494Z"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -449,5 +449,5 @@
   },
   "timezone": "",
   "title": "Lupi",
-  "version": 3
+  "version": 4
 }

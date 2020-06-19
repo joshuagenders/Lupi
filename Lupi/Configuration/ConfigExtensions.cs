@@ -122,12 +122,13 @@ namespace Lupi.Configuration
             var currentPhasesCoordinates = currentPhases.Select(p => new
             {
                 p.Phase,
-                x1 = Math.Max(p.PhaseStart, lastMsThroughTest) - p.PhaseStart,
-                x2 = Math.Min(p.PhaseEnd, msThroughTest) - p.PhaseStart
+                lastX = Math.Max(p.PhaseStart, lastMsThroughTest) - p.PhaseStart,
+                x = Math.Min(p.PhaseEnd, msThroughTest) - p.PhaseStart
             });
+
             var result = currentPhasesCoordinates.Select(p =>
             {
-                var length = Math.Abs(p.x2 - p.x1);
+                var length = Math.Abs(p.x - p.lastX);
                 if (p.Phase.Tps > 0)
                 {
                     return p.Phase.Tps * length / 1000;
@@ -137,12 +138,12 @@ namespace Lupi.Configuration
                     var gradient =
                         Math.Abs(p.Phase.ToTps - p.Phase.FromTps)
                         / p.Phase.Duration.TotalMilliseconds;
-                    var lastY = p.x1 * gradient;
-                    var y = p.x2 * gradient;
+                    var lastY = p.lastX * gradient;
+                    var y = p.x * gradient;
                     double squareArea = 0;
                     if (p.Phase.FromTps < p.Phase.ToTps)
                     {
-                        squareArea = length * p.Phase.FromTps;
+                        squareArea =  length * lastY;
                     }
                     else
                     {

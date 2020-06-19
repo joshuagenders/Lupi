@@ -112,7 +112,7 @@ namespace Lupi
                         }
 
                         var currentCount = _taskExecution.CurrentCount;
-                        if (currentCount > 1)
+                        if (currentCount > 0)
                         {
                             var amount = Math.Max(
                                 _config.Concurrency.MinThreads,

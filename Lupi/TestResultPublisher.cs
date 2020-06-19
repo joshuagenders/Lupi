@@ -39,7 +39,7 @@ namespace Lupi
         {
             while (!ct.IsCancellationRequested && !TestCompleted || _results.Any())
             {
-                var resultProcessingBatchSize = 500;
+                var resultProcessingBatchSize = 5000;
                 var count = 0;
                 var batch = new List<TestResult>();
                 while (_results.TryDequeue(out var result) && count < resultProcessingBatchSize)
