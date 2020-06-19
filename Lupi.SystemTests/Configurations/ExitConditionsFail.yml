@@ -1,0 +1,20 @@
+test:
+    testMethod: TimedGetTimespan
+
+listeners:
+    statsd:
+        bucket: exitconditionsfail
+
+concurrency:
+    threads: 2
+    holdFor: 25s
+
+throughput:
+    tps: 20
+    rampUp: 5s
+    holdFor: 20s
+
+exitConditions:
+    - failed if PeriodMax > 20 for 3 periods
+
+baseConfig: base-config.yml

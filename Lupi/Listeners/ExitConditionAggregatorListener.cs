@@ -76,7 +76,7 @@ namespace Lupi.Listeners
                 {
                     _resultCache[c.index].Dequeue();
                 }
-                
+
                 if (_resultCache[c.index].Count == c.maxResults)
                 {
                     //assess if condition is met

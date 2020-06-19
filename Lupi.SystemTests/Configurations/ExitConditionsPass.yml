@@ -1,0 +1,21 @@
+test:
+    testMethod: TimedGetTimespan
+
+listeners:
+    statsd:
+        bucket: exitconditionspass
+
+concurrency:
+    threads: 2
+    holdFor: 25s
+
+throughput:
+    tps: 20
+    rampUp: 5s
+    holdFor: 20s
+
+exitConditions:
+    - failed if PeriodMax > 500 for 2 periods
+    - passed if PeriodAverage < 200 for 12 seconds
+
+baseConfig: base-config.yml

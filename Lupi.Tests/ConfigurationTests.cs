@@ -71,6 +71,11 @@ throughput:
         duration: 20s
         from: 30
         to: 0
+exitConditions:
+ - passed if PeriodMax > 10 for 10 seconds
+ - passed if Min < 2 for 10 minutes
+ - failed if Mean > 300 for 10 periods
+ - failed if PeriodMax > 20 for 3 periods
 ";
 
         #endregion

@@ -64,7 +64,7 @@ namespace Lupi.Configuration
                         Host = IfNotDefaultElse(config.Listeners.Statsd.Host, baseConfig.Listeners.Statsd.Host, default),
                         Port = IfNotDefaultElse(config.Listeners.Statsd.Port, baseConfig.Listeners.Statsd.Port, default)
                     },
-                    Console = new ConsoleConfig 
+                    Console = new ConsoleConfig
                     {
                         Format = IfNotDefaultElse(config.Listeners.Console.Format, baseConfig.Listeners.Console.Format, default)
                     }
@@ -79,7 +79,8 @@ namespace Lupi.Configuration
                     TeardownMethod = IfNotDefaultElse(config.Test.TeardownMethod, baseConfig.Test.TeardownMethod, default),
                     TestClass = IfNotDefaultElse(config.Test.TestClass, baseConfig.Test.TestClass, default),
                     TestMethod = IfNotDefaultElse(config.Test.TestMethod, baseConfig.Test.TestMethod, default),
-                }
+                },
+                ExitConditions = baseConfig.ExitConditions.Any() ? baseConfig.ExitConditions : config.ExitConditions
             };
             return newConfig;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -9,7 +10,7 @@ namespace Lupi.Configuration
     public class ExitConditionTypeConverter : IYamlTypeConverter
     {
         private static Regex TimeStringRegex = 
-            new Regex(@"^([passed|failed]) if (\w)+ [<>=]{1,2} (\d+\.{0,1}\d*) for (\d+) [(seconds)|(periods)|(minutes)]+$",
+            new Regex(@"^(passed|failed) if (.+) ([<>=]{1,2}) (\d+\.{0,1}\d*) for (\d+) (seconds|periods|minutes)$",
                 RegexOptions.Compiled);
 
         public bool Accepts(Type type)
@@ -30,16 +31,16 @@ namespace Lupi.Configuration
                 return new ExitCondition();
             }
 
-            var ParseGroup = new Func<string, double>(s => 
-                string.IsNullOrWhiteSpace(s) ? 0 : double.Parse(s));
-
+            var ParseDouble = new Func<string, double>(s => 
+                string.IsNullOrWhiteSpace(s) ? 0 : Convert.ToDouble(s));
+          
             var values = new
             {
                 passedFailed = parsed.Groups[1].Value,
-                property = ParseGroup(parsed.Groups[2].Value),
+                property = parsed.Groups[2].Value,
                 op = parsed.Groups[3].Value,
-                value = ParseGroup(parsed.Groups[4].Value),
-                period = ParseGroup(parsed.Groups[5].Value),
+                value = ParseDouble(parsed.Groups[4].Value),
+                period = ParseDouble(parsed.Groups[5].Value),
                 periodType = parsed.Groups[6].Value,                
             };
 
@@ -47,7 +48,8 @@ namespace Lupi.Configuration
             {
                 Operator = values.op,
                 Value = values.value,
-                PassedFailed = values.passedFailed
+                PassedFailed = values.passedFailed,
+                Property = values.property
             };
             switch (values.periodType)
             {
