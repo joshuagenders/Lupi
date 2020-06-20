@@ -50,7 +50,7 @@ namespace Lupi
             {
                 throw new ArgumentException("Test method not found");
             }
-            //todo refactor this
+
             if (_testMethod.IsStatic)
             {
                 _testFunc = new Func<Task<object>>(() =>
@@ -254,8 +254,11 @@ namespace Lupi
             var c = GetClass(classFullName);
             if (c != null)
             {
-                //todo handle overrides
-                var m = c.GetMethods().Where(m => m.Name.Equals(method)).FirstOrDefault();
+                var m = c.GetMethods()
+                    .Where(m => m.Name.Equals(method))
+                    .OrderBy(m => m.GetParameters().Count())
+                    .FirstOrDefault();
+
                 if (m == null)
                 {
                     throw new ArgumentException($"Method not found. {classFullName}.{method}");

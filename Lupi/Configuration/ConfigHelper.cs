@@ -16,7 +16,6 @@ namespace Lupi.Configuration
 
         public static Config MapBaseConfig(Config config, Config baseConfig)
         {
-            //todo rewrite this
             var newConfig = new Config
             {
                 Concurrency = new Concurrency
