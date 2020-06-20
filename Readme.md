@@ -185,6 +185,14 @@ throughput:
         to: 0
 ```
 
+## Open Workload
+Whenever throughput is specified, an open workload is created. Specifying concurrency values along with throughput will create threads as desired, but they will wait until they are allowed to execute.
+
+If `concurrency.openWorkload` is `true`, then the concurrency phases are ignored and Lupi will try and allocate as many threads as it needs to in order to reach desired tests per second, within the `concurrency.minThreads` and `concurrency.maxThreads` limits.
+
+When concurrency phases are provided, then the number of threads is determined by the phases, and threads will wait until they are permitted to execute.
+In both scenarios, setting thread levels too low will result in a closed workload as new thread allocation will not be possible.
+
 ## Reporting test results
 The `Result`, `Duration` and `Passed` properties of a test result can be set by returning values from the test method.
 The values are mapped based on return type:
@@ -255,14 +263,6 @@ Available fields are:
 - double PeriodLength (ms)
 - int PeriodErrorCount
 - int PeriodSuccessCount
-
-## Open Workload
-Whenever throughput is specified, an open workload is created. Specifying concurrency values along with throughput will create threads as desired, but they will wait until they are allowed to execute.
-
-If `concurrency.openWorkload` is `true`, then the concurrency phases are ignored and Lupi will try and allocate as many threads as it needs to in order to reach desired tests per second, within the `concurrency.minThreads` and `concurrency.maxThreads` limits.
-
-When concurrency phases are provided, then the number of threads is determined by the phases, and threads will wait until they are permitted to execute.
-In both scenarios, setting thread levels too low will result in a closed workload as new thread allocation will not be possible.
 
 ## Dependency Injection
 Lupi will attempt to find and invoke a method in the provided test assembly that returns a `Microsoft.Extensions.DependencyInjection.IServiceProvider`.
