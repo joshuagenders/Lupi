@@ -1,12 +1,7 @@
 # Remaining MVP
-- add validation for plugin (class/method/assembly not exists)
-- add validation+setup+teardown start/stop stages etc. to console output
-- add exit condition property name validation
 - refactor, unit testing and cleanup
-  - use internal modifiers where appropriate
-- add better grafana graphs + pictures to readme/examples readme
+  - use internal modifiers where appropriates
 - Test actual examples against real site
-- Update docs and examples as required
 - Publish nuget packages + docker images
 - Write blog post(s)
 - Validate implementation with peers

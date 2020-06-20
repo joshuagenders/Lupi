@@ -254,8 +254,17 @@ namespace Lupi
             var c = GetClass(classFullName);
             if (c != null)
             {
-                var m = c.GetMethods().Where(m => m.Name.Equals(method));
-                return m.FirstOrDefault();
+                //todo handle overrides
+                var m = c.GetMethods().Where(m => m.Name.Equals(method)).FirstOrDefault();
+                if (m == null)
+                {
+                    throw new ArgumentException($"Method not found. {classFullName}.{method}");
+                }
+                return m;
+            }
+            else if (!string.IsNullOrWhiteSpace(classFullName))
+            {
+                throw new ArgumentException($"Class not found. {classFullName}");
             }
             return null;
         }

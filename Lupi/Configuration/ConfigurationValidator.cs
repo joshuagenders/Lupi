@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using FluentValidation;
+using Lupi.Listeners;
 
 namespace Lupi.Configuration
 {
@@ -32,6 +33,9 @@ namespace Lupi.Configuration
                 .WithMessage("Concurrency phases must not contain both Threads and From/To");
             RuleFor(c => c.Throughput.Phases.All(p => !(p.Tps > 0 && (p.FromTps > 0 || p.ToTps > 0)))).Equal(true)
                 .WithMessage("Throughput phases must not contain both Tps and From/To");
+            var aggregatedResultProperties = typeof(AggregatedResult).GetProperties().Select(p => p.Name);
+            RuleFor(c => c.ExitConditions.All(e => aggregatedResultProperties.Contains(e.Property))).Equal(true)
+                .WithMessage("Exit condition properties must exist on the AggregatedResult type");
         }
     }
 }
