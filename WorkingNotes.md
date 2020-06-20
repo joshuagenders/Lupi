@@ -1,4 +1,5 @@
 # Remaining MVP
+- update examples with returning test results
 - add validation for plugin (class/method/assembly not exists)
 - add validation+setup+teardown start/stop stages etc. to console output
 - add exit condition property name validation
