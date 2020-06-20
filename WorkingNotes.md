@@ -1,10 +1,7 @@
 # Remaining MVP
-- add tests for exit conditions:
-  - single period, multiple periods, single period duration (>engine.aggt) multiple period duration, various field types, non-existant field
-
-- return pass/fail status from test (true/false, tuple(T,U) where T : bool, tuple(T,U,V) where T : bool, U : timespan)
 - add validation for plugin (class/method/assembly not exists)
 - add validation+setup+teardown start/stop stages etc. to console output
+- add exit condition property name validation
 - refactor, unit testing and cleanup
   - use internal modifiers where appropriate
 - add better grafana graphs + pictures to readme/examples readme

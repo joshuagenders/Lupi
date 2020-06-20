@@ -186,9 +186,16 @@ throughput:
 ```
 
 ## Reporting test results
-`TimeSpan` objects returned from test methods will be used as the duration value in test results.
-Any value type will be serialised with `toString()`, and other types will be JSON serialised.
-Exceptions are also JSON serialised.
+The `Result`, `Duration` and `Passed` properties of a test result can be set by returning values from the test method.
+The values are mapped based on return type:
+- `Result` - return a `System.String`
+- `Duration` - return a `System.TimeSpan`
+- `Passed` - return a `System.Bool`
+
+When an exception is raised or returned the test result is marked as failed.
+If the object returned matches none of the above, then value types (excluding `bool`) will be serialised with `toString()`, and other types will be JSON serialised.
+
+Exceptions are also JSON serialised into the `Result` property.
 
 ## Listeners
 Listeners are used to process the results of tests.

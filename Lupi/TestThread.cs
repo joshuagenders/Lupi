@@ -78,32 +78,12 @@ namespace Lupi
                         result = await _plugin.ExecuteTestMethod();
                         watch.Stop();
 
-                        var duration = result is TimeSpan ? (TimeSpan)result : watch.Elapsed;
-
-                        _testResultPublisher.Publish(
-                            new TestResult
-                            {
-                                Duration = duration,
-                                Passed = true,
-                                Result = result?.GetType()?.IsValueType ?? false
-                                    ? result?.ToString()
-                                    : JsonConvert.SerializeObject(result),
-                                FinishedTime = DateTime.UtcNow,
-                                ThreadName = threadName
-                            });
+                        ProcessResult(threadName, watch.Elapsed, result);
                     }
                     catch (Exception ex)
                     {
                         watch.Stop();
-                        _testResultPublisher.Publish(
-                            new TestResult
-                            {
-                                Duration = watch.Elapsed,
-                                Passed = false,
-                                Result = JsonConvert.SerializeObject(ex),
-                                FinishedTime = DateTime.UtcNow,
-                                ThreadName = threadName
-                            });
+                        ProcessResult(threadName, watch.Elapsed, ex);
                     }
 
                     _logger.LogInformation("{threadName} method invoke complete", threadName);
@@ -118,6 +98,113 @@ namespace Lupi
             } while (!ct.IsCancellationRequested);
 
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskcomplete");
+        }
+
+
+        private string TrySerialize<T>(T obj)
+        {
+            try
+            {
+                return JsonConvert.SerializeObject(obj);
+            }
+            catch (Exception) 
+            {
+                return string.Empty;
+            }
+        }
+
+        private void ProcessResult(string threadName, TimeSpan ellapsed, object taskResult)
+        {
+            var result = string.Empty;
+            var passed = true;
+            switch (taskResult)
+            {
+                case Exception ex:
+                    passed = false;
+                    result = TrySerialize(ex);
+                    break;
+
+                case TimeSpan r:
+                    ellapsed = r;
+                    break;
+
+                case bool r:
+                    passed = r;
+                    break;
+
+                case string r:
+                    result = r;
+                    break;
+
+                case Tuple<TimeSpan, string, bool> r:
+                    passed = r.Item3;
+                    ellapsed = r.Item1;
+                    result = r.Item2;
+                    break;
+                case Tuple<string, TimeSpan, bool> r:
+                    passed = r.Item3;
+                    ellapsed = r.Item2;
+                    result = r.Item1;
+                    break;
+                case Tuple<string, bool, TimeSpan> r:
+                    passed = r.Item2;
+                    ellapsed = r.Item3;
+                    result = r.Item1;
+                    break;
+                case Tuple<bool, string, TimeSpan> r:
+                    passed = r.Item1;
+                    ellapsed = r.Item3;
+                    result = r.Item2;
+                    break;
+                case Tuple<TimeSpan, bool, string> r:
+                    passed = r.Item2;
+                    ellapsed = r.Item1;
+                    result = r.Item3;
+                    break;
+
+                case Tuple<TimeSpan, bool> r:
+                    passed = r.Item2;
+                    ellapsed = r.Item1;
+                    break;
+                case Tuple<bool, TimeSpan> r:
+                    passed = r.Item1;
+                    ellapsed = r.Item2;
+                    break;
+
+                case Tuple<TimeSpan, string> r:
+                    ellapsed = r.Item1;
+                    result = r.Item2;
+                    break;
+                case Tuple<string, TimeSpan> r:
+                    ellapsed = r.Item2;
+                    result = r.Item1;
+                    break;
+
+                case Tuple<bool, string> r:
+                    passed = r.Item1;
+                    result = r.Item2;
+                    break;
+                case Tuple<string, bool> r:
+                    passed = r.Item2;
+                    result = r.Item1;
+                    break;
+
+                default:
+                    result = taskResult?.GetType()?.IsValueType ?? false
+                        ? taskResult?.ToString()
+                        : TrySerialize(taskResult);
+                    break;
+            }
+
+            _testResultPublisher.Publish(
+                new TestResult
+                {
+                    Duration = ellapsed,
+                    Passed = passed,
+                    Result = result,
+                    FinishedTime = DateTime.UtcNow,
+                    ThreadName = threadName
+                });
         }
     }
 }
