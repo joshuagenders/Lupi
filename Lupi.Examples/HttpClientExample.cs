@@ -42,6 +42,17 @@ namespace Lupi.Examples
             return TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
         }
 
+        public async Task<(TimeSpan, string, bool)> GetWithReturnValuesAsync(CancellationToken ct)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var result = await GlobalState.HttpClient.GetAsync("https://blazedemo.com/", ct);
+            stopwatch.Stop();
+            var content = await result.Content.ReadAsStringAsync();
+            var passed = content.Contains("<h1>Welcome to the Simple Travel Agency!</h1>");
+            return (stopwatch.Elapsed, content, passed);
+        }
+
         public async Task<string> StringReturn(CancellationToken ct)
         {
             await GlobalState.HttpClient.GetAsync("https://blazedemo.com/", ct);
