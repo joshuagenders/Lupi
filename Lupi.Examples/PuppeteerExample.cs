@@ -14,11 +14,9 @@ namespace Lupi.Examples
             {
                 var watch = new Stopwatch();
                 watch.Start();
-                await page.GoToAsync("https://blazedemo.com/");
+                await page.GoToAsync("https://<website>.com/");
                 await page.WaitForSelectorAsync("div.container");
                 watch.Stop();
-                var title = await page.EvaluateExpressionAsync<dynamic>("document.getElementsByTagName('h1')[0].innerText");
-                title.Should().Be("Welcome to the Simple Travel Agency!");
                 return watch.Elapsed;
             }
         }
