@@ -10,16 +10,14 @@ namespace Lupi.Examples
     {
         public async Task Get(CancellationToken ct)
         {
-            var result = await GlobalState.HttpClient.GetAsync("https://blazedemo.com/", ct);
+            var result = await GlobalState.HttpClient.GetAsync("https://<website>.com/", ct);
             result.EnsureSuccessStatusCode();
-            var content = await result.Content.ReadAsStringAsync();
-            content.Should().Contain("<h1>Welcome to the Simple Travel Agency!</h1>");
         }
 
         public async Task<Stopwatch> TimedGet(Stopwatch stopwatch, CancellationToken ct)
         {
             stopwatch.Start();
-            await GlobalState.HttpClient.GetAsync("https://blazedemo.com/", ct);
+            await GlobalState.HttpClient.GetAsync("https://<website>.com/", ct);
             stopwatch.Stop();
             return stopwatch;
         }
@@ -28,7 +26,7 @@ namespace Lupi.Examples
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            await GlobalState.HttpClient.GetAsync("https://blazedemo.com/", ct);
+            await GlobalState.HttpClient.GetAsync("https://<website>.com/", ct);
             stopwatch.Stop();
             return (stopwatch, "timed get with string return");
         }
@@ -37,7 +35,7 @@ namespace Lupi.Examples
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            await GlobalState.HttpClient.GetAsync("https://blazedemo.com/", ct);
+            await GlobalState.HttpClient.GetAsync("https://<website>.com/", ct);
             stopwatch.Stop();
             return TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
         }
@@ -46,16 +44,15 @@ namespace Lupi.Examples
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            var result = await GlobalState.HttpClient.GetAsync("https://blazedemo.com/", ct);
+            var result = await GlobalState.HttpClient.GetAsync("https://<website>.com/", ct);
+            var response = await result.Content.ReadAsStringAsync();
             stopwatch.Stop();
-            var content = await result.Content.ReadAsStringAsync();
-            var passed = content.Contains("<h1>Welcome to the Simple Travel Agency!</h1>");
-            return (stopwatch.Elapsed, content, passed);
+            return (stopwatch.Elapsed, response, result.IsSuccessStatusCode);
         }
 
         public async Task<string> StringReturn(CancellationToken ct)
         {
-            await GlobalState.HttpClient.GetAsync("https://blazedemo.com/", ct);
+            await GlobalState.HttpClient.GetAsync("https://<website>.com/", ct);
             return "example";
         }
     }
