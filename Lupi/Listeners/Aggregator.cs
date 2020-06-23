@@ -55,6 +55,7 @@ namespace Lupi.Listeners
                 var results = new List<TestResult>();
                 while (_results.TryTake(out var r) && results.Count < 10000)
                 {
+                    //todo fix this algorithm
                     _counter++;
                     _expMovingAverage =
                         _expMovingAverage + (r.Duration.TotalMilliseconds - _expMovingAverage) /
