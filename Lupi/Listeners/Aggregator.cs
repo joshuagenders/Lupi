@@ -55,12 +55,13 @@ namespace Lupi.Listeners
                 var results = new List<TestResult>();
                 while (_results.TryTake(out var r) && results.Count < 10000)
                 {
+                    var newMean = _mean + ((r.Duration.TotalMilliseconds - _mean) / (_counter + 1));
+
                     _counter++;
                     _expMovingAverage =
                         _expMovingAverage + (r.Duration.TotalMilliseconds - _expMovingAverage) /
                         Math.Min(_counter, FACTOR);
 
-                    var newMean = _mean + ((r.Duration.TotalMilliseconds - _mean) / (_counter + 1));
                     var dSquaredIncrement =  (r.Duration.TotalMilliseconds - newMean) * (r.Duration.TotalMilliseconds - _mean);
                     var newDSquared = _dSquared + dSquaredIncrement;
                     _mean = newMean;
