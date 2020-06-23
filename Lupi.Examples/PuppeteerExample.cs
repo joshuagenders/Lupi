@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using PuppeteerSharp;
 
 namespace Lupi.Examples
 {
@@ -12,8 +13,7 @@ namespace Lupi.Examples
             {
                 var watch = new Stopwatch();
                 watch.Start();
-                await page.GoToAsync("https://<website>.com");
-                await page.WaitForSelectorAsync("div.content");
+                await page.GoToAsync("https://<website>.com", WaitUntilNavigation.DOMContentLoaded);
                 watch.Stop();
                 return watch.Elapsed;
             }
