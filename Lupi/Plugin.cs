@@ -136,12 +136,11 @@ namespace Lupi
 
         public async Task<object> RunMethod(MethodInfo method, object[] parameters, object instance = null)
         {
-            var parms = GetParameters(method);
             if (IsAsyncMethod(method))
             {
                 if (method.ReturnType.GetGenericArguments().Any())
                 {
-                    var task = (Task)_testMethod.Invoke(instance, parms);
+                    var task = (Task)method.Invoke(instance, parameters);
                     if (task != null)
                     {
                         await task;
@@ -155,7 +154,7 @@ namespace Lupi
                 }
                 else
                 {
-                    var task = (Task)_testMethod.Invoke(instance, parms);
+                    var task = (Task)method.Invoke(instance, parameters);
                     if (task != null)
                     {
                         await task;
@@ -166,7 +165,7 @@ namespace Lupi
             }
             else
             {
-                return method.Invoke(instance, parms);
+                return method.Invoke(instance, parameters);
             }
         }
 

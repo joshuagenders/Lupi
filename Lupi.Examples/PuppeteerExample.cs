@@ -12,8 +12,8 @@ namespace Lupi.Examples
             {
                 var watch = new Stopwatch();
                 watch.Start();
-                await page.GoToAsync("https://<website>.com/");
-                await page.WaitForSelectorAsync("div.container");
+                await page.GoToAsync("https://<website>.com");
+                await page.WaitForSelectorAsync("div.content");
                 watch.Stop();
                 return watch.Elapsed;
             }

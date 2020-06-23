@@ -38,7 +38,8 @@ namespace Lupi.Examples
                     "--no-sandbox",
                     "--disable-setuid-sandbox",
                     "--user-data-dir"
-                }
+                },
+                Timeout = 10000,
             });
         }
 
