@@ -189,6 +189,59 @@ namespace Lupi
                     result = r.Item1;
                     break;
 
+                case ValueTuple<TimeSpan, string, bool> r:
+                    passed = r.Item3;
+                    ellapsed = r.Item1;
+                    result = r.Item2;
+                    break;
+                case ValueTuple<string, TimeSpan, bool> r:
+                    passed = r.Item3;
+                    ellapsed = r.Item2;
+                    result = r.Item1;
+                    break;
+                case ValueTuple<string, bool, TimeSpan> r:
+                    passed = r.Item2;
+                    ellapsed = r.Item3;
+                    result = r.Item1;
+                    break;
+                case ValueTuple<bool, string, TimeSpan> r:
+                    passed = r.Item1;
+                    ellapsed = r.Item3;
+                    result = r.Item2;
+                    break;
+                case ValueTuple<TimeSpan, bool, string> r:
+                    passed = r.Item2;
+                    ellapsed = r.Item1;
+                    result = r.Item3;
+                    break;
+
+                case ValueTuple<TimeSpan, bool> r:
+                    passed = r.Item2;
+                    ellapsed = r.Item1;
+                    break;
+                case ValueTuple<bool, TimeSpan> r:
+                    passed = r.Item1;
+                    ellapsed = r.Item2;
+                    break;
+
+                case ValueTuple<TimeSpan, string> r:
+                    ellapsed = r.Item1;
+                    result = r.Item2;
+                    break;
+                case ValueTuple<string, TimeSpan> r:
+                    ellapsed = r.Item2;
+                    result = r.Item1;
+                    break;
+
+                case ValueTuple<bool, string> r:
+                    passed = r.Item1;
+                    result = r.Item2;
+                    break;
+                case ValueTuple<string, bool> r:
+                    passed = r.Item2;
+                    result = r.Item1;
+                    break;
+
                 default:
                     result = taskResult?.GetType()?.IsValueType ?? false
                         ? taskResult?.ToString()
