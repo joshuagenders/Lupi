@@ -22,7 +22,7 @@ namespace Lupi.Listeners
         private readonly Config _config;
         private readonly ConcurrentBag<TestResult> _results;
 
-        private const int FACTOR = 4;
+        private const int FACTOR = 10;
         private double _expMovingAverage { get; set; }
         private double _max { get; set; }
         private double _min { get; set; } = double.MaxValue;
@@ -55,13 +55,12 @@ namespace Lupi.Listeners
                 var results = new List<TestResult>();
                 while (_results.TryTake(out var r) && results.Count < 10000)
                 {
-                    //todo fix this algorithm
                     _counter++;
                     _expMovingAverage =
                         _expMovingAverage + (r.Duration.TotalMilliseconds - _expMovingAverage) /
                         Math.Min(_counter, FACTOR);
-                    var meanDifferential = (r.Duration.TotalMilliseconds - _mean) / _counter;
-                    var newMean = _mean + meanDifferential;
+
+                    var newMean = _mean + ((r.Duration.TotalMilliseconds - _mean) / (_counter + 1));
                     var dSquaredIncrement =  (r.Duration.TotalMilliseconds - newMean) * (r.Duration.TotalMilliseconds - _mean);
                     var newDSquared = _dSquared + dSquaredIncrement;
                     _mean = newMean;
@@ -107,5 +106,10 @@ namespace Lupi.Listeners
             }
             await Task.CompletedTask;
         }
+
+        static float getAvg(float prev_avg, float x, int n) 
+        { 
+            return (prev_avg * n + x) / (n + 1); 
+        } 
     }
 }
