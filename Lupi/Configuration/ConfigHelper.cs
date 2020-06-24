@@ -103,13 +103,15 @@ namespace Lupi.Configuration
             var paths = new List<string>();
             do 
             {
-                if (paths.Contains(path))
+                var fullPath = Path.GetFullPath(path);
+                if (paths.Contains(fullPath))
                 {
+                    //configuration already loaded
                     break;
                 }
                 else
                 {
-                    paths.Add(path);
+                    paths.Add(fullPath);
                 }
 
                 var file = await System.IO.File.ReadAllTextAsync(path);

@@ -132,6 +132,11 @@ listeners:
         host: ${STATSD_HOST}
 ```
 
+### Base Config
+When a `baseConfiguration` file is specified (relative to the configuration file, or the full path) then the config is loaded and merged.
+
+Base configurations can also have their own base configurations; base configurations will be loaded until the property is blank or a circular reference is found.
+
 # Concepts
 ## Concurrency and Throughput
 Throughput (the number of requests) and concurrency (the number of possible concurrent test executions) are separate concepts in Lupi. Each can be ramped up or down independently of each other (though lowering concurrency may restrict the ability to meet desired throughput).
