@@ -112,7 +112,7 @@ listeners:
 engine:
     resultPublishingInterval: 250ms # how often the result publishing handlers are invoked
     checkInterval: 150ms # how often thread levels / throughput is assessed
-    aggregationInterval: 2s # how often results are aggregated
+    aggregationInterval: 2s # how often results are aggregated, relies on the results being published (so ensure is greater than resultPublishingInterval)
 exitConditions:
  - failed if PeriodAverage > 150 for 10 periods
  - passed if Min < 30.42 for 10 seconds
