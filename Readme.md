@@ -121,6 +121,17 @@ exitConditions:
 baseConfig: BaseConfig.yml
 ```
 
+### Environment Variables
+Environment variables values can be interpolated into configuration files using the `${variable_name}` syntax.
+
+E.g.
+
+```yaml
+listeners:
+    statsd:
+        host: ${STATSD_HOST}
+```
+
 # Concepts
 ## Concurrency and Throughput
 Throughput (the number of requests) and concurrency (the number of possible concurrent test executions) are separate concepts in Lupi. Each can be ramped up or down independently of each other (though lowering concurrency may restrict the ability to meet desired throughput).

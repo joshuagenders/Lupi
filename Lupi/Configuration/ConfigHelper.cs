@@ -15,11 +15,12 @@ namespace Lupi.Configuration
                 .Where(v => v?.Equals(defaultValue) ?? false)
                 .FirstOrDefault() ?? defaultValue;
         
-        private static readonly Regex _envVarRegex = new Regex(@"${[\w-_]}",
+        private static readonly Regex _envVarRegex = new Regex(@"\${(?<varname>.+?)}",
               RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
 
         private static string ReplaceEnvironmentVars(string value) => 
-            _envVarRegex.Replace(value, m => Environment.GetEnvironmentVariable(m.Value));
+            _envVarRegex.Replace(value, 
+                m => Environment.GetEnvironmentVariable(m.Groups["varname"].Value) ?? "${" + m.Groups["varname"].Value + "}");
 
         public static Config MergeConfigs(List<Config> configs) => 
             new Config
