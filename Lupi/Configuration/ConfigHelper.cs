@@ -1,108 +1,137 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace Lupi.Configuration
 {
     public static class ConfigHelper
     {
-        private static T IfNotDefaultElse<T>(T itemIfNotDefault, T elseItem, T defaultVal) =>
-            !itemIfNotDefault?.Equals(defaultVal) ?? defaultVal != null 
-                ? itemIfNotDefault 
-                : elseItem;
+        private static T GetConfigValue<T>(Func<Config, T> selector, List<Config> configs, T defaultValue) =>
+            configs
+                .Select(selector)
+                .Where(v => v?.Equals(defaultValue) ?? false)
+                .FirstOrDefault() ?? defaultValue;
+        
+        private static readonly Regex _envVarRegex = new Regex(@"${[\w-_]}",
+              RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
 
-        public static Config MapBaseConfig(Config config, Config baseConfig)
-        {
-            var newConfig = new Config
+        private static string ReplaceEnvironmentVars(string value) => 
+            _envVarRegex.Replace(value, m => Environment.GetEnvironmentVariable(m.Value));
+
+        public static Config MergeConfigs(List<Config> configs) => 
+            new Config
             {
                 Concurrency = new Concurrency
                 {
-                    HoldFor = IfNotDefaultElse(config.Concurrency.HoldFor, baseConfig.Concurrency.HoldFor, TimeSpan.Zero),
-                    RampUp = IfNotDefaultElse(config.Concurrency.RampUp, baseConfig.Concurrency.RampUp, TimeSpan.Zero),
-                    RampDown = IfNotDefaultElse(config.Concurrency.RampDown, baseConfig.Concurrency.RampDown, TimeSpan.Zero),
-                    MaxThreads = IfNotDefaultElse(config.Concurrency.MaxThreads, baseConfig.Concurrency.MaxThreads, default),
-                    MinThreads = IfNotDefaultElse(config.Concurrency.MinThreads, baseConfig.Concurrency.MinThreads, default),
-                    OpenWorkload = IfNotDefaultElse(config.Concurrency.OpenWorkload, baseConfig.Concurrency.OpenWorkload, default),
-                    Phases = config.Concurrency.Phases?.Any() ?? false ? config.Concurrency.Phases : baseConfig.Concurrency.Phases,
-                    ThreadIdleKillTime = IfNotDefaultElse(config.Concurrency.ThreadIdleKillTime, baseConfig.Concurrency.ThreadIdleKillTime, TimeSpan.FromSeconds(5)),
-                    Threads = IfNotDefaultElse(config.Concurrency.Threads, baseConfig.Concurrency.Threads, default)
+                    HoldFor = GetConfigValue(v => v.Concurrency.HoldFor, configs, TimeSpan.Zero),
+                    RampUp = GetConfigValue(v => v.Concurrency.RampUp,configs, TimeSpan.Zero),
+                    RampDown = GetConfigValue(v => v.Concurrency.RampDown, configs, TimeSpan.Zero),
+                    MaxThreads = GetConfigValue(v => v.Concurrency.MaxThreads, configs, default),
+                    MinThreads = GetConfigValue(v => v.Concurrency.MinThreads, configs, default),
+                    OpenWorkload = GetConfigValue(v => v.Concurrency.OpenWorkload, configs, default),
+                    Phases = GetConfigValue(v => v.Concurrency.Phases, configs, Array.Empty<ConcurrencyPhase>().ToList()),
+                    ThreadIdleKillTime = GetConfigValue(v => v.Concurrency.ThreadIdleKillTime, configs, TimeSpan.FromSeconds(5)),
+                    Threads = GetConfigValue(v => v.Concurrency.Threads, configs, default)
                 },
                 Throughput = new Throughput
                 {
-                    Phases = config.Throughput.Phases?.Any() ?? false ? config.Throughput.Phases : baseConfig.Throughput.Phases,
-                    HoldFor = IfNotDefaultElse(config.Throughput.HoldFor, baseConfig.Throughput.HoldFor, TimeSpan.Zero),
-                    RampUp = IfNotDefaultElse(config.Throughput.RampUp, baseConfig.Throughput.RampUp, TimeSpan.Zero),
-                    RampDown = IfNotDefaultElse(config.Throughput.RampDown, baseConfig.Throughput.RampDown, TimeSpan.Zero),
-                    Iterations = IfNotDefaultElse(config.Throughput.Iterations, baseConfig.Throughput.Iterations, default),
-                    ThinkTime = IfNotDefaultElse(config.Throughput.ThinkTime, baseConfig.Throughput.ThinkTime, TimeSpan.Zero),
-                    Tps = IfNotDefaultElse(config.Throughput.Tps, baseConfig.Throughput.Tps, default)
+                    Phases = GetConfigValue(v => v.Throughput.Phases, configs, Array.Empty<Phase>().ToList()),
+                    HoldFor = GetConfigValue(v => v.Throughput.HoldFor, configs, TimeSpan.Zero),
+                    RampUp = GetConfigValue(v => v.Throughput.RampUp, configs, TimeSpan.Zero),
+                    RampDown = GetConfigValue(v => v.Throughput.RampDown, configs,TimeSpan.Zero),
+                    Iterations = GetConfigValue(v => v.Throughput.Iterations, configs, default),
+                    ThinkTime = GetConfigValue(v => v.Throughput.ThinkTime, configs, TimeSpan.Zero),
+                    Tps = GetConfigValue(v => v.Throughput.Tps, configs, default)
                 },
                 Engine = new Engine
                 {
-                    CheckInterval = IfNotDefaultElse(config.Engine.CheckInterval, baseConfig.Engine.CheckInterval, TimeSpan.FromMilliseconds(180)),
-                    ResultPublishingInterval = IfNotDefaultElse(config.Engine.ResultPublishingInterval, baseConfig.Engine.ResultPublishingInterval, TimeSpan.FromMilliseconds(500))
+                    CheckInterval = GetConfigValue(v => v.Engine.CheckInterval, configs, TimeSpan.FromMilliseconds(180)),
+                    ResultPublishingInterval = GetConfigValue(v => v.Engine.ResultPublishingInterval, configs, TimeSpan.FromMilliseconds(500))
                 },
                 Listeners = new Listeners
                 {
-                    ActiveListeners = config.Listeners
-                            .ActiveListeners.Union(baseConfig.Listeners.ActiveListeners)
+                    ActiveListeners = configs.SelectMany(c => c.Listeners.ActiveListeners)
                             .Distinct()
                             .ToList(),
                     File = new File
                     {
-                        Path = IfNotDefaultElse(config.Listeners.File.Path, baseConfig.Listeners.File.Path, default),
-                        Format = IfNotDefaultElse(config.Listeners.File.Format, baseConfig.Listeners.File.Format, default)
+                        Path = GetConfigValue(v => v.Listeners.File.Path, configs, default),
+                        Format = GetConfigValue(v => v.Listeners.File.Format, configs, default)
                     },
                     Statsd = new Statsd
                     {
-                        Prefix = IfNotDefaultElse(config.Listeners.Statsd.Prefix, baseConfig.Listeners.Statsd.Prefix, default),
-                        Bucket = IfNotDefaultElse(config.Listeners.Statsd.Bucket, baseConfig.Listeners.Statsd.Bucket, default),
-                        Host = IfNotDefaultElse(config.Listeners.Statsd.Host, baseConfig.Listeners.Statsd.Host, default),
-                        Port = IfNotDefaultElse(config.Listeners.Statsd.Port, baseConfig.Listeners.Statsd.Port, default)
+                        Prefix = GetConfigValue(v => v.Listeners.Statsd.Prefix, configs, default),
+                        Bucket = GetConfigValue(v => v.Listeners.Statsd.Bucket, configs, default),
+                        Host = GetConfigValue(v => v.Listeners.Statsd.Host, configs, default),
+                        Port = GetConfigValue(v => v.Listeners.Statsd.Port, configs, default)
                     },
                     Console = new ConsoleConfig
                     {
-                        Format = IfNotDefaultElse(config.Listeners.Console.Format, baseConfig.Listeners.Console.Format, default)
+                        Format = GetConfigValue(v => v.Listeners.Console.Format, configs, default)
                     }
                 },
                 Test = new Test
                 {
-                    AssemblyPath = IfNotDefaultElse(config.Test.AssemblyPath, baseConfig.Test.AssemblyPath, default),
-                    SetupClass = IfNotDefaultElse(config.Test.SetupClass, baseConfig.Test.SetupClass, default),
-                    SetupMethod = IfNotDefaultElse(config.Test.SetupMethod, baseConfig.Test.SetupMethod, default),
-                    SingleTestClassInstance = IfNotDefaultElse(config.Test.SingleTestClassInstance, baseConfig.Test.SingleTestClassInstance, default),
-                    TeardownClass = IfNotDefaultElse(config.Test.TeardownClass, baseConfig.Test.TeardownClass, default),
-                    TeardownMethod = IfNotDefaultElse(config.Test.TeardownMethod, baseConfig.Test.TeardownMethod, default),
-                    TestClass = IfNotDefaultElse(config.Test.TestClass, baseConfig.Test.TestClass, default),
-                    TestMethod = IfNotDefaultElse(config.Test.TestMethod, baseConfig.Test.TestMethod, default),
+                    AssemblyPath = GetConfigValue(v => v.Test.AssemblyPath, configs, default),
+                    SetupClass = GetConfigValue(v => v.Test.SetupClass, configs, default),
+                    SetupMethod = GetConfigValue(v => v.Test.SetupMethod, configs, default),
+                    SingleTestClassInstance = GetConfigValue(v => v.Test.SingleTestClassInstance, configs, default),
+                    TeardownClass = GetConfigValue(v => v.Test.TeardownClass, configs, default),
+                    TeardownMethod = GetConfigValue(v => v.Test.TeardownMethod, configs, default),
+                    TestClass = GetConfigValue(v => v.Test.TestClass, configs, default),
+                    TestMethod = GetConfigValue(v => v.Test.TestMethod, configs, default),
                 },
-                ExitConditions = baseConfig.ExitConditions.Any() ? baseConfig.ExitConditions : config.ExitConditions
+                ExitConditions = configs.SelectMany(c => c.ExitConditions).ToList()
             };
-            return newConfig;
-        }
 
         public static async Task<Config> GetConfigFromFile(string configFilepath)
         {
-            var file = await System.IO.File.ReadAllTextAsync(configFilepath);
-            return await GetConfigFromString(file, Path.GetDirectoryName(configFilepath));
+            var configs = await GetConfigsFromFile(configFilepath);
+            var config = MergeConfigs(configs);
+            return Build(config, configFilepath);
         }
 
-        public static async Task<Config> GetConfigFromString(string configText, string path)
+        public static async Task<List<Config>> GetConfigsFromFile(string configFilepath)
         {
-            var config = YamlHelper.Deserialize<Config>(configText);
-            if (!string.IsNullOrWhiteSpace(config.BaseConfig))
+            var configs = new List<Config>();
+            Config config;
+            var path = configFilepath;
+            var paths = new List<string>();
+            do 
             {
-                var relativePath = Path.IsPathRooted(config.BaseConfig)
-                    ? config.BaseConfig
-                    : Path.Join(path, config.BaseConfig);
-                var file = await System.IO.File.ReadAllTextAsync(relativePath);
-                var baseConfig = YamlHelper.Deserialize<Config>(file);
-                config = MapBaseConfig(config, baseConfig);
-            }
+                if (paths.Contains(path))
+                {
+                    break;
+                }
+                else
+                {
+                    paths.Add(path);
+                }
 
+                var file = await System.IO.File.ReadAllTextAsync(path);
+                file = ReplaceEnvironmentVars(file);
+                config = YamlHelper.Deserialize<Config>(file);
+                configs.Add(config);
+                if (!string.IsNullOrWhiteSpace(config.BaseConfig))
+                {
+                    path = Path.IsPathRooted(config.BaseConfig)
+                        ? config.BaseConfig
+                        : Path.Join(configFilepath, config.BaseConfig);
+                }
+                else
+                {
+                    break;
+                }
+            } 
+            while (!string.IsNullOrWhiteSpace(config?.BaseConfig));
+            return configs;
+        }
+
+        public static Config Build(Config config, string path)
+        {
             if (!Path.IsPathRooted(config.Test.AssemblyPath))
             {
                 config.Test.AssemblyPath = Path.Combine(path ?? "./", config.Test.AssemblyPath);

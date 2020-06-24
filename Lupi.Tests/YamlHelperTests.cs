@@ -2,12 +2,10 @@
 using System;
 using Xunit;
 using Lupi.Configuration;
-using System.Threading.Tasks;
-using System.IO;
 
 namespace Lupi.Tests
 {
-    public class ConfigurationTests
+    public class YamlHelperTests
     {
         #region ConfigStrings
         private static string AllConfigBasic = @"
@@ -80,9 +78,10 @@ exitConditions:
 
         #endregion
         [Fact]
-        public async Task WhenConfigurationStringIsParsed_ThenConfigIsDeserialised()
+        public void WhenConfigurationStringIsParsed_ThenConfigIsDeserialised()
         {
-            var parsed = await ConfigHelper.GetConfigFromString(AllConfigBasic, null);
+            var parsed = YamlHelper.Deserialize<Config>(AllConfigBasic);
+            parsed = ConfigHelper.Build(parsed, null);
             parsed.Should().NotBeNull();
             parsed.Throughput.Phases.Should().HaveCount(3);
             parsed.Throughput.RampUp.Should().BeGreaterThan(TimeSpan.Zero);
@@ -95,21 +94,14 @@ exitConditions:
         }
 
         [Fact]
-        public async Task WhenConfigurationStringIsParsed_ThenConfigIsDeserialisedPhases()
+        public void WhenConfigurationStringIsParsed_ThenConfigIsDeserialisedPhases()
         {
-            var parsed = await ConfigHelper.GetConfigFromString(AllConfigPhases, null);
+            var parsed = YamlHelper.Deserialize<Config>(AllConfigPhases);
+            parsed = ConfigHelper.Build(parsed, null);
             parsed.Should().NotBeNull();
             parsed.Throughput.Phases.Should().HaveCount(4);
             parsed.Concurrency.RampUp.Should().BeGreaterThan(TimeSpan.Zero);
             parsed.Concurrency.RampDown.Should().BeGreaterThan(TimeSpan.Zero);
-        }
-
-        [Fact]
-        public async Task BaseConfigurationCanBeMapped()
-        {
-            var baseConfig = await ConfigHelper.GetConfigFromString(AllConfigPhases, Environment.CurrentDirectory);
-            var config = new Config();
-            ConfigHelper.MapBaseConfig(config, baseConfig).Should().BeEquivalentTo(baseConfig);
         }
     }
 }

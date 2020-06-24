@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
-using System;
 using Xunit;
 using Lupi.Configuration;
-using System.Threading.Tasks;
 using System.Linq;
 
 namespace Lupi.Tests
@@ -110,10 +108,10 @@ test:
         [InlineData(ConfigBasic)]
         [InlineData(ConfigPhases)]
         [InlineData(ConfigMinimal)]
-        public async Task WhenBasicConfigurationIsValidated_ThenValidationPasses(string config)
+        public void WhenBasicConfigurationIsValidated_ThenValidationPasses(string config)
         {
             var validator = new ConfigurationValidator();
-            var parsed = await ConfigHelper.GetConfigFromString(config, null);
+            var parsed = YamlHelper.Deserialize<Config>(config);
 
             if (!parsed.Concurrency.Phases.Any())
                 parsed.Concurrency.Phases = parsed.BuildStandardConcurrencyPhases();
@@ -129,10 +127,10 @@ test:
         [Theory]
         [InlineData(InvalidNegativeValues)]
         [InlineData(InvalidEmpty)]
-        public async Task WhenBasicConfigurationIsValidated_ThenValidationFails(string config)
+        public void WhenBasicConfigurationIsValidated_ThenValidationFails(string config)
         {
             var validator = new ConfigurationValidator();
-            var parsed = await ConfigHelper.GetConfigFromString(config, null);
+            var parsed = YamlHelper.Deserialize<Config>(config);
             var result = validator.Validate(parsed);
             result.Errors.Should().NotBeEmpty();
             result.IsValid.Should().BeFalse();
