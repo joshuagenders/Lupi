@@ -27,4 +27,4 @@ for i in *.yml; do
 done
 popd
 
-docker stop grafana
+# docker stop grafana
