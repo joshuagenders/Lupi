@@ -12,7 +12,7 @@ namespace Lupi.Configuration
         private static T GetConfigValue<T>(Func<Config, T> selector, List<Config> configs, T defaultValue) =>
             configs
                 .Select(selector)
-                .Where(v => v?.Equals(defaultValue) ?? false)
+                .Where(v => !v?.Equals(defaultValue) ?? false)
                 .FirstOrDefault() ?? defaultValue;
         
         private static readonly Regex _envVarRegex = new Regex(@"\${(?<varname>.+?)}",
@@ -92,7 +92,9 @@ namespace Lupi.Configuration
         {
             var configs = await GetConfigsFromFile(configFilepath);
             var config = MergeConfigs(configs);
-            return Build(config, configFilepath);
+            var r = Build(config, configFilepath);
+            YamlHelper.SerializeConsoleOut(r);
+            return r;
         }
 
         public static async Task<List<Config>> GetConfigsFromFile(string configFilepath)
@@ -114,7 +116,7 @@ namespace Lupi.Configuration
                     paths.Add(fullPath);
                 }
 
-                var file = await System.IO.File.ReadAllTextAsync(path);
+                var file = await System.IO.File.ReadAllTextAsync(fullPath);
                 file = ReplaceEnvironmentVars(file);
                 config = YamlHelper.Deserialize<Config>(file);
                 configs.Add(config);
@@ -122,7 +124,7 @@ namespace Lupi.Configuration
                 {
                     path = Path.IsPathRooted(config.BaseConfig)
                         ? config.BaseConfig
-                        : Path.Join(configFilepath, config.BaseConfig);
+                        : Path.Join(Path.GetDirectoryName(configFilepath), config.BaseConfig);
                 }
                 else
                 {
@@ -133,11 +135,11 @@ namespace Lupi.Configuration
             return configs;
         }
 
-        public static Config Build(Config config, string path)
+        public static Config Build(Config config, string configPath)
         {
             if (!Path.IsPathRooted(config.Test.AssemblyPath))
             {
-                config.Test.AssemblyPath = Path.Combine(path ?? "./", config.Test.AssemblyPath);
+                config.Test.AssemblyPath = Path.Join(Path.GetDirectoryName(configPath), config.Test.AssemblyPath);
             }
 
             if (!config.Throughput.Phases.Any())
