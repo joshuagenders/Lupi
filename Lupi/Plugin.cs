@@ -41,131 +41,57 @@ namespace Lupi
             _setupMethod = GetMethod(_config.Test.SetupClass, _config.Test.SetupMethod);
             _teardownMethod = GetMethod(_config.Test.TeardownClass, _config.Test.TeardownMethod);
             _ioc = GetServiceProvider().GetAwaiter().GetResult();
-            SetupTestFunc();
+            if (_config.Test.SingleTestClassInstance)
+            {
+                _testClassSingleton = GetInstance(_config.Test.TestClass);
+            }
+            _testFunc = GetMethodRunner(_testMethod, () => GetTestClassInstance());
         }
 
-        private void SetupTestFunc()
+        private object GetTestClassInstance()
         {
-            if (_testMethod == null)
+            if (_testMethod.IsStatic)
+            {
+                return null;
+            }
+            return _config.Test.SingleTestClassInstance
+                ? _testClassSingleton
+                : GetInstanceFromType(_testMethod.DeclaringType);
+        }
+
+        private Func<Task<object>> GetMethodRunner(MethodInfo method, Func<object> classInstanceProvider)
+        {
+            if (method == null)
             {
                 throw new ArgumentException("Test method not found");
             }
 
-            if (_testMethod.IsStatic)
+            if (!IsAsyncMethod(method))
             {
-                _testFunc = new Func<Task<object>>(() =>
-                   Task.FromResult(_testMethod.Invoke(null, GetParameters(_testMethod))));
+                return new Func<Task<object>>(() => Task.FromResult(method.Invoke(classInstanceProvider(), GetParameters(method))));
             }
-            if (IsAsyncMethod(_testMethod))
+            
+            if (_testMethod.ReturnType.GetGenericArguments().Any())
             {
-                if (_config.Test.SingleTestClassInstance)
+                return new Func<Task<object>>(async () =>
                 {
-                    _testClassSingleton = GetInstance(_config.Test.TestClass);
-                    if (_testMethod.ReturnType.GetGenericArguments().Any())
-                    {
-                        _testFunc = new Func<Task<object>>(async () =>
-                        {
-                            var task = (Task)_testMethod.Invoke(
-                                _testClassSingleton, 
-                                GetParameters(_testMethod));
-                            await task;
-                            return task.GetType().GetProperty("Result").GetValue(task);
-                        });
-                    }
-                    else
-                    {
-                        _testFunc = new Func<Task<object>>(async () =>
-                        {
-                            var task = (Task)_testMethod.Invoke(
-                                _testClassSingleton, 
-                                GetParameters(_testMethod));
-                            await task;
-                            return null;
-                        });
-                    }
-                }
-                else
-                {
-                    if (_testMethod.ReturnType.GetGenericArguments().Any())
-                    {
-                        _testFunc = new Func<Task<object>>(async () =>
-                        {
-                            var task = (Task)_testMethod.Invoke(
-                                GetInstance(_config.Test.TestClass),
-                                GetParameters(_testMethod));
-                            if (task != null)
-                            {
-                                await task;
-                                var result = task.GetType().GetProperty("Result").GetValue(task);
-                                return result;
-                            }
-                            else
-                            {
-                                return null;
-                            }
-                        });
-                    }
-                    else
-                    {
-                        _testFunc = new Func<Task<object>>(async () =>
-                        {
-                            var task = (Task)_testMethod.Invoke(
-                                GetInstance(_config.Test.TestClass),
-                                GetParameters(_testMethod));
-                            await task;
-                            return null;
-                        });
-                    }
-                }
+                    var task = (Task)method.Invoke(
+                        classInstanceProvider(), 
+                        GetParameters(method));
+                    await task;
+                    return task.GetType().GetProperty("Result").GetValue(task);
+                });
             }
             else
             {
-                if (_config.Test.SingleTestClassInstance)
+                return new Func<Task<object>>(async () =>
                 {
-                    _testClassSingleton = GetInstance(_config.Test.TestClass);
-                    _testFunc = new Func<Task<object>>(() => 
-                        Task.FromResult(_testMethod.Invoke(_testClassSingleton, GetParameters(_testMethod))));
-                }
-                else
-                {
-                    _testFunc = new Func<Task<object>>(() =>
-                        Task.FromResult(_testMethod.Invoke(GetInstance(_config.Test.TestClass), GetParameters(_testMethod))));
-                }
-            }
-        }
-
-        public async Task<object> RunMethod(MethodInfo method, object[] parameters, object instance = null)
-        {
-            if (IsAsyncMethod(method))
-            {
-                if (method.ReturnType.GetGenericArguments().Any())
-                {
-                    var task = (Task)method.Invoke(instance, parameters);
-                    if (task != null)
-                    {
-                        await task;
-                        var result = task.GetType().GetProperty("Result").GetValue(task);
-                        return result;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    var task = (Task)method.Invoke(instance, parameters);
-                    if (task != null)
-                    {
-                        await task;
-                    }
+                    var task = (Task)method.Invoke(
+                        classInstanceProvider(), 
+                        GetParameters(method));
+                    await task;
                     return null;
-                }
-                
-            }
-            else
-            {
-                return method.Invoke(instance, parameters);
+                });
             }
         }
 
@@ -192,7 +118,8 @@ namespace Lupi
             }
             else
             {
-                return (IServiceProvider)await RunMethod(startup, GetParameters(startup));
+                var instance = startup.IsStatic ? null : GetInstanceFromType(startup.DeclaringType);
+                return (IServiceProvider)await GetMethodRunner(startup, () => instance)();
             }
         }
 
@@ -275,20 +202,21 @@ namespace Lupi
         {
             if (_setupMethod != null)
             {
-                var instance = _setupMethod.IsStatic ? null : GetInstance(_config.Test.SetupClass);
-                return await RunMethod(_setupMethod, GetParameters(_setupMethod), instance);
+                var instance = _setupMethod.IsStatic ? null : GetInstanceFromType(_setupMethod.DeclaringType);
+                return await GetMethodRunner(_setupMethod, () => instance)();
             }
             return null;
         } 
             
         public async Task<object> ExecuteTestMethod() =>
             await _testFunc.Invoke();
+
         public async Task<object> ExecuteTeardownMethod() 
         {
             if (_teardownMethod != null)
             {
-                var instance = _teardownMethod.IsStatic ? null : GetInstance(_config.Test.TeardownClass);
-                return await RunMethod(_teardownMethod, GetParameters(_teardownMethod), instance);
+                var instance = _teardownMethod.IsStatic ? null : GetInstanceFromType(_teardownMethod.DeclaringType);
+                return await GetMethodRunner(_teardownMethod, () => instance)();
             }
             return null;
         }

@@ -18,7 +18,7 @@ namespace Lupi.Tests
             TestThread testThread)
         {
             var cts = new CancellationTokenSource();
-            var longTime = 10000;
+            var longTime = 100000;
             cts.CancelAfter(longTime);
             threadControl
                 .Setup(t => t.RequestTaskExecution(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
