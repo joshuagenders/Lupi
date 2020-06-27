@@ -127,7 +127,7 @@ namespace Lupi
                     passed = false;
                     result = TrySerialize(ex);
                     break;
-                
+
                 case TimeSpan r:
                     ellapsed = r;
                     break;
