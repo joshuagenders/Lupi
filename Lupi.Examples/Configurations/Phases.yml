@@ -1,6 +1,6 @@
 concurrency:
     phases:
-    -   duration: 1m
+    -   duration: 2m
         from: 5
         to: 50
     -   duration: 10m30s
