@@ -103,6 +103,10 @@ namespace Lupi
 
         private string TrySerialize<T>(T obj)
         {
+            if (obj == null)
+            {
+                return string.Empty;
+            }
             try
             {
                 return JsonConvert.SerializeObject(obj);
@@ -123,7 +127,7 @@ namespace Lupi
                     passed = false;
                     result = TrySerialize(ex);
                     break;
-
+                
                 case TimeSpan r:
                     ellapsed = r;
                     break;

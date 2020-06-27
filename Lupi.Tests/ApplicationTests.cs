@@ -288,6 +288,45 @@ namespace Lupi.Tests
             return config;
         }
 
+        [Theory, InlineAutoMoqData]
+        public async Task WhenExceptionsReturned_ThenTestsAreFailed(
+            Mock<IPlugin> plugin,
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
+        {
+            var config = GetConfig(concurrency: 1, iterations: 1);
+            plugin.Setup(p => p.ExecuteTestMethod()).ReturnsAsync(new Exception());
+            await RunApp(config, plugin.Object, testResultPublisher.Object, aggregator.Object);
+
+            testResultPublisher.Verify(s => s.Publish(It.Is<TestResult>(t => !t.Passed)), Times.Once);
+        }
+
+        [Theory, InlineAutoMoqData]
+        public async Task WhenTaskReturnsFalse_ThenTestsAreFailed(
+            Mock<IPlugin> plugin,
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
+        {
+            var config = GetConfig(concurrency: 1, iterations: 1);
+            plugin.Setup(p => p.ExecuteTestMethod()).ReturnsAsync(false);
+            await RunApp(config, plugin.Object, testResultPublisher.Object, aggregator.Object);
+
+            testResultPublisher.Verify(s => s.Publish(It.Is<TestResult>(t => !t.Passed)), Times.Once);
+        }
+
+        [Theory, InlineAutoMoqData]
+        public async Task WhenExceptionsThrown_ThenTestsAreFailed(
+            Mock<IPlugin> plugin,
+            Mock<ITestResultPublisher> testResultPublisher,
+            Mock<IAggregator> aggregator)
+        {
+            var config = GetConfig(concurrency: 1, iterations: 1);
+            plugin.Setup(p => p.ExecuteTestMethod()).Throws(new Exception());
+            await RunApp(config, plugin.Object, testResultPublisher.Object, aggregator.Object);
+
+            testResultPublisher.Verify(s => s.Publish(It.Is<TestResult>(t => !t.Passed)), Times.Once);
+        }
+
         class PluginFake : IPlugin
         {
             public int Calls;
