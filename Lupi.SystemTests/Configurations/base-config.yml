@@ -8,8 +8,8 @@ listeners:
     - statsd
     - console
     file:
-        path: results.log
+        path: ${RESULT_PATH}
     statsd:
-        host: 127.0.0.1
-        port: 8125
-        prefix: Lupi.Examples
+        host: ${STATSD_HOST}
+        port: ${STATSD_PORT}
+        prefix: ${STATSD_PREFIX}
