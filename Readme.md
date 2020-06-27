@@ -318,7 +318,7 @@ failed if Mean >= 600 for 10 minutes
 # Logging
 Lupi uses [Serilog](https://github.com/serilog/serilog) for logging. The available sinks are `File` and `Console`.
 
-Logging can be configured through the [appsettings.json](appsettings.json) file.
+Logging can be configured through the [appsettings.json](Lupi/appsettings.json) file.
 
 Also see [Serilog's configuration documentation](https://github.com/serilog/serilog-settings-configuration).
 
