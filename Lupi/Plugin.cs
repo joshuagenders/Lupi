@@ -79,6 +79,10 @@ namespace Lupi
                         classInstanceProvider(), 
                         GetParameters(method));
                     await task;
+                    if (task.IsFaulted)
+                    {
+                        return task.Exception;
+                    }
                     return task.GetType().GetProperty("Result").GetValue(task);
                 });
             }
@@ -90,6 +94,10 @@ namespace Lupi
                         classInstanceProvider(), 
                         GetParameters(method));
                     await task;
+                    if (task.IsFaulted)
+                    {
+                        return task.Exception;
+                    }
                     return null;
                 });
             }
