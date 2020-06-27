@@ -70,7 +70,7 @@ namespace Lupi.Listeners
                 }
                 if (results.Any())
                 {
-                    var periodLength = results.Max(r => r.FinishedTime).Subtract(results.Min(r => r.FinishedTime));
+                    //todo move below linq into above loop
                     var periodAvg = results.Average(r => r.Duration.TotalMilliseconds);
                     var periodMax = results.Max(r => r.Duration.TotalMilliseconds);
                     var periodMin = results.Min(r => r.Duration.TotalMilliseconds);
@@ -87,7 +87,6 @@ namespace Lupi.Listeners
                         Count = results.Count,
                         PeriodErrorCount = results.Count(r => !r.Passed),
                         PeriodSuccessCount = results.Count(r => r.Passed),
-                        PeriodLength = periodLength.TotalMilliseconds,
                         Mean = _mean,
                         Variance = _dSquared / _counter,
                         StandardDeviation = Math.Sqrt(_dSquared / _counter)

@@ -276,7 +276,6 @@ Available fields are:
 - double PeriodMin (ms)
 - double PeriodMax (ms)
 - double PeriodAverage (ms)
-- double PeriodLength (ms)
 - int PeriodErrorCount
 - int PeriodSuccessCount
 
