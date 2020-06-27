@@ -1,6 +1,8 @@
 ﻿using Lupi.Configuration;
 using Lupi.Listeners;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +13,17 @@ namespace Lupi
     {
         public static IServiceProvider GetServiceProvider(Config config)
         {
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
+
             var serviceCollection = new ServiceCollection()
-                .AddLogging()
+                .AddSingleton(configuration)
+                .AddLogging(builder => 
+                    builder.AddSerilog(
+                        new LoggerConfiguration()
+                            .ReadFrom.Configuration(configuration)
+                            .CreateLogger(), true))
                 .AddSingleton(config)
                 .AddSingleton<IThreadControl, ThreadControl>()
                 .AddSingleton<IApplication, Application>()

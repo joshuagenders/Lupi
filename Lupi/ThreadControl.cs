@@ -106,7 +106,6 @@ namespace Lupi
                     // threads
                     _tasks.RemoveAll(x => x.IsCompleted);
                     var threadCount = _tasks.Count;
-                    _logger.LogInformation("Thread count {threadCount}", threadCount);
                     if (_config.Concurrency.OpenWorkload)
                     {
                         _logger.LogDebug("Calculate threads for open workload");
@@ -131,7 +130,7 @@ namespace Lupi
                         _logger.LogDebug("Desired threads: {desired}. Current threads: {threadCount}", desired, threadCount);
                         SetThreadLevel(startTime, desired, ct);
                     }
-                    _logger.LogInformation("Main loop complete. thread count {threadCount}", threadCount);
+                    _logger.LogDebug("Main loop complete. thread count {threadCount}", threadCount);
                     _stats?.Gauge(_tasks.Count, $"{_config.Listeners.Statsd.Bucket}.threads");
 
                     await Task.Delay(_config.Engine.CheckInterval, ct);
@@ -139,6 +138,7 @@ namespace Lupi
             }
             finally
             {
+                _logger.LogInformation("Main test loop completed");
                 _logger.LogInformation("Executing teardown method");
                 _stats?.Gauge(0, $"{_config.Listeners.Statsd.Bucket}.threads");
                 await _plugin.ExecuteTeardownMethod();
@@ -221,6 +221,7 @@ namespace Lupi
                             new TestThread(this, _plugin, _testResultPublisher, _stats, _config, _loggerFactory.CreateLogger<TestThread>())
                                 .Run(startTime, ct), ct)));
             }
+            _logger.LogDebug("Task count {threadCount}", taskCount);
         }
 
         private bool IsTestComplete(DateTime startTime, int iterationsRemaining) =>
