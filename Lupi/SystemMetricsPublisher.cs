@@ -46,7 +46,7 @@ namespace Lupi
 
         public async Task Run(CancellationToken ct)
         {
-            if (_stats == null || !_counters.Any())
+            if (_stats == null || !(_counters?.Any() ?? true))
             {
                 return;
             }
@@ -56,7 +56,7 @@ namespace Lupi
                 {
                     _stats.Gauge(c.NextValue(), $"{_config.Listeners.Statsd.Bucket}.system.{c.CounterName}");
                 }
-                await Task.Delay(5000);
+                await Task.Delay(5000, ct);
             }
         }
     }
