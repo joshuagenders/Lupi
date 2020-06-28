@@ -28,6 +28,7 @@ namespace Lupi
                 .AddSingleton<IThreadControl, ThreadControl>()
                 .AddSingleton<IApplication, Application>()
                 .AddSingleton<ITestResultPublisher, TestResultPublisher>()
+                .AddSingleton<ISystemMetricsPublisher, SystemMetricsPublisher>()
                 .AddTransient<IPlugin, Plugin>();
 
             var testResultPublisher = new TestResultPublisher(config);

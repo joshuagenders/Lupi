@@ -3,7 +3,7 @@ test:
 
 listeners:
     statsd:
-        bucket: unboundedhighconcurrency
+        bucket: highconcurrency
 
 concurrency:
     threads: 500

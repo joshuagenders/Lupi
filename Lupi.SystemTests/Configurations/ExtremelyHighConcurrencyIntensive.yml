@@ -1,0 +1,12 @@
+test:
+    testMethod: Intensive
+
+listeners:
+    statsd:
+        bucket: extremelyhighconcurrencyintensive
+
+concurrency:
+    threads: 1500
+    holdFor: 45s
+
+baseConfig: base-config.yml

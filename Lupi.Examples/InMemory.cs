@@ -69,6 +69,15 @@ namespace Lupi.Examples
             return TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
         }
 
+        public (TimeSpan, bool, string) Intensive()
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var result = _dependency.GetDataIntensive();
+            stopwatch.Stop();
+            return (TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds), result > 0, result.ToString());
+        }
+
         public async Task<string> StringReturn(CancellationToken ct)
         {
             await Task.Delay(10, ct);

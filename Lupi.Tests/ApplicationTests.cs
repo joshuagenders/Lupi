@@ -246,7 +246,7 @@ namespace Lupi.Tests
             var threadControl = new ThreadControl(
                 config, plugin, testResultPublisher, 
                 TestLogger<IThreadControl>.Create(), new TestLoggerFactory());
-            var app = new Application(threadControl, testResultPublisher, aggregator, new ExitSignal(), TestLogger<IApplication>.Create());
+            var app = new Application(threadControl, testResultPublisher, aggregator, new ExitSignal(), Mock.Of<ISystemMetricsPublisher>(), TestLogger<IApplication>.Create());
 
             await app.Run();
         }
