@@ -9,12 +9,12 @@ namespace Lupi.Listeners
     public class StatsdListener : ITestResultListener
     {
         private readonly Config _config;
-        private readonly IStatsDPublisher _client;
+        private readonly IStatsDPublisher _stats;
 
         public StatsdListener(Config config)
         {
             _config = config;
-            _client = new StatsDPublisher(new StatsDConfiguration
+            _stats = new StatsDPublisher(new StatsDConfiguration
             {
                 Host = _config.Listeners.Statsd.Host,
                 Port = _config.Listeners.Statsd.Port,
@@ -28,7 +28,7 @@ namespace Lupi.Listeners
             {
                 var passFail = result.Passed ? "success" : "failure";
                 var bucket = $"{_config.Listeners.Statsd.Bucket}.{passFail}";
-                _client.Timing(Convert.ToInt32(result.Duration.TotalMilliseconds), bucket);
+                _stats.Timing(Convert.ToInt32(result.Duration.TotalMilliseconds), bucket);
             }
 
             await Task.CompletedTask;
