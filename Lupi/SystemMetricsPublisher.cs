@@ -46,7 +46,7 @@ namespace Lupi
 
         public async Task Run(CancellationToken ct)
         {
-            if (_stats == null || !(_counters?.Any() ?? true))
+            if (_stats == null || !(_counters?.Any() ?? false))
             {
                 return;
             }
