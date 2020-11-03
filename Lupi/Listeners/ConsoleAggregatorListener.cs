@@ -12,7 +12,7 @@ namespace Lupi.Listeners
         private const string DefaultFormat = @"
 _______________________________________________________________________________________
 Sample Count:     {Count,10}  | Success: {PeriodSuccessCount,10}       | Failure: {PeriodErrorCount, 10}
-Mean:           {Mean,10:N}ms  | Std dev:    {StandardDeviation,10:N}    |
+Mean:           {Mean,10:N}ms  | Std dev:    {StandardDeviation,10:N}ms    |
 Moving Average: {MovingAverage,10:N}ms  | Min:        {Min,10:N}ms  | Max:        {Max,10:N}ms
 Period Average: {PeriodAverage,10:N}ms  | Period Min: {PeriodMin,10:N}ms  | Period Max: {PeriodMax,10:N}ms";
 
