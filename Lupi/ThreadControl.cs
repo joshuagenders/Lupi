@@ -46,7 +46,7 @@ namespace Lupi
             _tasks = new List<Task>();
             _iterationsRemaining = config.Throughput.Iterations;
 
-            if (!_config.Listeners.ActiveListeners.Contains("statsd"))
+            if (_config.Listeners.ActiveListeners.Contains("statsd"))
             {
                 _stats = new StatsDPublisher(new StatsDConfiguration
                 {

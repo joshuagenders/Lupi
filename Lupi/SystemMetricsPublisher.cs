@@ -19,9 +19,10 @@ namespace Lupi
         private readonly PerformanceCounter[] _counters;
         private readonly Config _config;
         private readonly StatsDPublisher _stats;
+        private readonly IHttpEventListener _httpEventListener;
         public bool TestCompleted { get; set; }
 
-        public SystemMetricsPublisher(Config config)
+        public SystemMetricsPublisher(IHttpEventListener httpEventListener, Config config)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -41,6 +42,7 @@ namespace Lupi
                     Port = _config.Listeners.Statsd.Port,
                     Prefix = _config.Listeners.Statsd.Prefix
                 });
+                _httpEventListener = httpEventListener;
             }
         }
 
