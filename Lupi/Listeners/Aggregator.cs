@@ -52,7 +52,7 @@ namespace Lupi.Listeners
             while (!ct.IsCancellationRequested && !TestCompleted || _results.Any())
             {
                 var results = new List<TestResult>();
-                while (_results.TryTake(out var r) && results.Count < 10000)
+                while (_results.TryTake(out var r))
                 {
                     var newMean = _mean + ((r.Duration.TotalMilliseconds - _mean) / (_counter + 1));
 
