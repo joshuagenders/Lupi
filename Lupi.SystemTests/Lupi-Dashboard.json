@@ -38,7 +38,7 @@
   "hideControls": false,
   "id": null,
   "links": [],
-  "refresh": false,
+  "refresh": "30s",
   "rows": [
     {
       "collapse": false,
@@ -228,7 +228,7 @@
     },
     {
       "collapse": false,
-      "height": 289,
+      "height": 261,
       "panels": [
         {
           "aliasColors": {},
@@ -266,7 +266,8 @@
             {
               "hide": false,
               "refId": "B",
-              "target": "aliasByNode(stats.gauges.Lupi.Examples.$Test.threads, 4)"
+              "target": "aliasByNode(stats.gauges.Lupi.Examples.$Test.threads, 4)",
+              "textEditor": true
             }
           ],
           "thresholds": [],
@@ -343,7 +344,8 @@
             {
               "hide": false,
               "refId": "C",
-              "target": "aliasByNode(stats.counters.Lupi.Examples.$Test.*.count, 4, 5)"
+              "target": "aliasByNode(stats.counters.Lupi.Examples.$Test.*.count, 4, 5)",
+              "textEditor": true
             }
           ],
           "thresholds": [],
@@ -352,6 +354,94 @@
           "title": "Lupi Internals",
           "tooltip": {
             "shared": false,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ]
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 287,
+      "panels": [
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "${DS_LOCAL_GRAPHITE}",
+          "fill": 1,
+          "id": 6,
+          "legend": {
+            "alignAsTable": true,
+            "avg": false,
+            "current": false,
+            "hideEmpty": true,
+            "hideZero": true,
+            "max": false,
+            "min": false,
+            "rightSide": true,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 12,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "refId": "A",
+              "target": "aliasByNode(stats.gauges.Lupi.$Test.*.http.*, 4, 6)"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "HTTP Client Internals",
+          "tooltip": {
+            "shared": true,
             "sort": 0,
             "value_type": "individual"
           },
@@ -419,8 +509,8 @@
     ]
   },
   "time": {
-    "from": "2020-06-19T19:43:21.622Z",
-    "to": "2020-06-19T19:52:32.494Z"
+    "from": "now-30m",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -449,5 +539,5 @@
   },
   "timezone": "",
   "title": "Lupi",
-  "version": 4
+  "version": 3
 }
