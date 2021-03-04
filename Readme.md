@@ -162,7 +162,7 @@ throughput:
 ```
 
 ### Custom phases
-Phases can be constant, or a linear progression from one value to another.
+Phases can be constant (tests per second `tps`), or a linear progression `from` one value `to` another.
 ```yaml
 concurrency:
     -
@@ -182,27 +182,8 @@ throughput:
         to: 0
 ```
 
-which is equivalent to
-
-```yaml
-concurrency:
-    threads: 20
-throughput:
-    -   # rampup
-        duration: 2m
-        from: 10
-        to: 20
-    -
-        duration: 10s
-        tps: 20
-    -   # rampdown
-        duration: 20s
-        from: 20
-        to: 0
-```
-
 ## Open Workload
-Whenever throughput is specified, an open workload is created. Specifying concurrency values along with throughput will create threads as desired, but they will wait until they are allowed to execute.
+Whenever throughput is specified Lupi uses an open workload. Specifying concurrency values along with throughput will create threads as desired, but they will wait until they are allowed to execute.
 
 If `concurrency.openWorkload` is `true`, then the concurrency phases are ignored and Lupi will try and allocate as many threads as it needs to in order to reach desired tests per second, within the `concurrency.minThreads` and `concurrency.maxThreads` limits.
 
