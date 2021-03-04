@@ -139,8 +139,8 @@ namespace Lupi.Tests
 
         [Theory]
         [InlineAutoMoqData(20, 0, 3, 25)]
-        [InlineAutoMoqData(350, 2, 2, 50)]
-        [InlineAutoMoqData(350, 0, 5, 80)]
+        [InlineAutoMoqData(350, 2, 2, 10)]
+        [InlineAutoMoqData(350, 0, 5, 10)]
         public async Task WhenMoreIterationsThanSingleThreadAllows_ThenThreadsAdapt(
             double throughput,
             int rampUpSeconds,
@@ -196,7 +196,7 @@ namespace Lupi.Tests
         }
 
         [Theory]
-        [InlineAutoMoqData(2,500,4)]
+        [InlineAutoMoqData(2,500,5)]
         public async Task WhenThinkTimeIsSpecified_ThenWaitIsObserved(
             int holdForSeconds,
             int thinkTimeMilliseconds,
