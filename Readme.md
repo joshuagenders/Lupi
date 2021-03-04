@@ -9,17 +9,17 @@ Lupi is a load testing framework written for the dotnet runtime.
 
 Lupi supports a plugin system for loading and executing code from compatible DLLs.
 
-# Who this is for
+### Who this is for
 * You want to write a load test using code but don't want to have to write a lot of code to control the load profile.
 * You want to write load tests in a dotnet language.
 * Don't need local visualisations of test execution, just a reliable load agent.
 
+## Examples
+See the [Examples here](https://github.com/joshuagenders/Lupi/tree/master/Lupi.Examples)
+
 ## Quickstart
 ### Pre-requisites
 * [.NET 5 SDK](https://dotnet.microsoft.com/download)
-
-### Examples
-See the [Examples here](https://github.com/joshuagenders/Lupi/tree/master/Lupi.Examples)
 
 ### Publish test solution
 Lupi uses a plugin architecture. Start by writing a test and then publish your test solution.
