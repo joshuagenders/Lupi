@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Lupi
 {
-    public class Application : IApplication
+    public class Application : IApplication, IDisposable
     {
         private readonly IThreadControl _threadControl;
         private readonly ITestResultPublisher _testResultPublisher;
@@ -31,6 +31,11 @@ namespace Lupi
             _exitSignal = exitSignal;
             _systemMetricsPublisher = systemMetricsPublisher;
             _logger = logger;
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)_systemMetricsPublisher).Dispose();
         }
 
         public async Task<int> Run()
@@ -87,7 +92,7 @@ namespace Lupi
         }
     }
 
-    public interface IApplication
+    public interface IApplication : IDisposable
     {
         Task<int> Run();
     }

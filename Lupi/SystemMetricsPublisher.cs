@@ -1,5 +1,6 @@
 ﻿using JustEat.StatsD;
 using Lupi.Configuration;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,7 +15,7 @@ namespace Lupi
         public bool TestCompleted { get; set; }
     }
 
-    public class SystemMetricsPublisher : ISystemMetricsPublisher
+    public class SystemMetricsPublisher : ISystemMetricsPublisher, IDisposable
     {
         private readonly PerformanceCounter[] _counters;
         private readonly Config _config;
@@ -60,6 +61,11 @@ namespace Lupi
                 }
                 await Task.Delay(5000, ct);
             }
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)_httpEventListener)?.Dispose();
         }
     }
 }

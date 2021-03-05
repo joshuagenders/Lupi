@@ -66,11 +66,12 @@ namespace Lupi
                     }
 
                     var serviceProvider = IoC.GetServiceProvider(config);
-                    var app = serviceProvider.GetService<IApplication>();
-                    var result = await app.Run();
-                    if (result != 0)
-                    {
-                        throw new Exception($"Non-zero return code: {result}");
+                    using (var app = serviceProvider.GetService<IApplication>()){
+                        var result = await app.Run();
+                        if (result != 0)
+                        {
+                            throw new Exception($"Non-zero return code: {result}");
+                        }
                     }
                 });
         }
