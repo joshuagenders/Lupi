@@ -36,5 +36,5 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: joshuagenders/lupi
-          dockerfile: DockerfileSlim
+          dockerfile: Slim.Dockerfile
           tags: slim-latest
