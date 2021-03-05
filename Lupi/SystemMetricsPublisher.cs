@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Lupi
 {
-    public interface ISystemMetricsPublisher
+    public interface ISystemMetricsPublisher : IDisposable
     {
         public Task Run(CancellationToken ct);
         public bool TestCompleted { get; set; }
     }
 
-    public class SystemMetricsPublisher : ISystemMetricsPublisher, IDisposable
+    public class SystemMetricsPublisher : ISystemMetricsPublisher
     {
         private readonly PerformanceCounter[] _counters;
         private readonly Config _config;
