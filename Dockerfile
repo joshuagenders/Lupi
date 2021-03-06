@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
-WORKDIR /source
+WORKDIR /usr/local/src
 
 COPY Lupi/ .
 RUN dotnet restore
@@ -7,7 +7,7 @@ RUN dotnet publish -c Release -o out
 
 # runtime image
 FROM browserless/chrome:1.44-chrome-stable
-WORKDIR /app
+WORKDIR /usr/local/share
 
 USER root
 RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
@@ -18,5 +18,5 @@ RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod
     && apt-get install -y dotnet-runtime-5.0 \
     && apt-get clean
 
-COPY --from=build /source/out .
+COPY --from=build /usr/local/src/out /usr/local/bin
 ENTRYPOINT ["./Lupi"]
