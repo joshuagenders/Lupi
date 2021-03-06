@@ -41,10 +41,30 @@ throughput:
     thinkTime: 1s500ms
 ```
 
-### Run Lupi
+### Run Lupi from source
 ```bash
 dotnet run --project Lupi/Lupi.csproj /path/to/myConfigFile.yml
 ```
+
+### Run Lupi with Docker
+Assuming `test_config.yaml` is in the current working directory.
+
+#### Git Bash (Windows)
+```bash
+MSYS_NO_PATHCONV=1 docker run --rm --name lupi -it -v `pwd -W`:/usr/src/project joshuagenders/lupi:slim-latest /usr/src/project/test_config.yaml
+```
+
+#### CMD (Windows)
+```bash
+docker run --rm --name lupi -it -v %cd%:/usr/src/project joshuagenders/lupi:slim-latest /usr/src/project/test_config.yaml
+```
+
+### Images
+There are [two images available](https://hub.docker.com/r/joshuagenders/lupi) for Lupi. 
+
+The `latest` tag is based on [browserless/chrome](https://hub.docker.com/r/browserless/chrome/) and should only be used when chrome is required as a test dependency.
+
+The other image is `slim-latest` which is recommended for most use cases, and is based on `mcr.microsoft.com/dotnet/runtime`.
 
 ## Configuration
 ```yaml
