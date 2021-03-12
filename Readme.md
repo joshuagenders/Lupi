@@ -62,7 +62,7 @@ docker run --rm --name lupi -it -v %cd%:/usr/src/project joshuagenders/lupi:slim
 ### Images
 There are [two images available](https://hub.docker.com/r/joshuagenders/lupi) for Lupi. 
 
-The `latest` tag is based on [browserless/chrome](https://hub.docker.com/r/browserless/chrome/) and should only be used when chrome is required as a test dependency.
+The `latest` tag is based on [microsoft-playwright](https://hub.docker.com/_/microsoft-playwright) and should only be used when a headless browser is required as a test dependency.
 
 The other image is `slim-latest` which is recommended for most use cases, and is based on `mcr.microsoft.com/dotnet/runtime`.
 

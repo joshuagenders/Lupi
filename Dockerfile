@@ -6,12 +6,12 @@ RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
 # runtime image
-FROM browserless/chrome:1.44-chrome-stable
+FROM mcr.microsoft.com/playwright:bionic
 WORKDIR /usr/local/share
 
 USER root
-RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
+ADD https://packages.microsoft.com/config/ubuntu/20.10/packages-microsoft-prod.deb packages-microsoft-prod.deb
+RUN dpkg -i packages-microsoft-prod.deb \
     && apt-get -y update \
     && apt-get install -y apt-transport-https \
     && apt-get -y update \
@@ -19,4 +19,5 @@ RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod
     && apt-get clean
 
 COPY --from=build /usr/local/src/out /usr/local/bin
-ENTRYPOINT ["./Lupi"]
+
+ENTRYPOINT ["Lupi"]
