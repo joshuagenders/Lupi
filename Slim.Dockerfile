@@ -10,4 +10,4 @@ FROM mcr.microsoft.com/dotnet/runtime:5.0
 
 COPY --from=build /usr/local/src/out /usr/local/bin/
 
-ENTRYPOINT ["./Lupi"]
+ENTRYPOINT ["Lupi"]
