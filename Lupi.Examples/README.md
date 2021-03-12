@@ -91,12 +91,12 @@ throughput:
 
 
 ## Example Dashboard
-An [example dashboard](https://github.com/joshuagenders/lupi/blob/master/Lupi.SystemTests/Lupi-Dashboard.json) is provided.
+An [example dashboard](https://github.com/joshuagenders/lupi/blob/main/Lupi.SystemTests/Lupi-Dashboard.json) is provided.
 
 
 <img
     alt="Example Dashboard"
-    src="https://github.com/joshuagenders/lupi/blob/master/Lupi.Examples/Lupi-Dashboard.png"
+    src="https://github.com/joshuagenders/lupi/blob/main/Lupi.Examples/Lupi-Dashboard.png"
     width="600"
 />
 

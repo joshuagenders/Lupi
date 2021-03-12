@@ -1,6 +1,6 @@
 <img
     alt="Lupi"
-    src="https://github.com/joshuagenders/lupi/blob/master/Logo_2.png"
+    src="https://github.com/joshuagenders/lupi/blob/main/Logo_2.png"
     width="200"
 />
 
@@ -15,7 +15,7 @@ Lupi supports a plugin system for loading and executing code from compatible DLL
 * Don't need local visualisations of test execution, just a reliable load agent.
 
 ## Examples
-See the [Examples here](https://github.com/joshuagenders/Lupi/tree/master/Lupi.Examples)
+See the [Examples here](https://github.com/joshuagenders/Lupi/tree/main/Lupi.Examples)
 
 ## Quickstart
 ### Pre-requisites
@@ -323,4 +323,4 @@ Logging can be configured through the [appsettings.json](Lupi/appsettings.json) 
 Also see [Serilog's configuration documentation](https://github.com/serilog/serilog-settings-configuration).
 
 # License
-Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/master/LICENSE).
+Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/main/LICENSE).
