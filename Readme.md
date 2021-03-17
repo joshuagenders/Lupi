@@ -18,6 +18,9 @@ Lupi supports a plugin system for loading and executing code from compatible DLL
 See the [Examples here](https://github.com/joshuagenders/Lupi/tree/main/Lupi.Examples)
 
 ## Quickstart
+<details>
+  <summary>Read more</summary>
+
 ### Pre-requisites
 * [.NET 5 SDK](https://dotnet.microsoft.com/download)
 
@@ -40,7 +43,9 @@ concurrency:
 throughput:
     thinkTime: 1s500ms
 ```
+</details>
 
+## How to run
 ### Run Lupi from source
 ```bash
 dotnet run --project Lupi/Lupi.csproj /path/to/myConfigFile.yml
