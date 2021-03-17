@@ -46,6 +46,9 @@ throughput:
 </details>
 
 ## How to run
+<details>
+  <summary>Read more</summary>
+
 ### Run Lupi from source
 ```bash
 dotnet run --project Lupi/Lupi.csproj /path/to/myConfigFile.yml
@@ -71,7 +74,13 @@ The `latest` tag is based on [microsoft-playwright](https://hub.docker.com/_/mic
 
 The other image is `slim-latest` which is recommended for most use cases, and is based on `mcr.microsoft.com/dotnet/runtime`.
 
+</details>
+
 ## Configuration
+
+<details>
+  <summary>Read more</summary>
+
 ```yaml
 test:
     assemblyPath: path/to/my.dll # relative to the the configuration file or full path
@@ -162,7 +171,21 @@ When a `baseConfiguration` file is specified (relative to the configuration file
 
 Base configurations can also have their own base configurations; base configurations will be loaded until the property is blank or a circular reference is found.
 
+### Logging
+Lupi uses [Serilog](https://github.com/serilog/serilog) for logging. The available sinks are `File` and `Console`.
+
+Logging can be configured through the [appsettings.json](Lupi/appsettings.json) file.
+
+Also see [Serilog's configuration documentation](https://github.com/serilog/serilog-settings-configuration).
+
+
+</details>
+
 # Concepts
+
+<details>
+  <summary>Read more</summary>
+
 ## Concurrency and Throughput
 Throughput (the number of requests) and concurrency (the number of possible concurrent test executions) are separate concepts in Lupi. Each can be ramped up or down independently of each other (though lowering concurrency may restrict the ability to meet desired throughput).
 
@@ -319,13 +342,7 @@ failed if PeriodAverage > 150 for 10 periods
 passed if Min < 30.42 for 10 seconds
 failed if Mean >= 600 for 10 minutes
 ```
-
-# Logging
-Lupi uses [Serilog](https://github.com/serilog/serilog) for logging. The available sinks are `File` and `Console`.
-
-Logging can be configured through the [appsettings.json](Lupi/appsettings.json) file.
-
-Also see [Serilog's configuration documentation](https://github.com/serilog/serilog-settings-configuration).
+</details>
 
 # License
 Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/main/LICENSE).
