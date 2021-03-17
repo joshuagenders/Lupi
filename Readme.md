@@ -18,21 +18,51 @@ Lupi supports a plugin system for loading and executing code from compatible DLL
 See the [Examples here](https://github.com/joshuagenders/Lupi/tree/main/Lupi.Examples)
 
 ## Quickstart
+<details>
+  <summary>Read more</summary>
+
 ### Pre-requisites
 * [.NET 5 SDK](https://dotnet.microsoft.com/download)
 
-### Publish test solution
+### Create a test solution (skip if using an existing solution)
 Lupi uses a plugin architecture. Start by writing a test and then publish your test solution.
+
+```bash
+dotnet new sln
+dotnet new classlib -o TestLibrary
+dotnet sln add TestLibrary/TestLibrary.csproj
+echo "
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace TestLibrary
+{
+    public class PerformanceTest
+    {
+        public async Task Get(CancellationToken ct)
+        {
+            var result = await new HttpClient().GetAsync(\"https://<website>.com/\", ct);
+            result.EnsureSuccessStatusCode();
+        }
+    }
+}
+
+" >> TestLibrary/PerformanceTest.cs
+```
+
+### Publish test solution
 ```bash
 dotnet publish -c Release
 ```
+
 ### Create configuration file
 Create a configuration file. Here's a simple example - the full configuration specification is found further below.
 ```yaml
 test:
     assemblyPath: path/to/my.dll
-    testClass: MyNamespace.MyClass
-    testMethod: MyMethod
+    testClass: MyNamespace.MyClass # e.g. TestLibrary.PerformanceTest
+    testMethod: MyMethod # e.g. Get
 concurrency:
     threads: 10 
     rampUp: 10s
@@ -40,6 +70,11 @@ concurrency:
 throughput:
     thinkTime: 1s500ms
 ```
+</details>
+
+## How to run
+<details>
+  <summary>Read more</summary>
 
 ### Run Lupi from source
 ```bash
@@ -66,7 +101,13 @@ The `latest` tag is based on [microsoft-playwright](https://hub.docker.com/_/mic
 
 The other image is `slim-latest` which is recommended for most use cases, and is based on `mcr.microsoft.com/dotnet/runtime`.
 
+</details>
+
 ## Configuration
+
+<details>
+  <summary>Read more</summary>
+
 ```yaml
 test:
     assemblyPath: path/to/my.dll # relative to the the configuration file or full path
@@ -157,7 +198,21 @@ When a `baseConfiguration` file is specified (relative to the configuration file
 
 Base configurations can also have their own base configurations; base configurations will be loaded until the property is blank or a circular reference is found.
 
-# Concepts
+### Logging
+Lupi uses [Serilog](https://github.com/serilog/serilog) for logging. The available sinks are `File` and `Console`.
+
+Logging can be configured through the [appsettings.json](Lupi/appsettings.json) file.
+
+Also see [Serilog's configuration documentation](https://github.com/serilog/serilog-settings-configuration).
+
+
+</details>
+
+## Concepts
+
+<details>
+  <summary>Read more</summary>
+
 ## Concurrency and Throughput
 Throughput (the number of requests) and concurrency (the number of possible concurrent test executions) are separate concepts in Lupi. Each can be ramped up or down independently of each other (though lowering concurrency may restrict the ability to meet desired throughput).
 
@@ -314,13 +369,7 @@ failed if PeriodAverage > 150 for 10 periods
 passed if Min < 30.42 for 10 seconds
 failed if Mean >= 600 for 10 minutes
 ```
+</details>
 
-# Logging
-Lupi uses [Serilog](https://github.com/serilog/serilog) for logging. The available sinks are `File` and `Console`.
-
-Logging can be configured through the [appsettings.json](Lupi/appsettings.json) file.
-
-Also see [Serilog's configuration documentation](https://github.com/serilog/serilog-settings-configuration).
-
-# License
+## License
 Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/main/LICENSE).
