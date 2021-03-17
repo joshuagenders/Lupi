@@ -24,18 +24,45 @@ See the [Examples here](https://github.com/joshuagenders/Lupi/tree/main/Lupi.Exa
 ### Pre-requisites
 * [.NET 5 SDK](https://dotnet.microsoft.com/download)
 
-### Publish test solution
+### Create a test solution (skip if using an existing solution)
 Lupi uses a plugin architecture. Start by writing a test and then publish your test solution.
+
+```bash
+dotnet new sln
+dotnet new classlib -o TestLibrary
+dotnet sln add TestLibrary/TestLibrary.csproj
+echo "
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace TestLibrary
+{
+    public class PerformanceTest
+    {
+        public async Task Get(CancellationToken ct)
+        {
+            var result = await new HttpClient().GetAsync(\"https://<website>.com/\", ct);
+            result.EnsureSuccessStatusCode();
+        }
+    }
+}
+
+" >> TestLibrary/PerformanceTest.cs
+```
+
+### Publish test solution
 ```bash
 dotnet publish -c Release
 ```
+
 ### Create configuration file
 Create a configuration file. Here's a simple example - the full configuration specification is found further below.
 ```yaml
 test:
     assemblyPath: path/to/my.dll
-    testClass: MyNamespace.MyClass
-    testMethod: MyMethod
+    testClass: MyNamespace.MyClass # e.g. TestLibrary.PerformanceTest
+    testMethod: MyMethod # e.g. Get
 concurrency:
     threads: 10 
     rampUp: 10s
