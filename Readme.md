@@ -181,7 +181,7 @@ Also see [Serilog's configuration documentation](https://github.com/serilog/seri
 
 </details>
 
-# Concepts
+## Concepts
 
 <details>
   <summary>Read more</summary>
@@ -344,5 +344,5 @@ failed if Mean >= 600 for 10 minutes
 ```
 </details>
 
-# License
+## License
 Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/main/LICENSE).
