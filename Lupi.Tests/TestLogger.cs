@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Lupi.Core;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace Lupi.Tests

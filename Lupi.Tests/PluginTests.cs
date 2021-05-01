@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Xunit;
 using Lupi.Configuration;
 using System.Threading.Tasks;
+using Lupi.Core;
 
 namespace Lupi.Tests
 {

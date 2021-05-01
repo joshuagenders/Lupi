@@ -11,7 +11,7 @@ using Lupi.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Autofac.Extensions.DependencyInjection;
 
-namespace Lupi
+namespace Lupi.Core
 {
     public class Plugin : IPlugin
     {

@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Lupi 
+namespace Lupi.Core
 {
     internal class PluginLoadContext : AssemblyLoadContext
     {

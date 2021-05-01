@@ -8,6 +8,8 @@ using Xunit;
 using Lupi.Configuration;
 using Lupi.Listeners;
 using Microsoft.Extensions.Logging;
+using Lupi.Results;
+using Lupi.Core;
 
 namespace Lupi.Tests
 {

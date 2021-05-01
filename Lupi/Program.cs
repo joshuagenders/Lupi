@@ -1,11 +1,10 @@
 ﻿using CommandLine;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Lupi.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using YamlDotNet.Serialization;
+using Lupi.Core;
 
 namespace Lupi
 {

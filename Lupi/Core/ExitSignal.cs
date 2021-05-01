@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lupi
+namespace Lupi.Core
 {
     public interface IExitSignal
     {

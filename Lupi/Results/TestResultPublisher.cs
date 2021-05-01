@@ -6,8 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Lupi.Configuration;
 using Lupi.Listeners;
+using Lupi.Results;
 
-namespace Lupi 
+namespace Lupi.Results
 {
     public class TestResultPublisher : ITestResultPublisher
     {

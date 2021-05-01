@@ -1,6 +1,6 @@
 using System;
 
-namespace Lupi
+namespace Lupi.Results
 {
     public class TestResult
     {

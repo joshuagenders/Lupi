@@ -1,5 +1,6 @@
 ﻿using JustEat.StatsD;
 using Lupi.Configuration;
+using Lupi.Results;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -7,7 +8,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lupi
+namespace Lupi.Core
 {
     public class TestThread
     {

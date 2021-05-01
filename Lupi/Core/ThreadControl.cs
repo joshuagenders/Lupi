@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 using Lupi.Configuration;
 using JustEat.StatsD;
 using Microsoft.Extensions.Logging;
+using Lupi.Results;
 
-namespace Lupi
+namespace Lupi.Core
 {
     public class ThreadControl : IThreadControl
     {

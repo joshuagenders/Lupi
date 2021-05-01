@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Moq;
 using System.Diagnostics;
 using AutoFixture.Xunit2;
+using Lupi.Core;
 
 namespace Lupi.Tests
 {

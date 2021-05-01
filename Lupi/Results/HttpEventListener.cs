@@ -4,7 +4,7 @@ using System.Diagnostics.Tracing;
 using JustEat.StatsD;
 using Lupi.Configuration;
 
-namespace Lupi 
+namespace Lupi.Results
 {
     public sealed class HttpEventListener : EventListener, IHttpEventListener
     {
