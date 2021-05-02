@@ -1,5 +1,6 @@
 ﻿using Lupi.Listeners;
 using Lupi.Results;
+using Lupi.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace Lupi.Core
         private readonly IAggregator _aggregator;
         private readonly IExitSignal _exitSignal;
         private readonly ISystemMetricsPublisher _systemMetricsPublisher;
+        private readonly ITimeService _timeService;
         private readonly ILogger<IApplication> _logger;
 
         public Application(
@@ -24,6 +26,7 @@ namespace Lupi.Core
             IAggregator aggregator,
             IExitSignal exitSignal,
             ISystemMetricsPublisher systemMetricsPublisher,
+            ITimeService timeService,
             ILogger<IApplication> logger)
         {
             _threadControl = threadControl;
@@ -31,6 +34,7 @@ namespace Lupi.Core
             _aggregator = aggregator;
             _exitSignal = exitSignal;
             _systemMetricsPublisher = systemMetricsPublisher;
+            _timeService = timeService;
             _logger = logger;
         }
 
@@ -59,14 +63,14 @@ namespace Lupi.Core
         {
             try
             {
-                var startTime = DateTime.UtcNow;
+                var startTime = _timeService.Now();
                 var tasks = new List<Task> {
                     Task.Run(() => _testResultPublisher.Process(ct), ct),
                     Task.Run(() => _systemMetricsPublisher.Run(ct), ct),
                     Task.Run(() => _aggregator.Process(ct), ct)
                 };
                 _logger.LogInformation("Starting tests. Start time: {startTime}", startTime);
-                await _threadControl.Run(startTime, ct);
+                await _threadControl.Run(ct);
                 _testResultPublisher.TestCompleted = true;
                 _systemMetricsPublisher.TestCompleted = true;
                 _aggregator.TestCompleted = true;

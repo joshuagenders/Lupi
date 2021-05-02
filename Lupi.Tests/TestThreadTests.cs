@@ -29,7 +29,7 @@ namespace Lupi.Tests
             watch.Start();
             await testThread.Run(DateTime.UtcNow, cts.Token);
             watch.Stop();
-            watch.ElapsedMilliseconds.Should().BeLessThan(longTime);
+            watch.ElapsedMilliseconds.Should().BeLessThan(longTime - 100);
         }
     }
 }

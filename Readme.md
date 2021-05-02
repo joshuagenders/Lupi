@@ -1,6 +1,6 @@
 <img
     alt="Lupi"
-    src="https://github.com/joshuagenders/lupi/blob/main/Logo_2.png"
+    src="https://github.com/joshuagenders/lupi/blob/main/Logo.png"
     width="200"
 />
 

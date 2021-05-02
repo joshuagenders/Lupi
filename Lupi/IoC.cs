@@ -2,6 +2,7 @@
 using Lupi.Core;
 using Lupi.Listeners;
 using Lupi.Results;
+using Lupi.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -32,6 +33,9 @@ namespace Lupi
                 .AddSingleton<ITestResultPublisher, TestResultPublisher>()
                 .AddSingleton<ISystemMetricsPublisher, SystemMetricsPublisher>()
                 .AddSingleton<IHttpEventListener, HttpEventListener>()
+                .AddSingleton<ITimeService, TimeService>()
+                .AddSingleton<ISleepService, SleepService>()
+                .AddSingleton<IStopwatchFactory, StopwatchFactory>()
                 .AddTransient<IPlugin, Plugin>();
 
             var testResultPublisher = new TestResultPublisher(config);

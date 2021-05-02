@@ -1,6 +1,7 @@
 ﻿using JustEat.StatsD;
 using Lupi.Configuration;
 using Lupi.Results;
+using Lupi.Services;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -12,35 +13,41 @@ namespace Lupi.Core
 {
     public class TestThread
     {
-        private readonly IThreadControl _threadControl;
         private readonly ITestResultPublisher _testResultPublisher;
-        private readonly StatsDPublisher _stats;
+        private readonly IStatsDPublisher _stats;
         private readonly Config _config;
+        private readonly ITimeService _timeService;
+        private readonly IStopwatchFactory _stopwatchFactory;
         private readonly ILogger<TestThread> _logger;
+        private readonly ITokenManager _tokenManager;
         private readonly IPlugin _plugin;
 
         public TestThread(
-            IThreadControl threadControl,
+            ITokenManager tokenManager,
             IPlugin plugin, 
             ITestResultPublisher testResultPublisher,
-            StatsDPublisher stats,
+            IStatsDPublisher stats,
             Config config,
+            ITimeService timeService,
+            IStopwatchFactory stopwatchFactory,
             ILogger<TestThread> logger)
         {
-            _threadControl = threadControl;
+            _tokenManager = tokenManager;
             _plugin = plugin;
             _testResultPublisher = testResultPublisher;
             _stats = stats;
             _config = config;
+            _timeService = timeService;
+            _stopwatchFactory = stopwatchFactory;
             _logger = logger;
         }
 
-        private async Task<bool> CanExecute(string threadName, DateTime startTime, CancellationToken ct)
+        private async Task<bool> CanExecute(string threadName, CancellationToken ct)
         {
             _logger.LogDebug("{threadName} request task execution", threadName);
             if (_config.Concurrency.OpenWorkload)
             {
-                var taskExecutionRequest = _threadControl.RequestTaskExecution(startTime, ct);
+                var taskExecutionRequest = _tokenManager.RequestTaskExecution(ct);
                 var killDelay = Task.Delay(_config.Concurrency.ThreadIdleKillTime);
                 var result = await Task.WhenAny(taskExecutionRequest, killDelay);
                 if (result == killDelay)
@@ -56,18 +63,18 @@ namespace Lupi.Core
             }
             else
             {
-                return await _threadControl.RequestTaskExecution(startTime, ct);
+                return await _tokenManager.RequestTaskExecution(ct);
             }
         }
 
-        public async Task Run(DateTime startTime, CancellationToken ct)
+        public async Task Run(CancellationToken ct)
         {
             _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskstart");
             var threadName = $"worker {Guid.NewGuid().ToString("N")}";
-            var watch = new Stopwatch();
+            var watch = _stopwatchFactory.GetStopwatch();
             do
             {
-                var canExecute = await CanExecute(threadName, startTime, ct);
+                var canExecute = await CanExecute(threadName, ct);
 
                 if (!ct.IsCancellationRequested && canExecute)
                 {
@@ -260,7 +267,7 @@ namespace Lupi.Core
                     Duration = ellapsed,
                     Passed = passed,
                     Result = result,
-                    FinishedTime = DateTime.UtcNow,
+                    FinishedTime = _timeService.Now(),
                     ThreadName = threadName
                 });
         }
