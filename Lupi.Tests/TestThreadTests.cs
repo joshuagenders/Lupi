@@ -35,5 +35,6 @@ namespace Lupi.Tests
         //todo 
         // WhenExceptionsReturned_ThenTestsAreFailed
         //  WhenTaskReturnsFalse_ThenTestsAreFailed
+        // WhenTaskReturnsNull_Then?
     }
 }
