@@ -10,12 +10,10 @@ using Xunit;
 namespace Lupi.Tests {
     public class ThreadControlTests 
     {
-        // [Theory]
-        // [InlineAutoMoqData(1)]
-        public async Task WhenX_ThenY(int x, ThreadControl threadControl)
-        {
-            // var cts = new CancellationTokenSource();
-            // await threadControl.RequestTaskExecution(DateTime.Now, cts.Token);
-        }
+        // WhenDurationSpecified_ThenDurationIsObserved
+        // WhenMoreIterationsThanDurationAllows_ThenTestExitsEarly (end time is preferred over iteration count)
+        // WhenMoreIterationsThanSingleThreadAllows_ThenThreadsAdapt
+        // WhenThinkTimeIsSpecified_ThenWaitIsObserved
+        // WhenRampDownConcurrencyIsSpecified_ThenThreadsRpsDecreases
     }
 }

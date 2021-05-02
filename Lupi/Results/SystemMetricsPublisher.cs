@@ -11,7 +11,7 @@ namespace Lupi.Results
 {
     public interface ISystemMetricsPublisher : IDisposable
     {
-        public Task Run(CancellationToken ct);
+        public Task Process(CancellationToken ct);
         public bool TestCompleted { get; set; }
     }
 
@@ -47,7 +47,7 @@ namespace Lupi.Results
             }
         }
 
-        public async Task Run(CancellationToken ct)
+        public async Task Process(CancellationToken ct)
         {
             if (_stats == null || !(_counters?.Any() ?? false))
             {

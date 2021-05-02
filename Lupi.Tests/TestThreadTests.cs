@@ -31,5 +31,9 @@ namespace Lupi.Tests
             watch.Stop();
             watch.ElapsedMilliseconds.Should().BeLessThan(longTime - 100);
         }
+
+        //todo 
+        // WhenExceptionsReturned_ThenTestsAreFailed
+        //  WhenTaskReturnsFalse_ThenTestsAreFailed
     }
 }

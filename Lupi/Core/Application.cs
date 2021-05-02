@@ -66,7 +66,7 @@ namespace Lupi.Core
                 var startTime = _timeService.Now();
                 var tasks = new List<Task> {
                     Task.Run(() => _testResultPublisher.Process(ct), ct),
-                    Task.Run(() => _systemMetricsPublisher.Run(ct), ct),
+                    Task.Run(() => _systemMetricsPublisher.Process(ct), ct),
                     Task.Run(() => _aggregator.Process(ct), ct)
                 };
                 _logger.LogInformation("Starting tests. Start time: {startTime}", startTime);

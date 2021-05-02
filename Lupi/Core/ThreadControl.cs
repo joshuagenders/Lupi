@@ -32,6 +32,7 @@ namespace Lupi.Core
         {
             _config = config;
             _threadMarshall = threadMarshall;
+            _tokenManager = tokenManager;
             _timeService = timeService;
             _logger = logger;
             // todo from DI
@@ -48,7 +49,7 @@ namespace Lupi.Core
 
         public async Task Run(CancellationToken ct)
         {
-            //todo move up into what calls run
+            //todo move up into what calls run?
             // _logger.LogInformation("Executing setup method");
             // await _plugin.ExecuteSetupMethod();
             try 
@@ -63,11 +64,7 @@ namespace Lupi.Core
                 while (_now < _endTime && !ct.IsCancellationRequested)
                 {
                     _tokenManager.ReleaseTokens(_now);
-                    AdjustThreadLevels(ct);
-
-                    var threadCount = _threadMarshall.GetThreadCount();
-                    _logger.LogDebug("Main loop complete. thread count {threadCount}", threadCount);
-                    _stats?.Gauge(threadCount, $"{_config.Listeners.Statsd.Bucket}.threads");
+                    _threadMarshall.AdjustThreadLevels(_startTime, _now, ct);
 
                     await Task.Delay(_config.Engine.CheckInterval, ct);
                     _now = _timeService.Now();
@@ -75,40 +72,11 @@ namespace Lupi.Core
             }
             finally
             {
-                //todo move up into what calls run
+                //todo move up into what calls run?
                 // _logger.LogInformation("Main test loop completed");
                 // _logger.LogInformation("Executing teardown method");
                 // _stats?.Gauge(0, $"{_config.Listeners.Statsd.Bucket}.threads");
                 // await _plugin.ExecuteTeardownMethod();
-            }
-        }
-
-        private void AdjustThreadLevels(CancellationToken ct)
-        {
-            var threadCount = _threadMarshall.GetThreadCount();
-            if (_config.Concurrency.OpenWorkload)
-            {
-                _logger.LogDebug("Calculate threads for open workload");
-                if (threadCount < _config.Concurrency.MinThreads)
-                {
-                    _threadMarshall.SetThreadLevel(_config.Concurrency.MinThreads - threadCount, ct);
-                }
-
-                var currentCount = _tokenManager.GetTokenCount();
-                if (currentCount > 0)
-                {
-                    var amount = Math.Max(
-                        _config.Concurrency.MinThreads,
-                        Math.Min(_config.Concurrency.MaxThreads - threadCount, threadCount + currentCount));
-                    _threadMarshall.SetThreadLevel(amount, ct);
-                }
-            }
-            else
-            {
-                _logger.LogDebug("Calculate threads for closed workload");
-                var desired = _config.Concurrency.Phases.CurrentDesiredThreadCount(_startTime, _now);
-                _logger.LogDebug("Desired threads: {desired}. Current threads: {threadCount}", desired, threadCount);
-                _threadMarshall.SetThreadLevel(desired, ct);
             }
         }
     }

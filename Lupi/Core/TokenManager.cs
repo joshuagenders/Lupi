@@ -21,30 +21,28 @@ namespace Lupi.Core
 
     public class TokenManager : ITokenManager
     {
+        private readonly Config _config;
+        private readonly ITimeService _timeService;
         private readonly ILogger<ITokenManager> _logger;
-        private readonly SemaphoreSlim _taskDecrement;
-        private readonly ConcurrentQueue<bool> _taskKill;
-
         private readonly IStatsDPublisher _stats;
-
+        private readonly ConcurrentQueue<bool> _taskKill;
 
         private double _partialTokens;
         private int _iterationsRemaining;
         private SemaphoreSlim _taskExecution;
-
-
+        private SemaphoreSlim _taskDecrement;
+        
         private DateTime _startTime;
         private DateTime _endTime;
         private DateTime _lastTime;
 
-        private readonly Config _config;
-        private readonly ITimeService _timeService;
 
         public TokenManager (Config config, ITimeService timeService, ILogger<ITokenManager> logger)
         {
             _config = config;
             _timeService = timeService;
             _logger = logger;
+            _taskKill = new ConcurrentQueue<bool>();
         }
 
         public int GetTokenCount()
@@ -55,9 +53,12 @@ namespace Lupi.Core
         public void Initialise(DateTime startTime, DateTime endTime)
         {
             _taskExecution = new SemaphoreSlim(0);
+            _taskDecrement = new SemaphoreSlim(1); // used to lock decrement of iterations to prevent race conditions
             _partialTokens = 0;
             _startTime = startTime;
+            _lastTime = startTime;
             _endTime = endTime;
+            _taskKill.Clear();
         }
 
         public void ReleaseTokens(DateTime now)
@@ -139,17 +140,17 @@ namespace Lupi.Core
         }
 
         private bool IsTestComplete(DateTime startTime, int iterationsRemaining) =>
-            _timeService.Now() >= startTime.Add(_config.TestDuration()) 
-            || (iterationsRemaining < 0 && _config.Throughput.Iterations > 0);
-
+            _timeService.Now() >= _endTime || (iterationsRemaining < 0 && _config.Throughput.Iterations > 0);
 
         public void RequestTaskDiscontinues()
         {
             _taskKill.Enqueue(true);
+            // _stats?.Increment(1, $"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
         }
 
         public bool RequestTaskContinuedExecution()
         {
+            // _stats?.Increment(1, $"{_config.Listeners.Statsd.Bucket}.taskcontinuerequested");
             if (_config.ThroughputEnabled)
             {
                 if (_taskKill.TryDequeue(out var result))
