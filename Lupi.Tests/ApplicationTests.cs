@@ -1,4 +1,4 @@
-// todo replace with ThreadControl tests
+// todo test individial units of core
 
 // using FluentAssertions;
 // using Moq;
