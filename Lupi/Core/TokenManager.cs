@@ -58,6 +58,9 @@ namespace Lupi.Core
             _startTime = startTime;
             _lastTime = startTime;
             _endTime = endTime;
+            _iterationsRemaining = _config.Throughput.Iterations > 0
+                ? _config.Throughput.Iterations
+                : 0;
             _taskKill.Clear();
         }
 
