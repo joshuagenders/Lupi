@@ -14,6 +14,7 @@ namespace Lupi.Core
         private readonly IThreadMarshall _threadMarshall;
         private readonly ITokenManager _tokenManager;
         private readonly ITimeService _timeService;
+        private readonly ISleepService _sleepService;
         private readonly ILogger<IThreadControl> _logger;
 
         private readonly IStatsDPublisher _stats;
@@ -28,12 +29,14 @@ namespace Lupi.Core
             IThreadMarshall threadMarshall,
             ITokenManager tokenManager,
             ITimeService timeService,
+            ISleepService sleepService,
             ILogger<IThreadControl> logger)
         {
             _config = config;
             _threadMarshall = threadMarshall;
             _tokenManager = tokenManager;
             _timeService = timeService;
+            _sleepService = sleepService;
             _logger = logger;
             // todo from DI
             // if (_config.Listeners.ActiveListeners.Contains("statsd"))
@@ -66,7 +69,7 @@ namespace Lupi.Core
                     _tokenManager.ReleaseTokens(_now);
                     _threadMarshall.AdjustThreadLevels(_startTime, _now, ct);
 
-                    await Task.Delay(_config.Engine.CheckInterval, ct);
+                    await _sleepService.WaitFor(_config.Engine.CheckInterval, ct);
                     _now = _timeService.Now();
                 }
             }
