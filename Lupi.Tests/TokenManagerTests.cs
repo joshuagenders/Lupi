@@ -44,4 +44,5 @@ namespace Lupi.Tests
     // WhenOpenWorkload_ThenRPSIsNotExceeded
     //  correct token count for periods
     // WhenMoreIterationsThanDurationAllows_ThenTestExitsEarly (end time is preferred over iteration count)
+    // WhenRampDownConcurrencyIsSpecified_ThenThreadsRpsDecreases
 }

@@ -1,3 +1,4 @@
+// todo
 // Running application responds to exit signal
 // 		_testResultPublisher.TestCompleted is true
 // 		test passed/failed is reflected
