@@ -49,9 +49,32 @@ namespace Lupi.Tests {
             stopwatch.Stop();
             stopwatch.ElapsedMilliseconds.Should().BeLessThan((long)timeout.TotalMilliseconds);
         }
-        // WhenDurationSpecified_ThenDurationIsObserved
-        // WhenMoreIterationsThanSingleThreadAllows_ThenThreadsAdapt
-        // WhenThinkTimeIsSpecified_ThenWaitIsObserved
-        // WhenRampDownConcurrencyIsSpecified_ThenThreadsRpsDecreases
+
+        [Theory]
+        [AutoMoqData]
+        public async Task CheckIntervalWaitIsObserved(
+            [Frozen]Config config, 
+            [Frozen]Mock<IThreadMarshall> threadMarshall,
+            [Frozen]ITokenManager tokenManager,
+            [Frozen]Mock<ITimeService> timeService,
+            [Frozen]Mock<ISleepService> sleepService,
+            ThreadControl threadControl
+        )
+        {
+            var cts = new CancellationTokenSource();
+            var startTime = new DateTime(2020,05,01,13,0,0);
+            var endTime = startTime.AddSeconds(60);
+            config.Engine.CheckInterval = TimeSpan.FromSeconds(2);
+            timeService
+                .SetupSequence((v) => v.Now())
+                .Returns(startTime)
+                .Returns(() => {
+                    timeService.Setup(v => v.Now()).Returns(endTime);
+                    return endTime;
+                });
+
+            await threadControl.Run(cts.Token);
+            sleepService.Verify(m => m.WaitFor(config.Engine.CheckInterval, cts.Token));
+        }
     }
 }
