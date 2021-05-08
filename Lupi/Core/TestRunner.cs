@@ -8,7 +8,7 @@ using Lupi.Services;
 
 namespace Lupi.Core
 {
-    public class TestRunner : ITestRunner //todo - rename? is essentially the core loop
+    public class TestRunner : ITestRunner
     {
         private readonly Config _config;
         private readonly IThreadMarshall _threadMarshall;
