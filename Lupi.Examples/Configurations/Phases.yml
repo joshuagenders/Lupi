@@ -18,6 +18,6 @@ throughput:
         to: 0
 listeners:
     statsd:
-        prefix: Lupi.Examples
+        prefix: Lupi.Examples.Phases
 
 baseConfig: BaseConfig.yml

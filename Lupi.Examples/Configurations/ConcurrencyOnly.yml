@@ -7,6 +7,6 @@ throughput:
     thinkTime: 500ms
 listeners:
     statsd:
-        prefix: Lupi.Examples.concurrencyonly
+        prefix: Lupi.Examples.ConcurrencyOnly
 
 baseConfig: BaseConfig.yml

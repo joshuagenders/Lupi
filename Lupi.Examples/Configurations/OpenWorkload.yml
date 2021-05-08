@@ -10,5 +10,5 @@ throughput:
     rampDown: 1m
 listeners:
     statsd:
-        prefix: Lupi.Examples.openworkload
+        prefix: Lupi.Examples.Openworkload
 baseConfig: BaseConfig.yml
