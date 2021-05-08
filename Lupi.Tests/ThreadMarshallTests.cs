@@ -15,7 +15,7 @@ namespace Lupi.Tests
         // closed workload
         [Theory]
         [AutoMoqData]
-        public void X(
+        public void WhenRampUpSpecified_ThenThreadsIncrease(
             [Frozen]ITestThreadFactory testThreadFactory,
             [Frozen]ITokenManager tokenManager,
             [Frozen]Config config,
@@ -27,6 +27,20 @@ namespace Lupi.Tests
             // config.Throughput.
             threadMarshall.AdjustThreadLevels(startTime, startTime.AddMinutes(1), cts.Token);
             threadMarshall.GetThreadCount().Should().Be(1);
+        }
+
+        [Theory]
+        [AutoMoqData]
+        public void WhenRampDownSpecified_ThenThreadsDecrease()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Theory]
+        [AutoMoqData]
+        public void WhenConcurrencySpecified_ThenThreadLevelIsSet()
+        {
+            throw new NotImplementedException();
         }
     }
 }

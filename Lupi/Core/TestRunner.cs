@@ -18,8 +18,7 @@ namespace Lupi.Core
         private readonly ILogger<ITestRunner> _logger;
 
         private readonly IStatsDPublisher _stats;
-
-
+        private readonly IPlugin _plugin;
         private DateTime _startTime;
         private DateTime _endTime;
         private DateTime _now;
@@ -31,6 +30,7 @@ namespace Lupi.Core
             ITimeService timeService,
             ISleepService sleepService,
             IStatsDPublisher stats,
+            IPlugin plugin,
             ILogger<ITestRunner> logger)
         {
             _config = config;
@@ -39,14 +39,14 @@ namespace Lupi.Core
             _timeService = timeService;
             _sleepService = sleepService;
             _stats = stats;
+            _plugin = plugin;
             _logger = logger;
         }
 
         public async Task Run(CancellationToken ct)
         {
-            //todo move up into what calls run?
-            // _logger.LogInformation("Executing setup method");
-            // await _plugin.ExecuteSetupMethod();
+            _logger.LogInformation("Executing setup method");
+            await _plugin.ExecuteSetupMethod();
             try 
             {
                 _startTime = _timeService.Now();
@@ -67,11 +67,10 @@ namespace Lupi.Core
             }
             finally
             {
-                //todo move up into what calls run?
                 _logger.LogInformation("Main test loop completed");
                 _logger.LogInformation("Executing teardown method");
                 _stats?.Gauge(0, "threads");
-                // await _plugin.ExecuteTeardownMethod();
+                await _plugin.ExecuteTeardownMethod();
             }   
         }
     }

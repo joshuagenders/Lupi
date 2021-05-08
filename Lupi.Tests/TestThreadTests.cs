@@ -32,9 +32,16 @@ namespace Lupi.Tests
             watch.ElapsedMilliseconds.Should().BeLessThan(longTime - 100);
         }
 
-        //todo 
-        // WhenExceptionsReturned_ThenTestsAreFailed
-        //  WhenTaskReturnsFalse_ThenTestsAreFailed
-        // WhenTaskReturnsNull_Then?
+        [Fact]
+        public void WhenExceptionsReturned_ThenTestsAreFailed()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Fact]
+        public void WhenTaskReturnsFalse_ThenTestsAreFailed()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

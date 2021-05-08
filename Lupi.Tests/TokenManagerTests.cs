@@ -36,13 +36,37 @@ namespace Lupi.Tests
             tokenManager.ReleaseTokens(endTime.AddSeconds(-1));
             tokenManager.GetTokenCount().Should().Be(iterations);
         } 
+
+        [Fact]
+        public void WhenDurationSpecified_ThenDurationIsObserved()
+        {
+            //no tokens released after end time
+            throw new NotImplementedException();
+        }
+
+        [Fact]
+        public void WhenThroughputIsSpecified_ThenRPSIsNotExceeded()
+        {
+            // correct token count for periods
+            throw new NotImplementedException();
+        }
+ 
+        [Fact]
+        public void WhenMoreIterationsThanDurationAllows_ThenTestExitsEarly()
+        {
+            throw new NotImplementedException();
+        } 
+
+        [Fact]
+        public void WhenRampDownConcurrencyIsSpecified_ThenTokenCountDecreases()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Fact]
+        public void WhenRampUpConcurrencyIsSpecified_ThenTokenCountIncreases()
+        {
+            throw new NotImplementedException();
+        }
     }
-    // WhenDurationSpecified_ThenDurationIsObserved
-    //   no tokens released after end time
-    // WhenThroughputIsSpecified_ThenRPSIsNotExceeded
-    //  correct token count for periods
-    // WhenOpenWorkload_ThenRPSIsNotExceeded
-    //  correct token count for periods
-    // WhenMoreIterationsThanDurationAllows_ThenTestExitsEarly (end time is preferred over iteration count)
-    // WhenRampDownConcurrencyIsSpecified_ThenThreadsRpsDecreases
 }
