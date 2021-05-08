@@ -45,7 +45,6 @@ namespace Lupi.Core {
 
         public int GetThreadCount()
         {
-            _tasks.RemoveAll(x => x.IsCompleted);
             return _tasks.Count;
         }
 
@@ -65,8 +64,10 @@ namespace Lupi.Core {
                 {
                     var amount = Math.Max(
                         _config.Concurrency.MinThreads,
-                        Math.Min(_config.Concurrency.MaxThreads - threadCount, threadCount + currentCount));
-                    SetThreadLevel(amount, ct);
+                        Math.Min(_config.Concurrency.MaxThreads, threadCount + currentCount));
+                    
+                    if (amount != threadCount)
+                        SetThreadLevel(amount, ct);
                 }
             }
             else
@@ -79,6 +80,7 @@ namespace Lupi.Core {
         }
         private void SetThreadLevel(int threads, CancellationToken ct)
         {
+            _tasks.RemoveAll(x => x.IsCompleted);
             var taskCount = GetThreadCount();
             _stats?.Gauge(taskCount, "threads");
             var difference = threads - taskCount;

@@ -67,7 +67,7 @@ namespace Lupi.Core
             }
         }
 
-        public async Task Run(CancellationToken ct)
+        public virtual async Task Run(CancellationToken ct)
         {
             _stats?.Increment("taskstart");
             var threadName = $"worker {Guid.NewGuid().ToString("N")}";
