@@ -17,7 +17,6 @@ namespace Lupi.Tests
             [Frozen]Mock<ITestResultPublisher> testResultPublisher,
             [Frozen]Mock<ISystemMetricsPublisher> systemMetricsPublisher,
             [Frozen]Mock<IAggregator> aggregator,
-
             Application application)
         {
             await application.Run();
