@@ -169,7 +169,6 @@ listeners:
         host: 10.0.0.1
         port: 8125
         prefix: my.prefix
-        bucket: my.test.bucket
 engine:
     resultPublishingInterval: 250ms # how often the result publishing handlers are invoked
     checkInterval: 150ms # how often thread levels / throughput is assessed
@@ -296,7 +295,7 @@ E.g.
 
 ### Statsd
 The statsd listener sends test metrics to the configured statsd host.
-metrics are prefixed with the configured prefix and bucket parameters.
+metrics are prefixed with the configured prefix parameter.
 
 Timers:
 - success

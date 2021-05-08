@@ -53,7 +53,7 @@ namespace Lupi.Core
                 if (result == killDelay)
                 {
                     _logger.LogDebug("{threadName} got tired of waiting. Dying.", threadName);
-                    _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.diedofboredom");
+                    _stats?.Increment("diedofboredom");
                     return false;
                 }
                 else
@@ -69,7 +69,7 @@ namespace Lupi.Core
 
         public async Task Run(CancellationToken ct)
         {
-            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskstart");
+            _stats?.Increment("taskstart");
             var threadName = $"worker {Guid.NewGuid().ToString("N")}";
             var watch = _stopwatchFactory.GetStopwatch();
             do
@@ -105,7 +105,7 @@ namespace Lupi.Core
                 await Task.Delay(_config.Throughput.ThinkTime);
             } while (!ct.IsCancellationRequested);
 
-            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskcomplete");
+            _stats?.Increment("taskcomplete");
         }
 
 

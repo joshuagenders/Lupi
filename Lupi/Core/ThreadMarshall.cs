@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JustEat.StatsD;
 using Lupi.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -18,22 +19,25 @@ namespace Lupi.Core {
     public class ThreadMarshall : IThreadMarshall
     {
         private readonly List<Task> _tasks;
-        private ITestThreadFactory _testThreadFactory;
-        private ITokenManager _tokenManager;
-        private Config _config;
-        private ILogger<IThreadMarshall> _logger;
+        private readonly ITestThreadFactory _testThreadFactory;
+        private readonly ITokenManager _tokenManager;
+        private readonly Config _config;
+        private readonly IStatsDPublisher _stats;
+        private readonly ILogger<IThreadMarshall> _logger;
         private readonly ILoggerFactory _loggerFactory;
 
         public ThreadMarshall(
             ITestThreadFactory testThreadFactory,
             ITokenManager tokenManager,
             Config config,
+            IStatsDPublisher stats,
             ILogger<IThreadMarshall> logger,
             ILoggerFactory loggerFactory)
         {
             _testThreadFactory = testThreadFactory;
             _tokenManager = tokenManager;
             _config = config;
+            _stats = stats;
             _logger = logger;
             _loggerFactory = loggerFactory;
             _tasks = new List<Task>();
@@ -76,13 +80,13 @@ namespace Lupi.Core {
         private void SetThreadLevel(int threads, CancellationToken ct)
         {
             var taskCount = GetThreadCount();
+            _stats?.Gauge(taskCount, "threads");
             var difference = threads - taskCount;
             if (difference < 0)
             {
                 var tasksToKill = Math.Abs(difference) - _tokenManager.GetTokenCount();
                 if (tasksToKill > 0)
                 {
-                    //todo get from DI
                     for (var i = 0; i < tasksToKill; i++)
                     {
                         _tokenManager.RequestTaskDiscontinues();
@@ -95,7 +99,6 @@ namespace Lupi.Core {
                     Enumerable.Range(0, difference).Select(_ => 
                         Task.Run(() => _testThreadFactory.GetTestThread().Run(ct), ct)));
             }
-            // _stats?.Gauge(threadCount, $"{_config.Listeners.Statsd.Bucket}.threads");
             _logger.LogDebug("Task count {threadCount}", taskCount);
         }
     }

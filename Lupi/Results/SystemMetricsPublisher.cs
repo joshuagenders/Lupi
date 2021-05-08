@@ -19,11 +19,11 @@ namespace Lupi.Results
     {
         private readonly PerformanceCounter[] _counters;
         private readonly Config _config;
-        private readonly StatsDPublisher _stats;
+        private readonly IStatsDPublisher _stats;
         private readonly IHttpEventListener _httpEventListener;
         public bool TestCompleted { get; set; }
 
-        public SystemMetricsPublisher(IHttpEventListener httpEventListener, Config config)
+        public SystemMetricsPublisher(IHttpEventListener httpEventListener, IStatsDPublisher stats, Config config)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -34,17 +34,8 @@ namespace Lupi.Results
             }
 
             _config = config;
-
-            if (!_config.Listeners.ActiveListeners.Contains("statsd"))
-            {
-                _stats = new StatsDPublisher(new StatsDConfiguration
-                {
-                    Host = _config.Listeners.Statsd.Host,
-                    Port = _config.Listeners.Statsd.Port,
-                    Prefix = _config.Listeners.Statsd.Prefix
-                });
-                _httpEventListener = httpEventListener;
-            }
+            _stats = stats;
+            _httpEventListener = httpEventListener;
         }
 
         public async Task Process(CancellationToken ct)
@@ -57,7 +48,7 @@ namespace Lupi.Results
             {
                 foreach (var c in _counters)
                 {
-                    _stats.Gauge(c.NextValue(), $"{_config.Listeners.Statsd.Bucket}.system.{c.CounterName}");
+                    _stats.Gauge(c.NextValue(), $"system.{c.CounterName}");
                 }
                 await Task.Delay(5000, ct);
             }

@@ -1,3 +1,4 @@
+---
 concurrency:
     threads: 10
     rampUp: 2m
@@ -6,6 +7,6 @@ throughput:
     thinkTime: 500ms
 listeners:
     statsd:
-        bucket: concurrencyonly
+        prefix: Lupi.Examples.concurrencyonly
 
 baseConfig: BaseConfig.yml

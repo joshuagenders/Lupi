@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Xunit;
 
 namespace Lupi.Tests {
-    public class ThreadControlTests 
+    public class TestRunnerTests 
     {
         [Theory]
         [AutoMoqData]
@@ -21,7 +21,7 @@ namespace Lupi.Tests {
             [Frozen]IThreadMarshall threadMarshall,
             [Frozen]ITokenManager tokenManager,
             [Frozen]Mock<ITimeService> timeService,
-            ThreadControl threadControl)
+            TestRunner testRunner)
         {
             var cts = new CancellationTokenSource();
             var timeout = TimeSpan.FromSeconds(10);
@@ -44,7 +44,7 @@ namespace Lupi.Tests {
                 });
 
             stopwatch.Start();
-            await threadControl.Run(cts.Token);
+            await testRunner.Run(cts.Token);
             stopwatch.Stop();
             stopwatch.ElapsedMilliseconds.Should().BeLessThan((long)timeout.TotalMilliseconds);
         }
@@ -54,10 +54,9 @@ namespace Lupi.Tests {
         public async Task CheckIntervalWaitIsObserved(
             [Frozen]Config config, 
             [Frozen]Mock<IThreadMarshall> threadMarshall,
-            [Frozen]ITokenManager tokenManager,
             [Frozen]Mock<ITimeService> timeService,
             [Frozen]Mock<ISleepService> sleepService,
-            ThreadControl threadControl
+            TestRunner testRunner
         )
         {
             var cts = new CancellationTokenSource();
@@ -72,7 +71,7 @@ namespace Lupi.Tests {
                     return endTime;
                 });
 
-            await threadControl.Run(cts.Token);
+            await testRunner.Run(cts.Token);
             sleepService.Verify(m => m.WaitFor(config.Engine.CheckInterval, cts.Token));
         }
     }

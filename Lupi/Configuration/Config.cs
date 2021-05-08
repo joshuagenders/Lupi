@@ -109,7 +109,6 @@ namespace Lupi.Configuration
         public string Host { get; set; }
         public int Port { get; set; }
         public string Prefix { get; set; }
-        public string Bucket { get; set; }
     }
 
     public class ExitCondition

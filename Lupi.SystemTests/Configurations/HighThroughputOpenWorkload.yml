@@ -3,7 +3,7 @@ test:
 
 listeners:
     statsd:
-        bucket: highthroughputopenworkload
+        prefix: ${STATSD_PREFIX}.highthroughputopenworkload
 
 concurrency:
     openWorkload: true

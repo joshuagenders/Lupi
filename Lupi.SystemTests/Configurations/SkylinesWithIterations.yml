@@ -3,7 +3,7 @@ test:
 
 listeners:
     statsd:
-        bucket: skylines
+        prefix: ${STATSD_PREFIX}.skylines
 
 concurrency:
     threads: 20

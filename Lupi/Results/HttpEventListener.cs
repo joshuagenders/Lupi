@@ -9,16 +9,11 @@ namespace Lupi.Results
     public sealed class HttpEventListener : EventListener, IHttpEventListener
     {
         private readonly Config _config;
-        private readonly StatsDPublisher _stats;
+        private readonly IStatsDPublisher _stats;
 
-        public HttpEventListener(Config config){
+        public HttpEventListener(Config config, IStatsDPublisher stats){
             _config = config;
-            _stats = new StatsDPublisher(new StatsDConfiguration
-            {
-                Host = _config.Listeners.Statsd.Host,
-                Port = _config.Listeners.Statsd.Port,
-                Prefix = _config.Listeners.Statsd.Prefix
-            });
+            _stats = stats;
         }
 
         protected override void OnEventSourceCreated(EventSource eventSource)
@@ -48,10 +43,10 @@ namespace Lupi.Results
 
                 switch(counterPayload["CounterType"]){
                     case "Mean":
-                        _stats.Gauge(Double.Parse(counterPayload["Count"].ToString()),$"{_config.Listeners.Statsd.Bucket}.http.{counterPayload["Name"]}");
+                        _stats.Gauge(Double.Parse(counterPayload["Count"].ToString()),$"http.{counterPayload["Name"]}");
                         break;
                     case "Sum":
-                         _stats.Increment(long.Parse(counterPayload["Increment"].ToString()),$"{_config.Listeners.Statsd.Bucket}.http.{counterPayload["Name"]}");
+                         _stats.Increment(long.Parse(counterPayload["Increment"].ToString()), $"http.{counterPayload["Name"]}");
                          break;
                     default:
                         break;

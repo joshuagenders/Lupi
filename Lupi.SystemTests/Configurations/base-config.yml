@@ -12,4 +12,4 @@ listeners:
     statsd:
         host: ${STATSD_HOST}
         port: ${STATSD_PORT}
-        prefix: ${STATSD_PREFIX}
+

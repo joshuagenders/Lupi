@@ -1,4 +1,5 @@
-﻿using Lupi.Configuration;
+﻿using JustEat.StatsD;
+using Lupi.Configuration;
 using Lupi.Core;
 using Lupi.Listeners;
 using Lupi.Results;
@@ -28,22 +29,38 @@ namespace Lupi
                             .ReadFrom.Configuration(configuration)
                             .CreateLogger(), true))
                 .AddSingleton(config)
-                .AddSingleton<IThreadControl, ThreadControl>()
                 .AddSingleton<IApplication, Application>()
+                .AddTransient<IPlugin, Plugin>()
+                .AddSingleton<ITestRunner, TestRunner>()
                 .AddSingleton<ITestResultPublisher, TestResultPublisher>()
                 .AddSingleton<ISystemMetricsPublisher, SystemMetricsPublisher>()
                 .AddSingleton<IHttpEventListener, HttpEventListener>()
                 .AddSingleton<ITimeService, TimeService>()
                 .AddSingleton<ISleepService, SleepService>()
                 .AddSingleton<IStopwatchFactory, StopwatchFactory>()
-                .AddTransient<IPlugin, Plugin>();
+                .AddTransient<IStatsDPublisher, StatsDPublisher>(f => {
+                    if (config.Listeners.ActiveListeners.Contains("statsd")){
+                        return new StatsDPublisher(new StatsDConfiguration {
+                            Host = config.Listeners.Statsd.Host,
+                            Port = config.Listeners.Statsd.Port,
+                            Prefix = config.Listeners.Statsd.Prefix
+                        });
+                    }
+                    return default(StatsDPublisher);
+                });
 
             var testResultPublisher = new TestResultPublisher(config);
             var aggregator = new Aggregator(config);
             var testListenerSubscribers = new Dictionary<string, Action>
             {
                 { "file", () => testResultPublisher.Subscribe(new FileListener(config)) },
-                { "statsd", () => testResultPublisher.Subscribe(new StatsdListener(config)) },
+                { "statsd", () => testResultPublisher.Subscribe(new StatsdListener(config, 
+                    new StatsDPublisher (new StatsDConfiguration {
+                        Host = config.Listeners.Statsd.Host,
+                        Port = config.Listeners.Statsd.Port,
+                        Prefix = config.Listeners.Statsd.Prefix
+                    }))) 
+                },
                 { "console", () => testResultPublisher.Subscribe(aggregator) }
             };
 

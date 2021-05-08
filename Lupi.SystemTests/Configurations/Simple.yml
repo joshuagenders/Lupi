@@ -3,7 +3,7 @@ test:
 
 listeners:
     statsd:
-        bucket: simple
+        prefix: ${STATSD_PREFIX}.simple
 
 concurrency:
     threads: 1

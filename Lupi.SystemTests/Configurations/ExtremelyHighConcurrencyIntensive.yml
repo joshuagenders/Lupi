@@ -3,7 +3,7 @@ test:
 
 listeners:
     statsd:
-        bucket: extremelyhighconcurrencyintensive
+        prefix: ${STATSD_PREFIX}.extremelyhighconcurrencyintensive
 
 concurrency:
     threads: 1500

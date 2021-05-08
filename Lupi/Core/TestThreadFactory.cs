@@ -28,7 +28,8 @@ namespace Lupi.Core {
             IPlugin plugin, 
             ITestResultPublisher testResultPublisher,
             ITimeService timeService,
-            IStopwatchFactory stopwatchFactory, 
+            IStopwatchFactory stopwatchFactory,
+            IStatsDPublisher stats, 
             ILogger<ITestThreadFactory> logger,
             ILoggerFactory loggerFactory)
         {
@@ -38,18 +39,9 @@ namespace Lupi.Core {
             _testResultPublisher = testResultPublisher;
             _timeService = timeService;
             _stopwatchFactory = stopwatchFactory;
+            _stats = stats;
             _logger = logger;
             _loggerFactory = loggerFactory;
-
-            if (_config.Listeners.ActiveListeners.Contains("statsd"))
-            {
-                _stats = new StatsDPublisher(new StatsDConfiguration
-                {
-                    Host = _config.Listeners.Statsd.Host,
-                    Port = _config.Listeners.Statsd.Port,
-                    Prefix = _config.Listeners.Statsd.Prefix
-                });
-            }
         }
 
         public TestThread GetTestThread()

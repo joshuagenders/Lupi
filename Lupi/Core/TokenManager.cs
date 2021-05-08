@@ -97,7 +97,7 @@ namespace Lupi.Core
             if (wholeTokens > 0)
             {
                 _logger.LogDebug("Releasing {wholeTokens} tokens", wholeTokens);
-                _stats?.Increment(wholeTokens, $"{_config.Listeners.Statsd.Bucket}.releasedtoken");
+                _stats?.Increment(wholeTokens, "releasedtoken");
                 _taskExecution.Release(wholeTokens);
             }
         }
@@ -105,13 +105,13 @@ namespace Lupi.Core
         public async Task<bool> RequestTaskExecution(CancellationToken ct)
         {
             _logger.LogDebug($"Task execution request start");
-            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionstart");
+            _stats?.Increment("requesttaskexecutionstart");
 
             if (!RequestTaskContinuedExecution())
             {
                 _logger.LogDebug($"Found kill token. dying.");
-                _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionend");
-                _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.taskkill");
+                _stats?.Increment("requesttaskexecutionend");
+                _stats?.Increment("taskkill");
                 return false;
             }
             if (_config.ThroughputEnabled)
@@ -138,7 +138,7 @@ namespace Lupi.Core
 
             var isCompleted = IsTestComplete(_startTime, iterations);
             _logger.LogDebug("Is test completed: {isCompleted}. Iterations: {iterations}. Max iterations: {maxIterations}", isCompleted, iterations, _config.Throughput.Iterations);
-            _stats?.Increment($"{_config.Listeners.Statsd.Bucket}.requesttaskexecutionend");
+            _stats?.Increment("requesttaskexecutionend");
             return !isCompleted;
         }
 
@@ -148,12 +148,12 @@ namespace Lupi.Core
         public void RequestTaskDiscontinues()
         {
             _taskKill.Enqueue(true);
-            // _stats?.Increment(1, $"{_config.Listeners.Statsd.Bucket}.taskkillrequested");
+            _stats?.Increment(1, "taskkillrequested");
         }
 
         public bool RequestTaskContinuedExecution()
         {
-            // _stats?.Increment(1, $"{_config.Listeners.Statsd.Bucket}.taskcontinuerequested");
+            _stats?.Increment(1, "taskcontinuerequested");
             if (_config.ThroughputEnabled)
             {
                 if (_taskKill.TryDequeue(out var result))

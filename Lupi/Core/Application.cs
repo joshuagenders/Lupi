@@ -12,7 +12,7 @@ namespace Lupi.Core
 {
     public class Application : IApplication, IDisposable
     {
-        private readonly IThreadControl _threadControl;
+        private readonly ITestRunner _testRunner;
         private readonly ITestResultPublisher _testResultPublisher;
         private readonly IAggregator _aggregator;
         private readonly IExitSignal _exitSignal;
@@ -21,7 +21,7 @@ namespace Lupi.Core
         private readonly ILogger<IApplication> _logger;
 
         public Application(
-            IThreadControl threadControl,
+            ITestRunner testRunner,
             ITestResultPublisher testResultPublisher,
             IAggregator aggregator,
             IExitSignal exitSignal,
@@ -29,7 +29,7 @@ namespace Lupi.Core
             ITimeService timeService,
             ILogger<IApplication> logger)
         {
-            _threadControl = threadControl;
+            _testRunner = testRunner;
             _testResultPublisher = testResultPublisher;
             _aggregator = aggregator;
             _exitSignal = exitSignal;
@@ -70,7 +70,7 @@ namespace Lupi.Core
                     Task.Run(() => _aggregator.Process(ct), ct)
                 };
                 _logger.LogInformation("Starting tests. Start time: {startTime}", startTime);
-                await _threadControl.Run(ct);
+                await _testRunner.Run(ct);
                 _testResultPublisher.TestCompleted = true;
                 _systemMetricsPublisher.TestCompleted = true;
                 _aggregator.TestCompleted = true;

@@ -1,3 +1,4 @@
+---
 concurrency:
     openWorkload: true
     minThreads: 3
@@ -9,5 +10,5 @@ throughput:
     rampDown: 1m
 listeners:
     statsd:
-        bucket: openworkload
+        prefix: Lupi.Examples.openworkload
 baseConfig: BaseConfig.yml

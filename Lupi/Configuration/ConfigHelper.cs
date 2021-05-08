@@ -65,7 +65,6 @@ namespace Lupi.Configuration
                     Statsd = new Statsd
                     {
                         Prefix = GetConfigValue(v => v.Listeners.Statsd.Prefix, configs, default),
-                        Bucket = GetConfigValue(v => v.Listeners.Statsd.Bucket, configs, default),
                         Host = GetConfigValue(v => v.Listeners.Statsd.Host, configs, default),
                         Port = GetConfigValue(v => v.Listeners.Statsd.Port, configs, default)
                     },
