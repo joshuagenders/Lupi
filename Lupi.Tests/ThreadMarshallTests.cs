@@ -24,9 +24,13 @@ namespace Lupi.Tests
             var cts = new CancellationTokenSource();
             var startTime = new DateTime(2020,05,02, 13,0,0);
             var endTime = startTime.AddMinutes(5);
-            // config.Throughput.
-            threadMarshall.AdjustThreadLevels(startTime, startTime.AddMinutes(1), cts.Token);
-            threadMarshall.GetThreadCount().Should().Be(1);
+            config.Concurrency.RampUp = TimeSpan.FromMinutes(1);
+            config.Concurrency.Threads = 20;
+            config.Concurrency.HoldFor = TimeSpan.FromMinutes(4);
+            config.Concurrency.OpenWorkload = false;
+            config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
+            threadMarshall.AdjustThreadLevels(startTime, startTime.AddSeconds(30), cts.Token);
+            threadMarshall.GetThreadCount().Should().BeCloseTo(config.Concurrency.Threads / 2, 1);
         }
 
         [Theory]
