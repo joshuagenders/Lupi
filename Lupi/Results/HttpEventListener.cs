@@ -43,10 +43,10 @@ namespace Lupi.Results
 
                 switch(counterPayload["CounterType"]){
                     case "Mean":
-                        _stats.Gauge(Double.Parse(counterPayload["Count"].ToString()),$"http.{counterPayload["Name"]}");
+                        _stats?.Gauge(Double.Parse(counterPayload["Count"].ToString()),$"http.{counterPayload["Name"]}");
                         break;
                     case "Sum":
-                         _stats.Increment(long.Parse(counterPayload["Increment"].ToString()), $"http.{counterPayload["Name"]}");
+                         _stats?.Increment(long.Parse(counterPayload["Increment"].ToString()), $"http.{counterPayload["Name"]}");
                          break;
                     default:
                         break;

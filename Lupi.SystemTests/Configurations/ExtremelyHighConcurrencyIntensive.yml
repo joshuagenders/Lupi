@@ -1,5 +1,6 @@
 test:
     testMethod: Intensive
+    singleTestClassInstance: false
 
 listeners:
     statsd:

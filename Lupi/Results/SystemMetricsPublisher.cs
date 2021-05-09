@@ -48,7 +48,7 @@ namespace Lupi.Results
             {
                 foreach (var c in _counters)
                 {
-                    _stats.Gauge(c.NextValue(), $"system.{c.CounterName}");
+                    _stats?.Gauge(c.NextValue(), $"system.{c.CounterName}");
                 }
                 await Task.Delay(5000, ct);
             }

@@ -10,10 +10,9 @@ concurrency:
     holdFor: 1m
 
 throughput:
-    tps: 20
+    tps: 5
     rampUp: 20s
     holdFor: 20s
     rampDown: 20s
-    thinkTime: 500ms
 
 baseConfig: base-config.yml

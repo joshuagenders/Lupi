@@ -22,9 +22,8 @@ namespace Lupi.Listeners
         {
             foreach (var result in results)
             {
-                var passFail = result.Passed ? "success" : "failure";
-                var bucket = "passFail";
-                _stats.Timing(Convert.ToInt32(result.Duration.TotalMilliseconds), bucket);
+                var bucket = result.Passed ? "success" : "failure";
+                _stats?.Timing(Convert.ToInt32(result.Duration.TotalMilliseconds), bucket);
             }
 
             await Task.CompletedTask;
