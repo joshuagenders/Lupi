@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Lupi.Tests
 {
-    public class TestResultPublisherTests // todo
+    public class TestResultPublisherTests
     {
         [Theory]
         [AutoMoqData]
