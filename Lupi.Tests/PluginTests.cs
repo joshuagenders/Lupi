@@ -10,12 +10,12 @@ namespace Lupi.Tests
 {
     public class PluginTests
     {
-        //todo
+        // todo
         // SingleTestClassInstance results in singleton
-        // 	Faulted task with no return type lifts exception
-        // 	Get class that doesn't exist returns null
-        // 	constructor with multiple parameters and parameter types can be initialised with values
-        // 	Static teardown method
+        // Faulted task with no return type lifts exception
+        // Get class that doesn't exist returns null
+        // constructor with multiple parameters and parameter types can be initialised with values
+        // Static teardown method
 
         [Theory]
         [InlineData("Increment", 1)]
