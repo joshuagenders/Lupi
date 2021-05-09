@@ -59,10 +59,29 @@ namespace Lupi.Tests
             testResultPublisher.Verify(r => r.Publish(It.Is<TestResult>(t => t.Passed == false)));
         }
 
-        [Fact]
-        public void WhenTaskReturnsFalse_ThenTestsAreFailed()
+        [Theory]
+        [AutoMoqData]
+        public async Task WhenTaskReturnsFalse_ThenTestsAreFailed(
+            [Frozen]Mock<IPlugin> plugin,
+            [Frozen]Mock<ITestResultPublisher> testResultPublisher,
+            [Frozen]Mock<ITokenManager> tokenManager,
+            [Frozen]Config config,
+            TestThread testThread)
         {
-            throw new NotImplementedException();
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(5000);
+            config.Concurrency.OpenWorkload = false;
+            plugin.Setup(p => p.ExecuteTestMethod()).ReturnsAsync(false);
+            tokenManager
+                .SetupSequence(t => t.RequestTaskExecution(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true)
+                .ReturnsAsync(() => {
+                    tokenManager.Setup(t => t.RequestTaskExecution(It.IsAny<CancellationToken>()))
+                                .ReturnsAsync(false);
+                    return false;
+                });
+            await testThread.Run(cts.Token);
+            testResultPublisher.Verify(r => r.Publish(It.Is<TestResult>(t => t.Passed == false)));
         }
     }
 }
