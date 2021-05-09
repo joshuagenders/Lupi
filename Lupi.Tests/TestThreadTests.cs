@@ -15,7 +15,7 @@ namespace Lupi.Tests
     public class TestThreadTests
     {
         [Theory]
-        [InlineAutoMoqData()]
+        [AutoMoqData]
         public async Task WhenThreadControlSignals_ThenThreadStops(
             [Frozen]Mock<ITokenManager> tokenManager,
             TestThread testThread)
@@ -35,8 +35,12 @@ namespace Lupi.Tests
         }
 
         [Theory]
-        [AutoMoqData]
-        public async Task WhenExceptionsReturned_ThenTestsAreFailed(
+        [InlineAutoMoqData(true, true)]
+        [InlineAutoMoqData(false, false)]
+        [InlineAutoMoqData(234, true)]
+        public async Task WhenValueReturned_ThenTestStatusIsCorrect(
+            object returnValue,
+            bool expectedResult,
             [Frozen]Mock<IPlugin> plugin,
             [Frozen]Mock<ITestResultPublisher> testResultPublisher,
             [Frozen]Mock<ITokenManager> tokenManager,
@@ -46,7 +50,7 @@ namespace Lupi.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(5000);
             config.Concurrency.OpenWorkload = false;
-            plugin.Setup(p => p.ExecuteTestMethod()).Throws(new Exception());
+            plugin.Setup(p => p.ExecuteTestMethod()).ReturnsAsync(returnValue);
             tokenManager
                 .SetupSequence(t => t.RequestTaskExecution(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true)
@@ -56,12 +60,12 @@ namespace Lupi.Tests
                     return false;
                 });
             await testThread.Run(cts.Token);
-            testResultPublisher.Verify(r => r.Publish(It.Is<TestResult>(t => t.Passed == false)));
+            testResultPublisher.Verify(r => r.Publish(It.Is<TestResult>(t => t.Passed == expectedResult)));
         }
 
         [Theory]
         [AutoMoqData]
-        public async Task WhenTaskReturnsFalse_ThenTestsAreFailed(
+        public async Task WhenTaskReturnsException_ThenTestsAreFailed(
             [Frozen]Mock<IPlugin> plugin,
             [Frozen]Mock<ITestResultPublisher> testResultPublisher,
             [Frozen]Mock<ITokenManager> tokenManager,
@@ -71,7 +75,7 @@ namespace Lupi.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(5000);
             config.Concurrency.OpenWorkload = false;
-            plugin.Setup(p => p.ExecuteTestMethod()).ReturnsAsync(false);
+            plugin.Setup(p => p.ExecuteTestMethod()).ThrowsAsync(new Exception());
             tokenManager
                 .SetupSequence(t => t.RequestTaskExecution(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true)
