@@ -38,6 +38,9 @@ namespace Lupi
                 .AddSingleton<ITimeService, TimeService>()
                 .AddSingleton<ISleepService, SleepService>()
                 .AddSingleton<IStopwatchFactory, StopwatchFactory>()
+                .AddSingleton<IThreadMarshall, ThreadMarshall>()
+                .AddTransient<ITestThreadFactory, TestThreadFactory>()
+                .AddSingleton<ITokenManager, TokenManager>()
                 .AddTransient<IStatsDPublisher, StatsDPublisher>(f => {
                     if (config.Listeners.ActiveListeners.Contains("statsd")){
                         return new StatsDPublisher(new StatsDConfiguration {
