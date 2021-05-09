@@ -31,26 +31,75 @@ namespace Lupi.Tests
             };
             var startTime = new DateTime(2020, 05, 05, 13, 0, 0);
             var endTime = startTime.AddSeconds(60);
-            tokenManager.Initialise(startTime, startTime.AddSeconds(60));
+            tokenManager.Initialise(startTime, endTime);
             tokenManager.ReleaseTokens(startTime);
             tokenManager.ReleaseTokens(endTime.AddSeconds(-1));
             tokenManager.GetTokenCount().Should().Be(iterations);
         } 
 
-        [Fact]
-        public void WhenDurationSpecified_ThenDurationIsObserved()
+        [Theory]
+        [AutoMoqData]
+        public void WhenDurationSpecified_ThenDurationIsObserved(
+            [Frozen]Config config,
+            TokenManager tokenManager)
         {
-            //no tokens released after end time
-            throw new NotImplementedException();
+            config.Throughput.HoldFor = TimeSpan.FromSeconds(60);
+            config.Throughput.Tps = 20;
+            config.Throughput.Phases = new List<Phase>()
+            {
+                new Phase 
+                {
+                    Tps = 30,
+                    Duration = TimeSpan.FromSeconds(60)
+                }
+            };
+            var startTime = new DateTime(2020, 05, 05, 13, 0, 0);
+            var endTime = startTime.AddSeconds(60);
+            tokenManager.Initialise(startTime, endTime);
+            tokenManager.ReleaseTokens(startTime);
+            tokenManager.ReleaseTokens(endTime.AddSeconds(-1));
+            tokenManager.ReleaseTokens(endTime);
+            var endTokenCount = tokenManager.GetTokenCount();
+            tokenManager.ReleaseTokens(endTime.AddMinutes(10));
+            tokenManager.GetTokenCount().Should().Be(endTokenCount);
         }
 
-        [Fact]
-        public void WhenThroughputIsSpecified_ThenRPSIsNotExceeded()
+        [Theory]
+        [InlineAutoMoqData(1, 0, 10, 0, 10)]
+        [InlineAutoMoqData(1, 10, 10, 0, 15)]
+        [InlineAutoMoqData(1, 0, 10, 10, 15)]
+        [InlineAutoMoqData(1, 10, 20, 10, 30)]
+
+        public void WhenThroughputIsSpecified_ThenRPSIsNotExceeded(
+            int tps,
+            int rampUpSeconds,
+            int holdForSeconds,
+            int rampDownSeconds,
+            int expectedTotal,
+            [Frozen]Config config,
+            TokenManager tokenManager)
         {
-            // include variations of rampup / rampdown
-            // correct token count for periods
-            // validate total tokens for test
-            throw new NotImplementedException();
+            config.Concurrency.OpenWorkload = true;
+            config.Throughput.Tps = tps;
+            config.Throughput.RampUp = TimeSpan.FromSeconds(rampUpSeconds);
+            config.Throughput.HoldFor = TimeSpan.FromSeconds(holdForSeconds);
+            config.Throughput.RampDown = TimeSpan.FromSeconds(rampDownSeconds);
+
+            config.Throughput.Phases = config.BuildStandardThroughputPhases();
+
+            var startTime = new DateTime(2020, 05, 05, 13, 0, 0);
+            var endTime = startTime.AddSeconds(rampUpSeconds + holdForSeconds + rampDownSeconds);
+            tokenManager.Initialise(startTime, endTime);
+            tokenManager.ReleaseTokens(startTime);
+            if (rampUpSeconds > 0)
+                tokenManager.ReleaseTokens(startTime.AddSeconds(rampUpSeconds));
+
+            if (holdForSeconds > 0)
+                tokenManager.ReleaseTokens(startTime.AddSeconds(rampUpSeconds + holdForSeconds));
+    
+            tokenManager.ReleaseTokens(endTime);
+            var actualTotal = tokenManager.GetTokenCount();
+            actualTotal.Should().Be(expectedTotal);
         }
     }
 }
