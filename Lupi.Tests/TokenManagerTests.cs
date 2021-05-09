@@ -50,12 +50,6 @@ namespace Lupi.Tests
             // correct token count for periods
             throw new NotImplementedException();
         }
- 
-        [Fact]
-        public void WhenMoreIterationsThanDurationAllows_ThenTestExitsEarly()
-        {
-            throw new NotImplementedException();
-        } 
 
         [Fact]
         public void WhenRampDownConcurrencyIsSpecified_ThenTokenCountDecreases()
