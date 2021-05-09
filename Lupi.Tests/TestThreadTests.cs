@@ -7,6 +7,8 @@ using Moq;
 using System.Diagnostics;
 using AutoFixture.Xunit2;
 using Lupi.Core;
+using Lupi.Results;
+using Lupi.Configuration;
 
 namespace Lupi.Tests
 {
@@ -32,10 +34,29 @@ namespace Lupi.Tests
             watch.ElapsedMilliseconds.Should().BeLessThan(longTime - 100);
         }
 
-        [Fact]
-        public void WhenExceptionsReturned_ThenTestsAreFailed()
+        [Theory]
+        [AutoMoqData]
+        public async Task WhenExceptionsReturned_ThenTestsAreFailed(
+            [Frozen]Mock<IPlugin> plugin,
+            [Frozen]Mock<ITestResultPublisher> testResultPublisher,
+            [Frozen]Mock<ITokenManager> tokenManager,
+            [Frozen]Config config,
+            TestThread testThread)
         {
-            throw new NotImplementedException();
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(5000);
+            config.Concurrency.OpenWorkload = false;
+            plugin.Setup(p => p.ExecuteTestMethod()).Throws(new Exception());
+            tokenManager
+                .SetupSequence(t => t.RequestTaskExecution(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true)
+                .ReturnsAsync(() => {
+                    tokenManager.Setup(t => t.RequestTaskExecution(It.IsAny<CancellationToken>()))
+                                .ReturnsAsync(false);
+                    return false;
+                });
+            await testThread.Run(cts.Token);
+            testResultPublisher.Verify(r => r.Publish(It.Is<TestResult>(t => t.Passed == false)));
         }
 
         [Fact]
