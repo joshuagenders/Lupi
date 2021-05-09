@@ -5,7 +5,7 @@ COPY . .
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
-FROM mcr.microsoft.com/dotnet/runtime:5.0
+FROM joshuagenders/lupi:slim-latest
 WORKDIR /app
 
 COPY --from=build /source/out .
