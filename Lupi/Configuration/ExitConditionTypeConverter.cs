@@ -9,23 +9,12 @@ namespace Lupi.Configuration
 {
     public class ExitConditionTypeConverter : IYamlTypeConverter
     {
-        private static Regex TimeStringRegex = 
+        private static Regex ExitConditionRegex = 
             new Regex(@"^(passed|failed) if (.+) ([<>=]{1,2}) (\d+\.{0,1}\d*) for (\d+) (seconds|periods|minutes)$",
                 RegexOptions.Compiled);
 
-        public bool Accepts(Type type)
-        {
-            return type.Equals(typeof(ExitCondition));
-        }
-
-        public object ReadYaml(IParser parser, Type type)
-        {
-            var value = parser.Consume<Scalar>().Value;
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return new ExitCondition();
-            }
-            var parsed = TimeStringRegex.Match(value);
+        public static ExitCondition Parse(string value){
+            var parsed = ExitConditionRegex.Match(value);
             if (!parsed.Success)
             {
                 return new ExitCondition();
@@ -64,6 +53,20 @@ namespace Lupi.Configuration
                     break;
             }
             return exitCondition;
+        }
+        public bool Accepts(Type type)
+        {
+            return type.Equals(typeof(ExitCondition));
+        }
+
+        public object ReadYaml(IParser parser, Type type)
+        {
+            var value = parser.Consume<Scalar>().Value;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return new ExitCondition();
+            }
+            return Parse(value);
         }
 
         public void WriteYaml(IEmitter emitter, object value, Type type)

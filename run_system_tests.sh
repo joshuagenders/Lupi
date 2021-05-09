@@ -20,6 +20,7 @@ for i in *.yml; do
     if [ "$i" != "base-config.yml" ]
     then
         run_file ./configurations/$i
+        # todo - grep and assert against stdout
         echo "sleeping to create a gap between runs"
         sleep 12s
         echo "awake"

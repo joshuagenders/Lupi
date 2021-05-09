@@ -9,6 +9,8 @@ namespace Lupi.Tests
 {
     public class ConfigExtensionTests
     {
+        //todo TestDuration calculates correctly for variations of phase types
+        
         [Theory]
         [InlineAutoMoqData(1, 0, 1, 0, 0, 500, 0.5)]
         [InlineAutoMoqData(1, 0, 1, 0, 0, 999, 0.999)]

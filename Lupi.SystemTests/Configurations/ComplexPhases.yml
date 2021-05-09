@@ -2,7 +2,7 @@ test:
     testMethod: TimedGetTimespan
 listeners:
     statsd:
-        bucket: complexphases
+        prefix: ${STATSD_PREFIX}.complexphases
 concurrency:
     phases:
     -   duration: 15s

@@ -3,7 +3,7 @@ test:
 
 listeners:
     statsd:
-        bucket: highthroughputlowthreads
+        prefix: ${STATSD_PREFIX}.highthroughputlowthreads
 
 concurrency:
     threads: 10

@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Lupi.Configuration;
+using Lupi.Results;
 
 namespace Lupi.Listeners
 {
@@ -11,24 +12,18 @@ namespace Lupi.Listeners
         private readonly Config _config;
         private readonly IStatsDPublisher _stats;
 
-        public StatsdListener(Config config)
+        public StatsdListener(Config config, IStatsDPublisher stats)
         {
             _config = config;
-            _stats = new StatsDPublisher(new StatsDConfiguration
-            {
-                Host = _config.Listeners.Statsd.Host,
-                Port = _config.Listeners.Statsd.Port,
-                Prefix = _config.Listeners.Statsd.Prefix
-            });
+            _stats = stats;
         }
 
         public async Task OnResult(TestResult[] results, CancellationToken ct)
         {
             foreach (var result in results)
             {
-                var passFail = result.Passed ? "success" : "failure";
-                var bucket = $"{_config.Listeners.Statsd.Bucket}.{passFail}";
-                _stats.Timing(Convert.ToInt32(result.Duration.TotalMilliseconds), bucket);
+                var bucket = result.Passed ? "success" : "failure";
+                _stats?.Timing(Convert.ToInt32(result.Duration.TotalMilliseconds), bucket);
             }
 
             await Task.CompletedTask;

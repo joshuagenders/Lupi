@@ -3,7 +3,7 @@ test:
 
 listeners:
     statsd:
-        bucket: rampuprampdown
+        prefix: ${STATSD_PREFIX}.rampuprampdown
 
 concurrency:
     threads: 50
