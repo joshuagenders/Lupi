@@ -1,21 +1,42 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Lupi.Listeners;
+using Lupi.Results;
+using Moq;
 using Xunit;
 
 namespace Lupi.Tests
 {
     public class TestResultPublisherTests // todo
     {
-        [Fact]
-        public void CannotSubscribeTwice()
+        [Theory]
+        [AutoMoqData]
+        public async Task CannotSubscribeTwice(
+            Mock<ITestResultListener> testResultListener,
+            TestResultPublisher testResultPublisher,
+            CancellationTokenSource cts)
         {
-            // recieves only 1 copy of msg
-            throw new NotImplementedException();
+            cts.CancelAfter(5000);
+            testResultPublisher.Subscribe(testResultListener.Object);
+            testResultPublisher.Subscribe(testResultListener.Object);
+            testResultPublisher.Publish(new TestResult());
+            await testResultPublisher.Process(cts.Token);
+            testResultListener.Verify(r => r.OnResult(It.IsAny<TestResult[]>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        [Fact]
-        public void ProcessesAllResultsBeforeExiting()
+        [Theory]
+        [AutoMoqData]
+        public async Task ProcessesAllResultsBeforeExiting(
+            Mock<ITestResultListener> testResultListener,
+            TestResultPublisher testResultPublisher,
+            CancellationTokenSource cts)
         {
-            throw new NotImplementedException();
+            testResultPublisher.Subscribe(testResultListener.Object);
+            testResultPublisher.Publish(new TestResult());
+            cts.Cancel();
+            await testResultPublisher.Process(cts.Token);
+            testResultListener.Verify(r => r.OnResult(It.IsAny<TestResult[]>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
