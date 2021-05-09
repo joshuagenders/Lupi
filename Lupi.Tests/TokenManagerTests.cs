@@ -47,19 +47,9 @@ namespace Lupi.Tests
         [Fact]
         public void WhenThroughputIsSpecified_ThenRPSIsNotExceeded()
         {
+            // include variations of rampup / rampdown
             // correct token count for periods
-            throw new NotImplementedException();
-        }
-
-        [Fact]
-        public void WhenRampDownConcurrencyIsSpecified_ThenTokenCountDecreases()
-        {
-            throw new NotImplementedException();
-        }
-
-        [Fact]
-        public void WhenRampUpConcurrencyIsSpecified_ThenTokenCountIncreases()
-        {
+            // validate total tokens for test
             throw new NotImplementedException();
         }
     }

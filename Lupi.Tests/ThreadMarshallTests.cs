@@ -15,7 +15,6 @@ namespace Lupi.Tests
         [Theory]
         [AutoMoqData]
         public void WhenConcurrencySpecifiedInClosedWorkload_ThenThreadLevelSet(
-            [Frozen]ITestThreadFactory testThreadFactory,
             [Frozen]Mock<ITokenManager> tokenManager,
             [Frozen]Config config,
             ThreadMarshall threadMarshall)

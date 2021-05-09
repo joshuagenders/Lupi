@@ -17,9 +17,7 @@ namespace Lupi.Tests {
         [Theory]
         [AutoMoqData]
         public async Task WhenDurationSpecified_ThenDurationIsObserved(
-            [Frozen]Config config, 
-            [Frozen]IThreadMarshall threadMarshall,
-            [Frozen]ITokenManager tokenManager,
+            [Frozen]Config config,
             [Frozen]Mock<ITimeService> timeService,
             TestRunner testRunner)
         {
@@ -52,8 +50,7 @@ namespace Lupi.Tests {
         [Theory]
         [AutoMoqData]
         public async Task CheckIntervalWaitIsObserved(
-            [Frozen]Config config, 
-            [Frozen]Mock<IThreadMarshall> threadMarshall,
+            [Frozen]Config config,
             [Frozen]Mock<ITimeService> timeService,
             [Frozen]Mock<ISleepService> sleepService,
             TestRunner testRunner
