@@ -37,10 +37,15 @@ namespace Lupi.Core
         private DateTime _lastTime;
 
 
-        public TokenManager (Config config, ITimeService timeService, ILogger<ITokenManager> logger)
+        public TokenManager (
+            Config config,
+            ITimeService timeService,
+            IStatsDPublisher stats,
+            ILogger<ITokenManager> logger)
         {
             _config = config;
             _timeService = timeService;
+            _stats = stats;
             _logger = logger;
             _taskKill = new ConcurrentQueue<bool>();
         }
