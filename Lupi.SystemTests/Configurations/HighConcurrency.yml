@@ -3,7 +3,7 @@ test:
 
 listeners:
     statsd:
-        bucket: highconcurrency
+        prefix: ${STATSD_PREFIX}.highconcurrency
 
 concurrency:
     threads: 500

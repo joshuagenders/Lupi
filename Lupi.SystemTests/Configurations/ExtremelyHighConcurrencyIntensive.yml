@@ -1,9 +1,10 @@
 test:
     testMethod: Intensive
+    singleTestClassInstance: false
 
 listeners:
     statsd:
-        bucket: extremelyhighconcurrencyintensive
+        prefix: ${STATSD_PREFIX}.extremelyhighconcurrencyintensive
 
 concurrency:
     threads: 1500

@@ -3,7 +3,7 @@ test:
 
 listeners:
     statsd:
-        bucket: exitconditionsfail
+        prefix: ${STATSD_PREFIX}.exitconditionsfail
 
 concurrency:
     threads: 2

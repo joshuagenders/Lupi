@@ -101,7 +101,7 @@ An [example dashboard](https://github.com/joshuagenders/lupi/blob/main/Lupi.Syst
 />
 
 ### Running the dashboard
-Locally, I use [this](https://github.com/MariaLysik/docker-grafana-graphite) docker implementation to run Grafana with Graphite and Statsd.
+[this](https://github.com/MariaLysik/docker-grafana-graphite) docker implementation can be used to run Grafana with Graphite and Statsd locally.
 
 To run Grafana locally using Docker:
 - Run `docker run -d -p 80:80 -p 8125:8125/udp -p 8126:8126 --name grafana marial/grafana-graphite-statsd`

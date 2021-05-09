@@ -3,17 +3,16 @@ test:
 
 listeners:
     statsd:
-        bucket: simple
+        prefix: ${STATSD_PREFIX}.simple
 
 concurrency:
     threads: 1
     holdFor: 1m
 
 throughput:
-    tps: 20
+    tps: 5
     rampUp: 20s
     holdFor: 20s
     rampDown: 20s
-    thinkTime: 500ms
 
 baseConfig: base-config.yml
