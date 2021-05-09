@@ -8,7 +8,6 @@ RUN dotnet publish -c Release -o out
 FROM joshuagenders/lupi:slim-latest
 WORKDIR /app
 
-COPY --from=build /source/out .
 COPY --from=build-test /source/out ./test
 COPY ./Configurations ./configurations
 
