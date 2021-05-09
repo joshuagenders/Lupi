@@ -69,6 +69,8 @@ namespace Lupi.Tests
         [InlineAutoMoqData(1, 10, 10, 0, 15)]
         [InlineAutoMoqData(1, 0, 10, 10, 15)]
         [InlineAutoMoqData(1, 10, 20, 10, 30)]
+        [InlineAutoMoqData(1, 0, 0, 0, 0)]
+        [InlineAutoMoqData(0, 10, 10, 10, 0)]
 
         public void WhenThroughputIsSpecified_ThenRPSIsNotExceeded(
             int tps,
