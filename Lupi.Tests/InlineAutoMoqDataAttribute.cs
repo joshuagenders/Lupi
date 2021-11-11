@@ -1,7 +1,4 @@
-﻿using AutoFixture.Xunit2;
-using Xunit;
-
-namespace Lupi.Tests
+﻿namespace Lupi.Tests
 {
     public class InlineAutoMoqDataAttribute : CompositeDataAttribute
     {

@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using JustEat.StatsD;
 using Lupi.Configuration;

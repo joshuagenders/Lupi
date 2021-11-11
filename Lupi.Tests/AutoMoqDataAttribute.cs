@@ -1,8 +1,4 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
-using AutoFixture.Xunit2;
-
-namespace Lupi.Tests
+﻿namespace Lupi.Tests
 {
     public class AutoMoqDataAttribute : AutoDataAttribute
     {

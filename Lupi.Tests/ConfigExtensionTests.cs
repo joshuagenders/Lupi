@@ -1,9 +1,4 @@
-﻿using FluentAssertions;
-using Lupi.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+﻿using Lupi.Configuration;
 
 namespace Lupi.Tests
 {

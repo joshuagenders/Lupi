@@ -1,10 +1,7 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Lupi.Configuration;
-using JustEat.StatsD;
-using Microsoft.Extensions.Logging;
+﻿using JustEat.StatsD;
 using Lupi.Services;
+using Lupi.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Lupi.Core
 {

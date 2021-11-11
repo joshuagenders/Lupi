@@ -1,10 +1,6 @@
-﻿using FluentAssertions;
-using System;
-using System.Diagnostics;
-using Xunit;
-using Lupi.Configuration;
-using System.Threading.Tasks;
+﻿using Lupi.Configuration;
 using Lupi.Core;
+using System.Diagnostics;
 
 namespace Lupi.Tests
 {

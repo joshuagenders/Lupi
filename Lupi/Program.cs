@@ -1,10 +1,7 @@
 ﻿using CommandLine;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Lupi.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Lupi.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Lupi
 {

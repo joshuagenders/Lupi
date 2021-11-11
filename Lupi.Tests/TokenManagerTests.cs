@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using AutoFixture.Xunit2;
-using FluentAssertions;
 using Lupi.Configuration;
 using Lupi.Core;
-using Xunit;
 
 namespace Lupi.Tests 
 {
