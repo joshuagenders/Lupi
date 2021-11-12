@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-test
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-test
 WORKDIR /source
 
 COPY . .

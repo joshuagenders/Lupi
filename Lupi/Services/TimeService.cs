@@ -1,6 +1,3 @@
-
-using System;
-
 namespace Lupi.Services {
     public interface ITimeService {
         DateTime Now ();

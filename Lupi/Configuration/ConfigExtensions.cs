@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Lupi.Configuration
+﻿namespace Lupi.Configuration
 {
     public static class ConfigExtensions
     {

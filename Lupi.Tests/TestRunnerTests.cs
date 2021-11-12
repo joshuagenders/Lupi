@@ -1,15 +1,7 @@
-using AutoFixture.Xunit2;
-using FluentAssertions;
 using Lupi.Configuration;
 using Lupi.Core;
 using Lupi.Services;
-using Moq;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Lupi.Tests {
     public class TestRunnerTests 

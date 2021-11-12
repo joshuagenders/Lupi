@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json;
+﻿using System.Text.RegularExpressions;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;

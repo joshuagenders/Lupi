@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using FluentValidation;
+﻿using FluentValidation;
 using Lupi.Listeners;
 
 namespace Lupi.Configuration

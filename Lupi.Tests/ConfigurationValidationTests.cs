@@ -2,7 +2,6 @@
 using Xunit;
 using Lupi.Configuration;
 using System.Linq;
-
 namespace Lupi.Tests
 {
     public class ConfigurationValidationTests

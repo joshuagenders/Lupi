@@ -1,11 +1,4 @@
-﻿using FluentAssertions;
-using System;
-using Xunit;
-using System.Threading;
-using System.Threading.Tasks;
-using Moq;
-using System.Diagnostics;
-using AutoFixture.Xunit2;
+﻿using System.Diagnostics;
 using Lupi.Core;
 using Lupi.Results;
 using Lupi.Configuration;

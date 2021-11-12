@@ -1,15 +1,10 @@
 ﻿using Autofac;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+using Autofac.Extensions.DependencyInjection;
 using Lupi.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Autofac.Extensions.DependencyInjection;
+using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Lupi.Core
 {
@@ -33,7 +28,7 @@ namespace Lupi.Core
             _config = config;
             _ct = ct;
 
-            PluginLoadContext loadContext = new PluginLoadContext(_config.Test.AssemblyPath);
+            PluginLoadContext loadContext = new (_config.Test.AssemblyPath);
             var assemblyName = new AssemblyName(Path.GetFileNameWithoutExtension(_config.Test.AssemblyPath));
 
             _assembly = loadContext.LoadFromAssemblyName(assemblyName);

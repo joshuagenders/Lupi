@@ -1,10 +1,5 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Lupi.Listeners;
 using Lupi.Results;
-using Moq;
-using Xunit;
 
 namespace Lupi.Tests
 {

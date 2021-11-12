@@ -4,10 +4,6 @@ using Lupi.Results;
 using Lupi.Services;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Lupi.Core
 {

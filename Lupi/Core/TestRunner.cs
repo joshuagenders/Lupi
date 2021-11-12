@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Lupi.Configuration;
+﻿using Lupi.Configuration;
 using JustEat.StatsD;
 using Microsoft.Extensions.Logging;
 using Lupi.Services;
