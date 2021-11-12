@@ -1,11 +1,6 @@
 ﻿using Lupi.Configuration;
 using Lupi.Core;
 using Lupi.Listeners;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Lupi.Tests
 {

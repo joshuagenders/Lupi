@@ -1,5 +1,3 @@
-using System;
-
 namespace Lupi.Results
 {
     public class TestResult

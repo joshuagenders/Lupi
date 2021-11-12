@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Lupi.Core
+﻿namespace Lupi.Core
 {
     public interface IExitSignal
     {

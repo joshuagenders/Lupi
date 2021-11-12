@@ -1,5 +1,4 @@
-﻿using System;
-using Lupi.Configuration;
+﻿using Lupi.Configuration;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 

@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using Lupi.Listeners;
-using Xunit;
+﻿using Lupi.Listeners;
 
 namespace Lupi.Tests
 {
