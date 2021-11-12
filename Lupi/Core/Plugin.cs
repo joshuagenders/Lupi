@@ -28,7 +28,7 @@ namespace Lupi.Core
             _config = config;
             _ct = ct;
 
-            PluginLoadContext loadContext = new PluginLoadContext(_config.Test.AssemblyPath);
+            PluginLoadContext loadContext = new (_config.Test.AssemblyPath);
             var assemblyName = new AssemblyName(Path.GetFileNameWithoutExtension(_config.Test.AssemblyPath));
 
             _assembly = loadContext.LoadFromAssemblyName(assemblyName);
