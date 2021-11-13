@@ -123,6 +123,8 @@ namespace Lupi.Core
 
         private void ProcessResult(string threadName, TimeSpan ellapsed, object taskResult)
         {
+            //todo if IEnumerable then process multiple recursively with depth 1
+
             var result = string.Empty;
             var passed = true;
             switch (taskResult)

@@ -1,0 +1,38 @@
+---
+scripting: 
+  globals:
+    httpClient:
+      script: return new HttpClient();
+      includes:
+        - System.Net.Http
+    # note: The script's CancellationToken is an implicitly provided global named "ct"
+  scripts:
+    homepage:
+      script: |
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        await httpClient.GetAsync("https://<website>.com/");
+        stopwatch.Stop();
+        return (stopwatch, "success");
+  scenario:
+    - homepage
+
+concurrency:
+  threads: 10
+  rampUp: 2m
+  rampDown: 20s
+
+throughput:
+  thinkTime: 500ms
+
+listeners:
+  activeListeners:
+  - file
+  - statsd
+  - console
+  file:
+    path: results.log
+  statsd:
+    prefix: Lupi.Examples.Scripting
+    host: 127.0.0.1
+    port: 8125

@@ -17,12 +17,17 @@ Lupi supports a plugin system for loading and executing code from compatible DLL
 ## Examples
 See the [Examples here](https://github.com/joshuagenders/Lupi/tree/main/Lupi.Examples)
 
-## Quickstart
+## Quickstart - Scripting
+
+TODO (not in collapsed section)
+
+
+## Quickstart - using a pre-compiled solution
 <details>
   <summary>Read more</summary>
 
 ### Pre-requisites
-* [.NET 5 SDK](https://dotnet.microsoft.com/download)
+* [.NET 6 SDK](https://dotnet.microsoft.com/download)
 
 ### Create a test solution (skip if using an existing solution)
 Lupi uses a plugin architecture. Start by writing a test and then publish your test solution.
@@ -369,6 +374,9 @@ passed if Min < 30.42 for 10 seconds
 failed if Mean >= 600 for 10 minutes
 ```
 </details>
+
+### Scripting
+TODO
 
 ## License
 Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/main/LICENSE).

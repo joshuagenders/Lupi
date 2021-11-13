@@ -4,18 +4,20 @@ namespace Lupi.Configuration
 {
     public class Config
     {
-        public Concurrency Concurrency { get; set; } = new Concurrency();
-        public Throughput Throughput { get; set; } = new Throughput();
-        public Test Test { get; set; } = new Test();
-        public List<ExitCondition> ExitConditions { get; set; } = new List<ExitCondition>();
+        public Concurrency Concurrency { get; set; } = new();
+        public Throughput Throughput { get; set; } = new();
+        public Test Test { get; set; } = new();
+        public List<ExitCondition> ExitConditions { get; set; } = new();
 
-        public Engine Engine { get; set; } = new Engine();
-        public Listeners Listeners { get; set; } = new Listeners();
+        public Engine Engine { get; set; } = new();
+        public Listeners Listeners { get; set; } = new();
         public string BaseConfig { get; set; }
 
         public bool ThroughputEnabled => 
             Throughput != null 
             && (Throughput.Tps > 0 || Throughput.Phases.Any(p => p.ToTps > 0 || p.FromTps > 0 || p.Tps > 0));
+
+        public Scripting Scripting { get; set; } = new();
     }
 
     public class Concurrency
@@ -116,5 +118,20 @@ namespace Lupi.Configuration
         public TimeSpan Duration { get; set; }
         public int Periods { get; set; }
         public string PassedFailed { get; set; }
+    }
+
+    public class Scripting {
+        public Dictionary<string, LupiScript> Scripts { get; set; } = new();
+        public Dictionary<string, LupiScript> Globals { get; set; } = new();
+        public List<string> Scenario { get; set; } = new();
+    }
+
+    public class LupiScript {
+        public string Name { get; set; }
+        public bool Global { get; set; }
+        public string Script { get; set; }
+        public string ScriptPath { get; set; }
+        public IEnumerable<string> Imports { get; set; } // use WithImports with a class name, it adds using static System.Math;
+        public IEnumerable<string> References { get; set; } //requires actual type -- think about this ScriptOptions.Default.WithReferences(typeof(System.Net.Dns).Assembly)
     }
 }
