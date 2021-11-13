@@ -127,11 +127,8 @@ namespace Lupi.Configuration
     }
 
     public class LupiScript {
-        public string Name { get; set; }
-        public bool Global { get; set; }
         public string Script { get; set; }
         public string ScriptPath { get; set; }
-        public IEnumerable<string> Imports { get; set; } // use WithImports with a class name, it adds using static System.Math;
-        public IEnumerable<string> References { get; set; } //requires actual type -- think about this ScriptOptions.Default.WithReferences(typeof(System.Net.Dns).Assembly)
+        public IEnumerable<string> Imports { get; set; }
     }
 }

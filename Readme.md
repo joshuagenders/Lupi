@@ -19,8 +19,23 @@ See the [Examples here](https://github.com/joshuagenders/Lupi/tree/main/Lupi.Exa
 
 ## Quickstart - Scripting
 
-TODO (not in collapsed section)
+```yaml
+scripting:
+    scripts:
+        homepage: |
+        var client = new System.Net.Http.HttpClient();
+        var response = await client.GetAsync("https://<website>.com", ct);
+        return response.IsSuccessStatusCode;
+concurrency:
+    threads: 10
+    holdFor: 2m
+throughput:
+    thinkTime: 1s500ms
+```
 
+```bash
+dotnet run --project Lupi/Lupi.csproj /path/to/myConfigFile.yml
+```
 
 ## Quickstart - using a pre-compiled solution
 <details>
@@ -114,6 +129,19 @@ The other image is `slim-latest` which is recommended for most use cases, and is
   <summary>Read more</summary>
 
 ```yaml
+scripting:
+    globals: # globally available state
+        variableName:
+            script: return new HttpClient(); # script inline
+            scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
+            imports: # list of namespaces to statically import
+                - System.Net.Http
+    scripts:
+        scriptName:
+            script: var x = new Random().Next(); # script inline
+            scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
+            imports: # list of namespaces to statically import
+                - System.Math
 test:
     assemblyPath: path/to/my.dll # relative to the the configuration file or full path
     singleTestClassInstance: true
