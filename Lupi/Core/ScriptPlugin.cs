@@ -31,14 +31,14 @@ namespace Lupi.Core
 
         public async Task<object> ExecuteSetupMethod()
         {
-            dynamic theGlobals = new System.Dynamic.ExpandoObject();
-            theGlobals.ct = _ct;
+            dynamic globals = new System.Dynamic.ExpandoObject();
+            globals.ct = _ct;
             foreach (var globalValue in _config.Scripting.Globals){
                 var resultState = await CSharpScript.RunAsync(globalValue.Value.Script, ScriptOptions.Default.WithImports(globalValue.Value.Imports));
-                (theGlobals as IDictionary<string, Object>).Add(globalValue.Key, resultState.ReturnValue);
+                (globals as IDictionary<string, Object>).Add(globalValue.Key, resultState.ReturnValue);
             }
-            theGlobals.ct = _ct;
-            _globals = theGlobals;
+            globals.ct = _ct;
+            _globals = globals;
             return await Task.FromResult(true);
         }
 
@@ -50,11 +50,14 @@ namespace Lupi.Core
 
         public async Task<object> ExecuteTestMethod()
         {
+            if (_config.Scripting.Scripts.Count == 1 && !_config.Scripting.Scenario.Any()){
+                return await this.ExecuteScript(_config.Scripting.Scripts.Single().Key);
+            }
             List<object> results = new();
             foreach (var step in _config.Scripting.Scenario){
                 results.Add(await this.ExecuteScript(step));
             }
-            return results;
+            return results.Count == 1 ? results.Single() : results;
         }
 
         private async Task<object> ExecuteScript(string step){

@@ -1,0 +1,57 @@
+scripting:
+  globals: # note: A CancellationToken provided implicitly as a global named "ct"
+    httpClient:
+      script: return new HttpClient();
+      includes:
+        - System.Net.Http
+    testdata:
+      script: |
+        public class Data {
+          public string Id { get; set; }
+          public string Column2 { get; set; }
+        }
+        public class TestData {
+          private readonly _data;
+          public TestData() {
+            using (var reader = new StreamReader("path\\to\\file.csv"))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+              _data = csv.GetRecords<>();
+            }
+          }
+
+          public IEnumerable<Data> GetNext(){
+            while (true){
+              foreach (var datum in data){
+                yeild return datum;
+              }
+            }
+          }
+        }
+        return new TestData();
+      includes:
+        - System.IO
+        - CsvHelper
+    helpers:
+      includes:
+        - Math.Random
+      script: |
+        public class Helpers {
+          private static readonly Random _r = new Random();
+          public int Rand()
+          {
+            return _r.Next(1, 100);
+          }
+        }
+        return new Helpers();
+
+listeners:
+    activeListeners:
+    - file
+    - statsd
+    - console
+    file:
+        path: results.log
+    statsd:
+        host: 127.0.0.1
+        port: 8125

@@ -1,23 +1,5 @@
 ---
 scripting: 
-  # note: A CancellationToken provided implicitly as a global named "ct"
-  globals:
-    httpClient:
-      script: return new HttpClient();
-      includes:
-        - System.Net.Http
-    helpers:
-      includes:
-        - Math.Random
-      script: |
-        public class Helpers {
-          private static readonly Random _r = new Random();
-          public int Rand()
-          {
-            return _r.Next(1, 100);
-          }
-        }
-        return new Helpers();
   scripts:
     homepage:
       script: |
@@ -38,14 +20,4 @@ concurrency:
 throughput:
   thinkTime: 500ms
 
-listeners:
-  activeListeners:
-  - file
-  - statsd
-  - console
-  file:
-    path: results.log
-  statsd:
-    prefix: Lupi.Examples.Scripting
-    host: 127.0.0.1
-    port: 8125
+baseConfig: BaseScripts.yml
