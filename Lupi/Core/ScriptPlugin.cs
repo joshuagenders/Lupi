@@ -20,13 +20,17 @@ namespace Lupi.Core
             if (invalidSteps.Any()){
                 throw new ArgumentException($"Could not find scenario key(s) in scripting.scripts. {string.Join(", ", invalidSteps)}");
             }
-            _compiledScripts = config.Scripting.Scripts.ToDictionary(
-                script => script.Key,
-                script => CSharpScript.Create(
-                    script.Value.Script,
-                    ScriptOptions.Default.WithImports(script.Value.Imports)
-                )
-            );
+            try {
+                _compiledScripts = config.Scripting.Scripts.ToDictionary(
+                    script => script.Key,
+                    script => CSharpScript.Create(
+                        script.Value.Script,
+                        ScriptOptions.Default.WithImports(script.Value.Imports)
+                    )
+                );
+            } catch (CompilationErrorException e) {
+                System.Diagnostics.Debug.WriteLine(string.Join(Environment.NewLine, e.Diagnostics));
+            }
         }
 
         public async Task<object> ExecuteSetupMethod()
