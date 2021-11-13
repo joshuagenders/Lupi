@@ -142,6 +142,8 @@ scripting:
             scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
             imports: # list of namespaces to statically import
                 - System.Math
+    scenarios: # list of scripts to run in order per iteration, not required if there is only one script
+        - scriptName
 test:
     assemblyPath: path/to/my.dll # relative to the the configuration file or full path
     singleTestClassInstance: true
