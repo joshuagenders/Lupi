@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Lupi.Core
 {
-    public class Plugin : IPlugin
+    public class AssemblyPlugin : IPlugin
     {
         private readonly Config _config;
         private readonly CancellationToken _ct;
@@ -23,7 +23,7 @@ namespace Lupi.Core
         private Func<Task<object>> _testFunc { get; set; }
 
         
-        public Plugin(Config config, CancellationToken ct = default)
+        public AssemblyPlugin(Config config, CancellationToken ct = default)
         {
             _config = config;
             _ct = ct;

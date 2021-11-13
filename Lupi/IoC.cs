@@ -27,7 +27,6 @@ namespace Lupi
                             .CreateLogger(), true))
                 .AddSingleton(config)
                 .AddSingleton<IApplication, Application>()
-                .AddTransient<IPlugin, Plugin>()
                 .AddSingleton<ITestRunner, TestRunner>()
                 .AddSingleton<ITestResultPublisher, TestResultPublisher>()
                 .AddSingleton<ISystemMetricsPublisher, SystemMetricsPublisher>()
@@ -86,6 +85,11 @@ namespace Lupi
             if (config.ExitConditions.Any())
             {
                 aggregator.Subscribe(new ExitConditionAggregatorListener(config, exitSignal));
+            }
+            if (config.Scripting.Scripts.Any()){
+                serviceCollection.AddSingleton<IPlugin, ScriptPlugin>();
+            } else {
+                serviceCollection.AddSingleton<IPlugin, AssemblyPlugin>();
             }
             serviceCollection
                 .AddSingleton<ITestResultPublisher>(testResultPublisher)

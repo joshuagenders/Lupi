@@ -13,7 +13,7 @@ namespace Lupi.Tests
         public async Task WhenMethodExecuted_ReturnTypeIsCorrect(string method, object expectedResult)
         {
             var config = GetConfig(method);
-            var plugin = new Plugin(config);
+            var plugin = new AssemblyPlugin(config);
             var result = await plugin.ExecuteTestMethod();
             result.Should().Be(expectedResult);
         }
@@ -22,7 +22,7 @@ namespace Lupi.Tests
         public async Task WhenTupleReturned_BothValuesCanBeAccessed()
         {
             var config = GetConfig("TimedGetString");
-            var plugin = new Plugin(config);
+            var plugin = new AssemblyPlugin(config);
             var result = await plugin.ExecuteTestMethod();
             var casted = (ValueTuple<Stopwatch, string>) result;
             casted.Item1.ElapsedMilliseconds.Should().BeGreaterThan(0);
@@ -33,7 +33,7 @@ namespace Lupi.Tests
         public async Task StaticMethodsCanBeExecuted()
         {
             var config = GetConfig("GetInt");
-            var plugin = new Plugin(config);
+            var plugin = new AssemblyPlugin(config);
             var result = await plugin.ExecuteTestMethod();
             result.Should().Be(42);
         }
@@ -42,7 +42,7 @@ namespace Lupi.Tests
         public async Task StaticMethodsWithDependenciesCanBeExecuted()
         {
             var config = GetConfig("GetIntWithDependency");
-            var plugin = new Plugin(config);
+            var plugin = new AssemblyPlugin(config);
             var result = (int)await plugin.ExecuteTestMethod();
             result.Should().BeInRange(1, 100);
         }
@@ -52,7 +52,7 @@ namespace Lupi.Tests
         {
             var config = GetConfig("TimedGetString","GetIntWithDependency");
             config.Test.SetupClass = config.Test.TestClass;
-            var plugin = new Plugin(config);
+            var plugin = new AssemblyPlugin(config);
             var result = (int)await plugin.ExecuteSetupMethod();
             result.Should().BeInRange(1, 100);
         }
@@ -62,7 +62,7 @@ namespace Lupi.Tests
         {
             var config = GetConfig("GetIntAsync", "GetIntAsync");
             config.Test.SetupClass = config.Test.TestClass;
-            var plugin = new Plugin(config);
+            var plugin = new AssemblyPlugin(config);
             var result = (int)await plugin.ExecuteSetupMethod();
             result.Should().Be(42);
         }
@@ -71,7 +71,7 @@ namespace Lupi.Tests
         public async Task StaticAsyncNoGenericReturnSetupMethodCanBeExecuted()
         {
             var config = GetConfig("RunDelayAsync", "Init");
-            var plugin = new Plugin(config);
+            var plugin = new AssemblyPlugin(config);
             var result = await plugin.ExecuteSetupMethod();
             result.Should().BeNull();
         }
@@ -82,7 +82,7 @@ namespace Lupi.Tests
             var config = GetConfig("GetIntWithDependency");
             config.Test.TeardownClass = config.Test.TestClass;
             config.Test.TeardownMethod = config.Test.TestMethod;
-            var plugin = new Plugin(config);
+            var plugin = new AssemblyPlugin(config);
             var result = (int)await plugin.ExecuteTeardownMethod();
             result.Should().BeInRange(1, 100);
         }

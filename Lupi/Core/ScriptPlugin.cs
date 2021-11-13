@@ -16,9 +16,17 @@ namespace Lupi.Core
         {
             _config = config;
             _ct = ct;
+            // config validation - move elsewhere?
+            var invalidSteps = config.Scripting.Scenario.Where(s => !config.Scripting.Scripts.ContainsKey(s));
+            if (invalidSteps.Any()){
+                throw new ArgumentException($"Could not find scenario key(s) in scripting.scripts. {string.Join(", ", invalidSteps)}");
+            }
             _compiledScripts = config.Scripting.Scripts.ToDictionary(
                 script => script.Key,
-                script => CSharpScript.Create(script.Value.Script)
+                script => CSharpScript.Create(
+                    script.Value.Script,
+                    ScriptOptions.Default.WithImports(script.Value.Imports)
+                )
             );
         }
 
@@ -27,7 +35,7 @@ namespace Lupi.Core
             dynamic theGlobals = new System.Dynamic.ExpandoObject();
             theGlobals.ct = _ct;
             foreach (var globalValue in _config.Scripting.Globals){
-                var resultState = await CSharpScript.RunAsync(globalValue.Value.Script);
+                var resultState = await CSharpScript.RunAsync(globalValue.Value.Script, ScriptOptions.Default.WithImports(globalValue.Value.Imports));
                 (theGlobals as IDictionary<string, Object>).Add(globalValue.Key, resultState.ReturnValue);
             }
             theGlobals.ct = _ct;
@@ -35,20 +43,18 @@ namespace Lupi.Core
             return await Task.FromResult(true);
         }
 
-        public Task<object> ExecuteTeardownMethod()
+        public async Task<object> ExecuteTeardownMethod()
         {
             // todo, figure out if implementing this in scripts is required
-            throw new NotImplementedException();
+            return await Task.FromResult(true);
         }
 
         public async Task<object> ExecuteTestMethod()
         {
             List<object> results = new();
             foreach (var step in _config.Scripting.Scenario){
-                if (_compiledScripts.ContainsKey(step)){
-                    var resultState = await _compiledScripts[step].RunAsync(_globals, _ct);
-                    results.Add(resultState.ReturnValue);
-                }
+                var resultState = await _compiledScripts[step].RunAsync(_globals, _ct);
+                results.Add(resultState.ReturnValue);
             }
             return results;
         }
