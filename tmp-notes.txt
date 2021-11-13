@@ -1,54 +1,10 @@
-todo
+TODO
+=====
 
 display helpful errors when script compilation fails
-implicitly pass cancellation token in globals
 decide on concise scenarios/script definition syntax
+ support short form in config where no other props than the script.
+ support leaving out scenarios if there's only one script
 add tests for state management in various script scenarios
-support short form in config where no other props than the script.
-support leaving out scenarios if there's only one script
-
-callable functions for scripts - to support csv inputs etc.
-var f =
-    await CSharpScript.Create(
-        code: code,
-        options: ScriptOptions.Default.WithReferences(metadata))
-    .ContinueWith<Func<MyClass, bool>>("new TestClass().HelloWorld")
-    .CreateDelegate()
-    .Invoke();
-
-var output = f(c);
-
-via globals
-You need to define a global var of type MyClass:
-
-public class Globals
-{
-    public MyClass C { get; set; }
-}
-
-And use that as a Globals type:
-
-var script = 
-    await CSharpScript.Create(
-        code: code,
-        options: ScriptOptions.Default.WithReferences(metadata),
-        globalsType: typeof(Globals))
-    .ContinueWith("new TestClass().HelloWorld(C)")
-    .RunAsync(new Globals { C = c });
-
-var output = script.ReturnValue;
-
-/or/
-
-public class Globals
-{
-    public int E;
-}
-
-static void Main()
-{
-    var globals = new Globals { E = 1 };
-    var _scriptState = CSharpScript.RunAsync("System.Console.WriteLine(E)", globals: globals).Result;
-    globals.E = 2;
-    var x = _scriptState.ContinueWithAsync("System.Console.WriteLine(E)").Result;
-}
+add scriptplugin tests
+find some way to sensibly integrate with nuget
