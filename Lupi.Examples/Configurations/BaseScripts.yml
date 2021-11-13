@@ -11,21 +11,28 @@ scripting:
           public string Column2 { get; set; }
         }
         public class TestData {
-          private readonly _data;
+          private readonly IEnumerable _data;
+          private IEnumerator<Data> _dataEnumerator { get; set; }
           public TestData() {
             using (var reader = new StreamReader("path\\to\\file.csv"))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
-              _data = csv.GetRecords<>();
+              _data = csv.GetRecords<Data>();
+            }
+            _dataEnumerator = GetDataEnumerable().GetEnumerator();
+          }
+
+          private IEnumerable<Data> GetDataEnumerable(){
+            while (true){
+              foreach (var entry in _data){
+                yield return entry;
+              }
             }
           }
 
-          public IEnumerable<Data> GetNext(){
-            while (true){
-              foreach (var datum in data){
-                yeild return datum;
-              }
-            }
+          public Data GetNext(){
+            _dataEnumerator.MoveNext();
+            return _dataEnumerator.Current;
           }
         }
         return new TestData();
