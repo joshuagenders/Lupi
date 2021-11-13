@@ -1,17 +1,30 @@
 ---
 scripting: 
+  # note: A CancellationToken provided implicitly as a global named "ct"
   globals:
     httpClient:
       script: return new HttpClient();
       includes:
         - System.Net.Http
-    # note: The script's CancellationToken is an implicitly provided global named "ct"
+    helpers:
+      includes:
+        - Math.Random
+      script: |
+        public class Helpers {
+          private static readonly Random _r = new Random();
+          public int Rand()
+          {
+            return _r.Next(1, 100);
+          }
+        }
+        return new Helpers();
   scripts:
     homepage:
       script: |
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        await httpClient.GetAsync("https://<website>.com/");
+        var randomNumber = helpers.Rand()
+        await httpClient.GetAsync("https://<website>.com/", ct);
         stopwatch.Stop();
         return (stopwatch, "success");
   scenario:

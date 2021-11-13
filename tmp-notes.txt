@@ -4,6 +4,8 @@ display helpful errors when script compilation fails
 implicitly pass cancellation token in globals
 decide on concise scenarios/script definition syntax
 add tests for state management in various script scenarios
+support short form in config where no other props than the script.
+support leaving out scenarios if there's only one script
 
 callable functions for scripts - to support csv inputs etc.
 var f =

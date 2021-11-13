@@ -9,7 +9,6 @@ namespace Lupi.Core
         private readonly Config _config;
         private readonly CancellationToken _ct;
         private readonly Dictionary<string, Script<object>> _compiledScripts = new();
-        private readonly Dictionary<string, ScriptState<object>> _scriptStates = new();
         private object _globals { get; set; }
 
         public ScriptPlugin(Config config, CancellationToken ct = default)
@@ -53,10 +52,18 @@ namespace Lupi.Core
         {
             List<object> results = new();
             foreach (var step in _config.Scripting.Scenario){
-                var resultState = await _compiledScripts[step].RunAsync(_globals, _ct);
-                results.Add(resultState.ReturnValue);
+                results.Add(await this.ExecuteScript(step));
             }
             return results;
+        }
+
+        private async Task<object> ExecuteScript(string step){
+            try {
+                var resultState = await _compiledScripts[step].RunAsync(_globals, _ct);
+                return resultState.ReturnValue;
+            } catch(Exception) {
+                return false;
+            }
         }
     }
 }
