@@ -403,5 +403,9 @@ failed if Mean >= 600 for 10 minutes
 ### Scripting
 TODO
 
+#### Globals
+All globals are defined on a globally available variable `g`.
+For example, the CancellationToken `ct` can be accessed via `g.ct`.
+
 ## License
 Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/main/LICENSE).

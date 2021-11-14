@@ -5,8 +5,8 @@ scripting:
       script: |
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        var randomNumber = helpers.Rand()
-        await httpClient.GetAsync("https://<website>.com/", ct);
+        var randomNumber = g.helpers.Rand()
+        await g.httpClient.GetAsync("https://<website>.com/", ct);
         stopwatch.Stop();
         return (stopwatch, "success");
   scenario:

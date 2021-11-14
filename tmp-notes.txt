@@ -8,3 +8,5 @@ decide on concise scenarios/script definition syntax
 add tests for state management in various script scenarios
 add scriptplugin tests
 find some way to sensibly integrate with nuget
+
+if performance is not great, consider this approach https://github.com/carljohansen/miscellaneous/blob/master/SearchFilterCompiler.cs

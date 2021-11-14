@@ -121,10 +121,8 @@ namespace Lupi.Core
             }
         }
 
-        private void ProcessResult(string threadName, TimeSpan ellapsed, object taskResult)
+        private void ProcessResult(string threadName, TimeSpan ellapsed, object taskResult, int depth = 0)
         {
-            //todo if IEnumerable then process multiple recursively with depth 1
-
             var result = string.Empty;
             var passed = true;
             switch (taskResult)
@@ -253,9 +251,24 @@ namespace Lupi.Core
                     break;
 
                 default:
-                    result = taskResult?.GetType()?.IsValueType ?? false
-                        ? taskResult?.ToString()
-                        : TrySerialize(taskResult);
+                    if (taskResult?.GetType()?.IsValueType ?? false){
+                        result = taskResult.ToString();
+                        break;
+                    }
+                    if (depth <= 0 && taskResult
+                        .GetType()
+                        .GetInterfaces()
+                        .Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                    {
+                        foreach(var subResult in (taskResult as IEnumerable<object>)){
+                            ProcessResult(threadName, ellapsed, subResult, depth + 1);
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        result = TrySerialize(taskResult);
+                    }
                     break;
             }
 

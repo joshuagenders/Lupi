@@ -21,6 +21,11 @@ namespace Lupi.Configuration
         public static Config MergeConfigs(List<Config> configs) => 
             new Config
             {
+                Scripting = new Scripting {
+                    Globals = GetConfigValue(v => v.Scripting.Globals, configs, new()),
+                    Scenario = GetConfigValue(v => v.Scripting.Scenario, configs, new()),
+                    Scripts = GetConfigValue(v => v.Scripting.Scripts, configs, new()),
+                },
                 Concurrency = new Concurrency
                 {
                     HoldFor = GetConfigValue(v => v.Concurrency.HoldFor, configs, TimeSpan.Zero),
@@ -135,6 +140,27 @@ namespace Lupi.Configuration
             if (!Path.IsPathRooted(config.Test.AssemblyPath))
             {
                 config.Test.AssemblyPath = Path.Join(Path.GetDirectoryName(configPath), config.Test.AssemblyPath);
+            }
+
+            var scriptsToLoad = config.Scripting.Scripts
+                .Where(s => !string.IsNullOrWhiteSpace(s.Value.ScriptPath))
+                .Where(s => string.IsNullOrWhiteSpace(s.Value.Script));
+            if (scriptsToLoad.Any())
+            {
+                foreach (var script in scriptsToLoad)
+                {
+                    var filePath = Path.IsPathRooted(script.Value.ScriptPath)
+                        ? script.Value.ScriptPath
+                        :  Path.Join(Path.GetDirectoryName(configPath), script.Value.ScriptPath);
+                    if (!System.IO.File.Exists(filePath))
+                    {
+                        //todo throw exception?
+                        Console.WriteLine($"File not found for script {script.Key} at '{script.Value.ScriptPath}'. Full path {filePath}");
+                        continue;
+                    }
+                    var fileContents = System.IO.File.ReadAllText(filePath);
+                    script.Value.Script = fileContents;
+                } 
             }
 
             if (!config.Throughput.Phases.Any())

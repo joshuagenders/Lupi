@@ -80,5 +80,6 @@ namespace Lupi.Tests
             await testThread.Run(cts.Token);
             testResultPublisher.Verify(r => r.Publish(It.Is<TestResult>(t => t.Passed == false)));
         }
+        // todo test enumerables of results
     }
 }
