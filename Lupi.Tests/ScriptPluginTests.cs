@@ -3,12 +3,10 @@ using Lupi.Core;
 
 namespace Lupi.Tests {
     public class ScriptPluginTests {
-        // referencing custom classes created in globals
+        // TODO:
         // scripts respecting cancellationtoken timeout
-        // adding references
-        // only providing script no scenario
-        // scenario and script provided
-        // compilation errors surfaced
+        // compilation errors surfaced to user
+        // multiple threads accessing globals (entrypoint from TestRunner or Application)?
         [Fact]
         public async Task SimpleScriptReturnsCorrectValue(){
             var scripts = new[] { ("simple", "return 1 + 1;") };
@@ -61,6 +59,22 @@ namespace Lupi.Tests {
         }
 
         [Fact]
+        public async Task CanReferenceThirdPartyLibrary()
+        {
+            var script = @"
+            using (var reader = new StreamReader(new MemoryStream(encoding.GetBytes(""v1,v2"")))){
+                return new CsvReader(reader, CultureInfo.InvariantCulture);
+            }";
+            var scripts = new[] { ("Reference a third-party library", script) };
+            var config = GetConfig(scripts);
+            var cts = new CancellationTokenSource();
+            var sut = new ScriptPlugin(config, cts.Token);
+            await sut.ExecuteSetupMethod();
+            var result = await sut.ExecuteTestMethod();
+            result.GetType().Name.Should().Be("CsvReader");
+        }
+
+        [Fact]
         public async Task CanAccessInstanceOfUserDefinedClassInGlobals()
         {
             var globalScript = @"
@@ -69,7 +83,7 @@ namespace Lupi.Tests {
             }
             return new MyClass();
             ";
-            var script = "return g.myVarName.ToString();";
+            var script = "return __.myVarName.ToString();";
             var scripts = new[] { ("createAClass", script) };
             var config = GetConfig(scripts);
             config.Scripting.Globals = new Dictionary<string, LupiScript>
@@ -81,6 +95,24 @@ namespace Lupi.Tests {
             await sut.ExecuteSetupMethod();
             var result = await sut.ExecuteTestMethod();
             result.ToString().Should().Be("SomeValue");
+        }
+
+        [Fact]
+        public async Task CanCreateSharedHttpClient()
+        {
+            var globalScript = "return new System.Net.Http.HttpClient();";
+            var script = "return __.httpClient.GetType().Name;";
+            var scripts = new[] { ("Get a HTTP client", script) };
+            var config = GetConfig(scripts);
+            config.Scripting.Globals = new Dictionary<string, LupiScript>
+            {
+                { "httpClient", new LupiScript { Script = globalScript, Imports = new List<string> { "System.Net" } } }
+            };
+            var cts = new CancellationTokenSource();
+            var sut = new ScriptPlugin(config, cts.Token);
+            await sut.ExecuteSetupMethod();
+            var result = await sut.ExecuteTestMethod();
+            result.Should().Be("HttpClient");
         }
 
         private Config GetConfig(IEnumerable<(string name, string script)> scripts)

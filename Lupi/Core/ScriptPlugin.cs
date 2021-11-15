@@ -8,7 +8,7 @@ namespace Lupi.Core
 {
     public class GlobalRefs
     {
-        public dynamic g { get; set; }
+        public dynamic __ { get; set; }
     }
     public class ScriptPlugin : IPlugin
     {
@@ -38,7 +38,7 @@ namespace Lupi.Core
                 (globals as IDictionary<string, Object>).Add(globalValue.Key, resultState.ReturnValue);
             }
             globals.ct = _ct;
-            _globals = new GlobalRefs { g = globals };
+            _globals = new GlobalRefs { __ = globals };
 
             // config validation - move elsewhere?
             var invalidSteps = _config.Scripting.Scenario.Where(s => !_config.Scripting.Scripts.ContainsKey(s));
@@ -48,9 +48,12 @@ namespace Lupi.Core
             }
             try
             {
-                var refs = new List<MetadataReference>{
+                var refs = new List<MetadataReference>
+                {
                     MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.RuntimeBinderException).GetTypeInfo().Assembly.Location),
-                    MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly.Location)};
+                    MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).GetTypeInfo().Assembly.Location)
+                };
 
                 _compiledScripts = _config.Scripting.Scripts.ToDictionary(
                     script => script.Key,

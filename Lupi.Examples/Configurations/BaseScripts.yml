@@ -4,7 +4,7 @@ scripting:
       script: return new HttpClient();
       includes:
         - System.Net.Http
-    testdata:
+    testData:
       script: |
         public class Data {
           public string Id { get; set; }
@@ -14,7 +14,7 @@ scripting:
           private readonly IEnumerable _data;
           private IEnumerator<Data> _dataEnumerator { get; set; }
           public TestData() {
-            using (var reader = new StreamReader("path\\to\\file.csv"))
+            using (var reader = new StreamReader(g.dataFilePath)
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
               _data = csv.GetRecords<Data>();
@@ -38,6 +38,7 @@ scripting:
         return new TestData();
       includes:
         - System.IO
+        - System.Collections.Generic
         - CsvHelper
     helpers:
       includes:

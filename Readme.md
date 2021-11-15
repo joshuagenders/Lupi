@@ -18,9 +18,11 @@ See the [Examples here](https://github.com/joshuagenders/Lupi/tree/main/Lupi.Exa
 scripting:
     scripts:
         homepage: |
-        var client = new System.Net.Http.HttpClient();
-        var response = await client.GetAsync("https://<website>.com", ct);
-        return response.IsSuccessStatusCode;
+            var client = new System.Net.Http.HttpClient();
+            var response = await client.GetAsync("https://<website>.com", ct);
+            return response.IsSuccessStatusCode;
+        imports:
+            - System.Net.Http
 concurrency:
     threads: 10
     holdFor: 2m
@@ -404,8 +406,8 @@ failed if Mean >= 600 for 10 minutes
 TODO
 
 #### Globals
-All globals are defined on a globally available variable `g`.
-For example, the CancellationToken `ct` can be accessed via `g.ct`.
+All globals are defined on a globally available variable `__` (double-underscore).
+For example, the CancellationToken `ct` can be accessed via `__.ct`.
 
 ## License
 Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/main/LICENSE).
