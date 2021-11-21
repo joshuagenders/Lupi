@@ -1,0 +1,19 @@
+scripting: 
+  scenario:
+    - random
+
+listeners:
+    statsd:
+        prefix: ${STATSD_PREFIX}.simplescripting
+
+concurrency:
+    threads: 1
+    holdFor: 1m
+
+throughput:
+    tps: 5
+    rampUp: 20s
+    holdFor: 20s
+    rampDown: 20s
+
+baseConfig: base-config.scripting.yml
