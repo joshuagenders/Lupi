@@ -13,7 +13,7 @@ namespace Lupi.Examples
 
         public async static Task InitBrowser()
         {
-            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
             Browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
                 Headless = true,

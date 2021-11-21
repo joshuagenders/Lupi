@@ -62,13 +62,17 @@ namespace Lupi.Tests {
         public async Task CanReferenceThirdPartyLibrary()
         {
             var script = @"
-            using (var reader = new StreamReader(new MemoryStream(encoding.GetBytes(""v1,v2"")))){
+            using (var reader = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(""v1,v2"")))){
                 return new CsvReader(reader, CultureInfo.InvariantCulture);
             }";
             var scripts = new[] { ("Reference a third-party library", script) };
             var config = GetConfig(scripts);
+            var s = config.Scripting.Scripts.First().Value;
+            s.References = new[] { "./CsvHelper.dll" };
+            s.Imports = new[] { "CsvHelper", "System", "System.IO", "System.Text", "System.Globalization" };
+            var builtConfig = ConfigHelper.Build(config, ".");
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(config, cts.Token);
+            var sut = new ScriptPlugin(builtConfig, cts.Token);
             await sut.ExecuteSetupMethod();
             var result = await sut.ExecuteTestMethod();
             result.GetType().Name.Should().Be("CsvReader");
@@ -106,7 +110,7 @@ namespace Lupi.Tests {
             var config = GetConfig(scripts);
             config.Scripting.Globals = new Dictionary<string, LupiScript>
             {
-                { "httpClient", new LupiScript { Script = globalScript, Imports = new List<string> { "System.Net" } } }
+                { "httpClient", new LupiScript { Script = globalScript, Imports = new List<string> { "System", "System.Net.Http" } } }
             };
             var cts = new CancellationTokenSource();
             var sut = new ScriptPlugin(config, cts.Token);

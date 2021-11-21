@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System.Reflection;
+using System.IO;
 
 namespace Lupi.Core
 {
@@ -30,15 +31,13 @@ namespace Lupi.Core
             }
             dynamic globals = new System.Dynamic.ExpandoObject();
             globals.ct = _ct;
+            _globals = new GlobalRefs { __ = globals };
             foreach (var globalValue in _config.Scripting.Globals){
-                var resultState = await CSharpScript.RunAsync(
-                    globalValue.Value.Script,
-                    ScriptOptions.Default.WithImports(globalValue.Value.Imports ?? new List<string>())
-                );
+                var script = CompileScript(globalValue.Value);
+                var resultState = await script.RunAsync(_globals, _ct);
                 (globals as IDictionary<string, Object>).Add(globalValue.Key, resultState.ReturnValue);
             }
             globals.ct = _ct;
-            _globals = new GlobalRefs { __ = globals };
 
             // config validation - move elsewhere?
             var invalidSteps = _config.Scripting.Scenario.Where(s => !_config.Scripting.Scripts.ContainsKey(s));
@@ -48,20 +47,9 @@ namespace Lupi.Core
             }
             try
             {
-                var refs = new List<MetadataReference>
-                {
-                    MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.RuntimeBinderException).GetTypeInfo().Assembly.Location),
-                    MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly.Location),
-                    MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).GetTypeInfo().Assembly.Location)
-                };
-
                 _compiledScripts = _config.Scripting.Scripts.ToDictionary(
                     script => script.Key,
-                    script => CSharpScript.Create(
-                        script.Value.Script,
-                        ScriptOptions.Default.WithImports(script.Value.Imports).AddReferences(refs),
-                        globalsType: typeof(GlobalRefs)
-                    )
+                    script => CompileScript(script.Value)
                 );
             }
             catch (CompilationErrorException e)
@@ -79,6 +67,30 @@ namespace Lupi.Core
         {
             // todo, figure out if implementing this in scripts is required
             return await Task.FromResult(true);
+        }
+
+        private Script<object> CompileScript(LupiScript script)
+        {
+            var refs = new List<MetadataReference>
+            {
+                MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.RuntimeBinderException).GetTypeInfo().Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).GetTypeInfo().Assembly.Location)
+            };
+
+            if (script.References?.Any() ?? false)
+            {
+                refs.AddRange(
+                    script.References
+                          .Where(path => System.IO.File.Exists(path))
+                          .Select(path => MetadataReference.CreateFromFile(path))
+                );
+            }
+
+            return CSharpScript.Create(
+                script.Script,
+                ScriptOptions.Default.WithImports(script.Imports).AddReferences(refs),
+                globalsType: typeof(GlobalRefs));
         }
 
         public async Task<object> ExecuteTestMethod()

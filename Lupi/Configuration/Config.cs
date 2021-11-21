@@ -120,15 +120,22 @@ namespace Lupi.Configuration
         public string PassedFailed { get; set; }
     }
 
-    public class Scripting {
+    public class Scripting
+    {
         public Dictionary<string, LupiScript> Scripts { get; set; } = new();
         public Dictionary<string, LupiScript> Globals { get; set; } = new();
         public List<string> Scenario { get; set; } = new();
     }
 
-    public class LupiScript {
+    public class LupiScript
+    {
         public string Script { get; set; }
         public string ScriptPath { get; set; }
         public IEnumerable<string> Imports { get; set; }
+
+        /// <summary>
+        /// List of file paths referencing required DLLs.
+        /// </summary>
+        public IEnumerable<string> References { get; set; }
     }
 }

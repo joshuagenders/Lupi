@@ -137,30 +137,49 @@ namespace Lupi.Configuration
 
         public static Config Build(Config config, string configPath)
         {
-            if (!Path.IsPathRooted(config.Test.AssemblyPath))
+            if (!Path.IsPathRooted(config.Test.AssemblyPath) && !config.Scripting.Scripts.Any())
             {
                 config.Test.AssemblyPath = Path.Join(Path.GetDirectoryName(configPath), config.Test.AssemblyPath);
             }
 
-            var scriptsToLoad = config.Scripting.Scripts
-                .Where(s => !string.IsNullOrWhiteSpace(s.Value.ScriptPath))
-                .Where(s => string.IsNullOrWhiteSpace(s.Value.Script));
-            if (scriptsToLoad.Any())
+            if (config.Scripting.Scripts.Any())
             {
-                foreach (var script in scriptsToLoad)
+                var scriptsToLoad = config.Scripting.Scripts
+                    .Where(s => !string.IsNullOrWhiteSpace(s.Value.ScriptPath))
+                    .Where(s => string.IsNullOrWhiteSpace(s.Value.Script));
+                foreach (var script in config.Scripting.Scripts)
                 {
-                    var filePath = Path.IsPathRooted(script.Value.ScriptPath)
-                        ? script.Value.ScriptPath
-                        :  Path.Join(Path.GetDirectoryName(configPath), script.Value.ScriptPath);
-                    if (!System.IO.File.Exists(filePath))
+                    if (scriptsToLoad.Contains(script))
                     {
-                        //todo throw exception?
-                        Console.WriteLine($"File not found for script {script.Key} at '{script.Value.ScriptPath}'. Full path {filePath}");
-                        continue;
+                        var filePath = Path.IsPathRooted(script.Value.ScriptPath)
+                            ? script.Value.ScriptPath
+                            : Path.Join(Path.GetDirectoryName(configPath), script.Value.ScriptPath);
+                        if (!System.IO.File.Exists(filePath))
+                        {
+                            //todo throw exception?
+                            Console.WriteLine($"File not found for script {script.Key} at '{script.Value.ScriptPath}'. Full path {filePath}");
+                            continue;
+                        }
+                        var fileContents = System.IO.File.ReadAllText(filePath);
+                        script.Value.Script = fileContents;
                     }
-                    var fileContents = System.IO.File.ReadAllText(filePath);
-                    script.Value.Script = fileContents;
-                } 
+                    var fullPathReferences = new List<string>();
+                    foreach (var reference in script.Value.References)
+                    {
+                        //var referenceFilePath = Path.IsPathFullyQualified(reference)
+                        //    ? reference
+                        //    :  Path.Join(Path.GetDirectoryName(configPath), reference);
+                        var referenceFilePath = Path.GetFullPath(Path.Join(Path.GetFullPath(configPath), reference));
+                        if (!System.IO.File.Exists(referenceFilePath))
+                        {
+                            //todo throw exception?
+                            Console.WriteLine($"File not found for script {script.Key} reference '{reference}'. Full path '{referenceFilePath}'. Relative to {configPath}");
+                            continue;
+                        }
+                        fullPathReferences.Add(referenceFilePath);
+                    }
+                    script.Value.References = fullPathReferences;
+                }
             }
 
             if (!config.Throughput.Phases.Any())
