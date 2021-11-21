@@ -144,6 +144,11 @@ namespace Lupi.Configuration
 
             if (config.Scripting.Scripts.Any())
             {
+                var invalidSteps = config.Scripting.Scenario.Where(s => !config.Scripting.Scripts.ContainsKey(s));
+                if (invalidSteps.Any())
+                {
+                    throw new ArgumentException($"Could not find scenario key(s) in scripting.scripts. {string.Join(", ", invalidSteps)}");
+                }
                 var scriptsToLoad = config.Scripting.Scripts
                     .Where(s => !string.IsNullOrWhiteSpace(s.Value.ScriptPath))
                     .Where(s => string.IsNullOrWhiteSpace(s.Value.Script));

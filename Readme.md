@@ -7,7 +7,7 @@
 # Lupi
 Lupi is a load testing framework written for the dotnet runtime.
 
-Lupi supports scripting as well as a plugin system for loading and executing code from compatible DLLs.
+Lupi supports C# scripting as well as a plugin system for loading and executing code from DLLs.
 
 ## Examples
 See the [Examples here](https://github.com/joshuagenders/Lupi/tree/main/Lupi.Examples)
@@ -119,6 +119,42 @@ The `latest` tag is based on [microsoft-playwright](https://hub.docker.com/_/mic
 The other image is `slim-latest` which is recommended for most use cases, and is based on `mcr.microsoft.com/dotnet/runtime`.
 
 </details>
+
+
+### Scripting
+Lupi supports C# scripting via the Roslyn compiler.
+Individual scripts are defined under `scripting.scripts`.
+Scenarios are a list of script names which Lupi will execute in order. If only one script is provided, then `scenarios` can be omitted.
+
+#### Globals
+Lupi provides a `globals` configuration section to support test setup code and initialise thread-global variables.
+All globals are defined on a globally available variable `__` (double-underscore).
+For example, the CancellationToken `ct` can be accessed via `__.ct`.
+
+//todo implement provide teardown as continuation of setup via key
+Lupi also defined a teardown configuration section. The code will be executed as a continuation of the state of the matching `globals` key to facilitate disposing of unmanaged resources if required. If the key provided does not match a `globals` script then it will be executed in a new context.
+
+#### Config format
+```yaml
+scripting:
+    globals: # globally available state
+        variableName: # made available to scripts via __.variableName
+            script: return new HttpClient(); # script inline
+            scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
+            imports: # list of namespaces to statically import
+                - System.Net.Http
+    scripts:
+        scriptName:
+            script: var x = new Random().Next(); # script inline
+            scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
+            imports: # list of namespaces to statically import
+                - System.Math
+    scenarios: # list of scripts to run in order per iteration, not required if there is only one script
+        - scriptName
+```
+
+#### Providing relative paths
+Relative paths are interpreted as relative to the __config file__ they are defined in, __not__ the current working directory or lupi executable path.
 
 ## Configuration
 
@@ -401,13 +437,6 @@ passed if Min < 30.42 for 10 seconds
 failed if Mean >= 600 for 10 minutes
 ```
 </details>
-
-### Scripting
-TODO
-
-#### Globals
-All globals are defined on a globally available variable `__` (double-underscore).
-For example, the CancellationToken `ct` can be accessed via `__.ct`.
 
 ## License
 Lupi is licensed under the [MIT license](https://github.com/joshuagenders/Lupi/blob/main/LICENSE).

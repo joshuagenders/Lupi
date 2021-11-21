@@ -39,12 +39,6 @@ namespace Lupi.Core
             }
             globals.ct = _ct;
 
-            // config validation - move elsewhere?
-            var invalidSteps = _config.Scripting.Scenario.Where(s => !_config.Scripting.Scripts.ContainsKey(s));
-            if (invalidSteps.Any())
-            {
-                throw new ArgumentException($"Could not find scenario key(s) in scripting.scripts. {string.Join(", ", invalidSteps)}");
-            }
             try
             {
                 _compiledScripts = _config.Scripting.Scripts.ToDictionary(
