@@ -1,38 +1,10 @@
 TODO
 =====
-
-load all required dependencies from file
 display helpful errors when script compilation fails
-decide on concise scenarios/script definition syntax
- support short form in config where no other props than the script.
- support leaving out scenarios if there's only one script
 add tests for state management in various script scenarios
-add scriptplugin tests
-find some way to sensibly integrate with nuget
+find some way to sensibly integrate with nuget?
 
 if performance is not great, consider this approach https://github.com/carljohansen/miscellaneous/blob/master/SearchFilterCompiler.cs
-also, need to figure out how to load assemblies from file by namespace and potentially be able to acquire from nuget
-should I generate an assembly/csproj and hook into nuget via it's exe?
-should I provide a default set of useful dependencies pre-loaded to brute force the 80% use case.
- (i.e. include most popular client libraries (polly, data parsing, http clients, grpc clients, database clients etc.) and cloud SDKs (Azure, GCP, AWS))
- - would inflate package sizes unecessarily and would require constant maintainence
- - ideally find a way for user to define
-
-
-
-
-load all required dependencies from file:
-update below to order by most similar name to dependency trying to be located, ensure same isn't loaded twice
-should optimise to only load required assemblies if possible
-should have a way to recognise system assemblies that need to be loaded from the operating system...todo, research which dlls are left out of a release build
-public static Assembly[] GetSolutionAssemblies()
-{
-    var assemblies = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll")
-                        .Select(x => Assembly.Load(AssemblyName.GetAssemblyName(x)));
-    return assemblies.ToArray();
-}
-
-
 
 ---
  var scriptOptions = ScriptOptions.Default;
