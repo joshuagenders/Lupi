@@ -79,6 +79,26 @@ namespace Lupi.Tests {
         }
 
         [Fact]
+        public async Task CanReferenceThirdPartyLibraryByFolder()
+        {
+            var script = @"
+            using (var reader = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(""v1,v2"")))){
+                return new CsvReader(reader, CultureInfo.InvariantCulture);
+            }";
+            var scripts = new[] { ("Reference a third-party library", script) };
+            var config = GetConfig(scripts);
+            var s = config.Scripting.Scripts.First().Value;
+            s.References = new[] { "./" };
+            s.Imports = new[] { "CsvHelper", "System", "System.IO", "System.Text", "System.Globalization" };
+            var builtConfig = ConfigHelper.Build(config, ".");
+            var cts = new CancellationTokenSource();
+            var sut = new ScriptPlugin(builtConfig, cts.Token);
+            await sut.ExecuteSetupMethod();
+            var result = await sut.ExecuteTestMethod();
+            result.GetType().Name.Should().Be("CsvReader");
+        }
+
+        [Fact]
         public async Task CanAccessInstanceOfUserDefinedClassInGlobals()
         {
             var globalScript = @"

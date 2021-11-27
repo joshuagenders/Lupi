@@ -83,11 +83,17 @@ namespace Lupi.Core
 
             if (script.References?.Any() ?? false)
             {
-                refs.AddRange(
-                    script.References
-                          .Where(path => System.IO.File.Exists(path))
-                          .Select(path => MetadataReference.CreateFromFile(path))
-                );
+                var fileRefs = script.References.Where(System.IO.File.Exists);
+                var folderRefs = script.References.Where(System.IO.Directory.Exists);
+
+                refs.AddRange(fileRefs.Select(path => MetadataReference.CreateFromFile(path)));
+                foreach (var folderRef in folderRefs){
+                    refs.AddRange(
+                        System.IO.Directory
+                            .GetFiles(folderRef, "*.dll")
+                            .Select(path => MetadataReference.CreateFromFile(path))
+                    );
+                }
             }
 
             return CSharpScript.Create(
