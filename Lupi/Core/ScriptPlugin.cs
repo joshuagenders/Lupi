@@ -65,12 +65,21 @@ namespace Lupi.Core
 
         private Script<object> CompileScript(LupiScript script)
         {
+
             var refs = new List<MetadataReference>
             {
                 MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.RuntimeBinderException).GetTypeInfo().Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).GetTypeInfo().Assembly.Location)
+                MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly.Location)
             };
+
+            foreach (var import in script.Imports){
+                try {
+                    var assemblyReference = Assembly.Load(import);
+                    refs.Add(MetadataReference.CreateFromFile(assemblyReference.Location));
+                } catch {
+                    // todo log/output
+                }
+            }
 
             if (script.References?.Any() ?? false)
             {
