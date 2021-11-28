@@ -59,7 +59,7 @@ namespace Lupi.Core
 
         public async Task<object> ExecuteTeardownMethod()
         {
-            // todo, figure out if implementing this in scripts is required
+            // todo, implement continuation by global var name
             return await Task.FromResult(true);
         }
 

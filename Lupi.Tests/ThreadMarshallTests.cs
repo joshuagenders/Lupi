@@ -16,7 +16,7 @@ namespace Lupi.Tests
             var startTime = new DateTime(2020,05,02, 13,0,0);
             var endTime = startTime.AddMinutes(5);
             config.Concurrency.RampUp = TimeSpan.FromMinutes(1);
-            config.Concurrency.Threads = 20;
+            config.Concurrency.Threads = 10;
             config.Concurrency.HoldFor = TimeSpan.FromMinutes(3);
             config.Concurrency.RampDown = TimeSpan.FromMinutes(1);
             config.Concurrency.OpenWorkload = false;
