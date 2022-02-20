@@ -13,8 +13,8 @@ namespace Lupi.Configuration
         public Listeners Listeners { get; set; } = new();
         public string BaseConfig { get; set; }
 
-        public bool ThroughputEnabled => 
-            Throughput != null 
+        public bool ThroughputEnabled =>
+            Throughput != null
             && (Throughput.Tps > 0 || Throughput.Phases.Any(p => p.ToTps > 0 || p.FromTps > 0 || p.Tps > 0));
 
         public Scripting Scripting { get; set; } = new();
@@ -65,14 +65,14 @@ namespace Lupi.Configuration
         public double ToTps { get; set; }
     }
 
-    public class Test 
+    public class Test
     {
         public string AssemblyPath { get; set; }
         public bool SingleTestClassInstance { get; set; }
         public string TestClass { get; set; }
         public string TestMethod { get; set; }
         public string SetupClass { get; set; }
-        public string SetupMethod { get; set; } 
+        public string SetupMethod { get; set; }
         public string TeardownClass { get; set; }
         public string TeardownMethod { get; set; }
     }
@@ -131,6 +131,9 @@ namespace Lupi.Configuration
     {
         public string Script { get; set; }
         public string ScriptPath { get; set; }
+        /// <summary>
+        /// List of namespaces to import.
+        /// </summary>
         public IEnumerable<string> Imports { get; set; }
 
         /// <summary>

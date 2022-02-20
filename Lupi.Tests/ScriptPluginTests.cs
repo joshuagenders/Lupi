@@ -7,6 +7,7 @@ namespace Lupi.Tests {
         // scripts respecting cancellationtoken timeout
         // compilation errors surfaced to user
         // multiple threads accessing globals (entrypoint from TestRunner or Application)?
+        // number of loaded assemblies / memory usage?
         [Fact]
         public async Task SimpleScriptReturnsCorrectValue(){
             var scripts = new[] { ("simple", "return 1 + 1;") };

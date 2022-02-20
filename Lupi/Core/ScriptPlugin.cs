@@ -26,13 +26,15 @@ namespace Lupi.Core
 
         public async Task<object> ExecuteSetupMethod()
         {
-            if (_globals != null){
+            if (_globals != null)
+            {
                 return await Task.FromResult(true);
             }
             dynamic globals = new System.Dynamic.ExpandoObject();
             globals.ct = _ct;
             _globals = new GlobalRefs { __ = globals };
-            foreach (var globalValue in _config.Scripting.Globals){
+            foreach (var globalValue in _config.Scripting.Globals)
+            {
                 var script = CompileScript(globalValue.Value);
                 var resultState = await script.RunAsync(_globals, _ct);
                 (globals as IDictionary<string, Object>).Add(globalValue.Key, resultState.ReturnValue);
@@ -59,7 +61,7 @@ namespace Lupi.Core
 
         public async Task<object> ExecuteTeardownMethod()
         {
-            // todo, implement continuation by global var name
+            // todo, implement continuation on globals by global var name
             return await Task.FromResult(true);
         }
 
@@ -72,11 +74,15 @@ namespace Lupi.Core
                 MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly.Location)
             };
 
-            foreach (var import in script.Imports){
-                try {
+            foreach (var import in script.Imports)
+            {
+                try
+                {
                     var assemblyReference = Assembly.Load(import);
                     refs.Add(MetadataReference.CreateFromFile(assemblyReference.Location));
-                } catch {
+                }
+                catch
+                {
                     // todo log/output
                 }
             }
@@ -87,10 +93,12 @@ namespace Lupi.Core
                 var folderRefs = script.References.Where(System.IO.Directory.Exists);
 
                 refs.AddRange(fileRefs.Select(path => MetadataReference.CreateFromFile(path)));
-                foreach (var folderRef in folderRefs){
+                foreach (var folderRef in folderRefs)
+                {
                     refs.AddRange(
                         System.IO.Directory
-                            .GetFiles(folderRef, "*.dll")
+                            .GetFiles(folderRef, "*.*")
+                            .Where(f => f.ToLowerInvariant().EndsWith("dll"))
                             .Select(path => MetadataReference.CreateFromFile(path))
                     );
                 }
@@ -104,17 +112,20 @@ namespace Lupi.Core
 
         public async Task<object> ExecuteTestMethod()
         {
-            if (_config.Scripting.Scripts.Count == 1 && !_config.Scripting.Scenario.Any()){
+            if (_config.Scripting.Scripts.Count == 1 && !_config.Scripting.Scenario.Any())
+            {
                 return await this.ExecuteScript(_config.Scripting.Scripts.Single().Key);
             }
             List<object> results = new();
-            foreach (var step in _config.Scripting.Scenario){
+            foreach (var step in _config.Scripting.Scenario)
+            {
                 results.Add(await this.ExecuteScript(step));
             }
             return results.Count == 1 ? results.Single() : results;
         }
 
-        private async Task<object> ExecuteScript(string step){
+        private async Task<object> ExecuteScript(string step)
+        {
             var resultState = await _compiledScripts[step].RunAsync(_globals, _ct);
             return resultState.ReturnValue;
         }
