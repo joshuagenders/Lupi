@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System.Reflection;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace Lupi.Core
 {
@@ -14,13 +15,15 @@ namespace Lupi.Core
     public class ScriptPlugin : IPlugin
     {
         private readonly Config _config;
+        private readonly ILogger _logger;
         private readonly CancellationToken _ct;
         private Dictionary<string, Script<object>> _compiledScripts = new();
         private GlobalRefs _globals { get; set; }
 
-        public ScriptPlugin(Config config, CancellationToken ct = default)
+        public ScriptPlugin(Config config, ILogger logger, CancellationToken ct = default)
         {
             _config = config;
+            _logger = logger;
             _ct = ct;
         }
 
@@ -81,9 +84,9 @@ namespace Lupi.Core
                     var assemblyReference = Assembly.Load(import);
                     refs.Add(MetadataReference.CreateFromFile(assemblyReference.Location));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // todo log/output
+                    _logger.LogError($"Loading assembly {import} failed with message: {ex.Message}");
                 }
             }
 
