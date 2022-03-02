@@ -1,15 +1,19 @@
+using System.Diagnostics;
 using Lupi.Configuration;
 using Lupi.Core;
 
-namespace Lupi.Tests {
-    public class ScriptPluginTests {
+namespace Lupi.Tests
+{
+    public class ScriptPluginTests
+    {
         // TODO:
-        // scripts respecting cancellationtoken timeout
         // compilation errors surfaced to user
         // multiple threads accessing globals (entrypoint from TestRunner or Application)?
         // number of loaded assemblies / memory usage?
+
         [Fact]
-        public async Task SimpleScriptReturnsCorrectValue(){
+        public async Task SimpleScriptReturnsCorrectValue()
+        {
             var scripts = new[] { ("simple", "return 1 + 1;") };
             var config = GetConfig(scripts);
             var cts = new CancellationTokenSource();
@@ -43,7 +47,8 @@ namespace Lupi.Tests {
         }
 
         [Fact]
-        public async Task CanReturnInstanceOfUserDefinedClass(){
+        public async Task CanReturnInstanceOfUserDefinedClass()
+        {
             var script = @"
             class MyClass {
                 public override string ToString() => ""SomeValue"";
@@ -140,6 +145,33 @@ namespace Lupi.Tests {
             result.Should().Be("HttpClient");
         }
 
+        [Fact]
+        public async Task ScriptsRespectCancellationToken()
+        {
+            var scripts = new[] { ("simple", "await Task.Delay(3000, __.ct);") };
+            var config = GetConfig(scripts);
+            config.Scripting.Scripts.First().Value.Imports.Append("System.Threading.Tasks");
+            var cts = new CancellationTokenSource();
+            var sut = new ScriptPlugin(config, cts.Token);
+            var timer = new Stopwatch();
+            cts.CancelAfter(TimeSpan.FromMilliseconds(150));
+            try
+            {
+                timer.Start();
+                await sut.ExecuteSetupMethod();
+                await sut.ExecuteTestMethod();
+            }
+            catch (OperationCanceledException)
+            {
+
+            }
+            finally
+            {
+                timer.Stop();
+            }
+            timer.ElapsedMilliseconds.Should().BeLessThan(2850);
+        }
+
         private Config GetConfig(IEnumerable<(string name, string script)> scripts)
         {
             return new Config
@@ -148,7 +180,8 @@ namespace Lupi.Tests {
                 {
                     Scripts = scripts.ToDictionary(
                         k => k.name,
-                        v => new LupiScript{
+                        v => new LupiScript
+                        {
                             Script = v.script,
                             Imports = Array.Empty<string>()
                         }
