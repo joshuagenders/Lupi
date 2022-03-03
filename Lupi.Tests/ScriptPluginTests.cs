@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Lupi.Configuration;
 using Lupi.Core;
+using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Extensions.Logging;
 
 namespace Lupi.Tests
@@ -9,7 +10,6 @@ namespace Lupi.Tests
     public class ScriptPluginTests
     {
         // TODO:
-        // compilation errors surfaced to user
         // multiple threads accessing globals (entrypoint from TestRunner or Application)?
         // number of loaded assemblies / memory usage?
 
@@ -174,6 +174,18 @@ namespace Lupi.Tests
             }
             cancellationOccurred.Should().BeTrue();
             timer.ElapsedMilliseconds.Should().BeLessThan(2850);
+        }
+
+        [Fact]
+        public async Task ScriptReturnsCompilationErrors()
+        {
+            var scripts = new[] { ("simple", "return 1 + ;") };
+            var config = GetConfig(scripts);
+            var cts = new CancellationTokenSource();
+            var sut = new ScriptPlugin(config, Mock.Of<ILogger>(), cts.Token);
+            await sut.ExecuteSetupMethod();
+            Func<Task> act = () => sut.ExecuteTestMethod();
+            await act.Should().ThrowAsync<CompilationErrorException>();
         }
 
         private Config GetConfig(IEnumerable<(string name, string script)> scripts)
