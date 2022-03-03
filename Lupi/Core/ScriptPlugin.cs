@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System.Reflection;
-using System.IO;
 using Microsoft.Extensions.Logging;
 
 namespace Lupi.Core
@@ -19,6 +18,7 @@ namespace Lupi.Core
         private readonly CancellationToken _ct;
         private Dictionary<string, Script<object>> _compiledScripts = new();
         private GlobalRefs _globals { get; set; }
+        private Dictionary<string, ScriptState<object>> _globalResultState = new();
 
         public ScriptPlugin(Config config, ILogger logger, CancellationToken ct = default)
         {
@@ -40,7 +40,8 @@ namespace Lupi.Core
             {
                 var script = CompileScript(globalValue.Value);
                 var resultState = await script.RunAsync(_globals, _ct);
-                (globals as IDictionary<string, Object>).Add(globalValue.Key, resultState.ReturnValue);
+                _globalResultState[globalValue.Key] = resultState;
+                (globals as IDictionary<string, object>).Add(globalValue.Key, resultState.ReturnValue);
             }
             globals.ct = _ct;
 
@@ -64,7 +65,25 @@ namespace Lupi.Core
 
         public async Task<object> ExecuteTeardownMethod()
         {
-            // todo, implement continuation on globals by global var name
+            if (_globals != null)
+            {
+                return await Task.FromResult(true);
+            }
+            foreach (var globalValue in _config.Scripting.Teardown)
+            {
+                if (_globalResultState.ContainsKey(globalValue.Key))
+                {
+                    await _globalResultState[globalValue.Key].ContinueWithAsync(
+                        globalValue.Value.Script,
+                        ScriptOptions.Default.WithImports(globalValue.Value.Imports).AddReferences(globalValue.Value.References),
+                        _ct);
+                }
+                else
+                {
+                    var script = CompileScript(globalValue.Value);
+                    await script.RunAsync(_globals, _ct);
+                }
+            }
             return await Task.FromResult(true);
         }
 
@@ -100,7 +119,7 @@ namespace Lupi.Core
                 {
                     refs.AddRange(
                         System.IO.Directory
-                            .GetFiles(folderRef, "*.*")
+                            .GetFiles(folderRef, "*.*") // use *.* instead of *.dll to handle *nix casing
                             .Where(f => f.ToLowerInvariant().EndsWith("dll"))
                             .Select(path => MetadataReference.CreateFromFile(path))
                     );

@@ -124,6 +124,7 @@ namespace Lupi.Configuration
     {
         public Dictionary<string, LupiScript> Scripts { get; set; } = new();
         public Dictionary<string, LupiScript> Globals { get; set; } = new();
+        public Dictionary<string, LupiScript> Teardown { get; set; } = new();
         public List<string> Scenario { get; set; } = new();
     }
 

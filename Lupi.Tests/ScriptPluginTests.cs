@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Lupi.Tests
 {
+    [Collection("Sequential")]
     public class ScriptPluginTests
     {
         // TODO:
@@ -149,6 +150,7 @@ namespace Lupi.Tests
         [Fact]
         public async Task ScriptsRespectCancellationToken()
         {
+            var cancellationOccurred = false;
             var scripts = new[] { ("simple", "await Task.Delay(3000, __.ct);") };
             var config = GetConfig(scripts);
             config.Scripting.Scripts.First().Value.Imports.Append("System.Threading.Tasks");
@@ -164,12 +166,13 @@ namespace Lupi.Tests
             }
             catch (OperationCanceledException)
             {
-
+                cancellationOccurred = true;
             }
             finally
             {
                 timer.Stop();
             }
+            cancellationOccurred.Should().BeTrue();
             timer.ElapsedMilliseconds.Should().BeLessThan(2850);
         }
 

@@ -147,8 +147,7 @@ Lupi provides a `globals` configuration section to support test setup code and i
 All globals are defined on a globally available variable `__` (double-underscore).
 For example, the CancellationToken `ct` can be accessed via `__.ct`.
 
-//todo implement provide teardown as continuation of setup via key
-Lupi also defined a teardown configuration section. The code will be executed as a continuation of the state of the matching `globals` key to facilitate disposing of unmanaged resources if required. If the key provided does not match a `globals` script then it will be executed in a new context.
+Lupi also defined a `teardown` configuration section. The code will be executed as a continuation of the state of the matching `globals` key to facilitate disposing of unmanaged resources if required. If the key provided does not match a `globals` script then it will be executed in a new context.
 
 #### Config format
 
@@ -166,6 +165,9 @@ scripting:
       scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
       imports: # list of namespaces to statically import
         - System.Math
+  teardown:
+    variableName:
+      script: __.variableName.Dispose();
   scenarios: # list of scripts to run in order per iteration, not required if there is only one script
     - scriptName
 ```
@@ -193,6 +195,8 @@ scripting:
             scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
             imports: # list of namespaces to statically import
                 - System.Math
+    teardown:
+      variableName: __.variableName.Dispose();
     scenarios: # list of scripts to run in order per iteration, not required if there is only one script
         - scriptName
 test:
