@@ -4,18 +4,20 @@ namespace Lupi.Configuration
 {
     public class Config
     {
-        public Concurrency Concurrency { get; set; } = new Concurrency();
-        public Throughput Throughput { get; set; } = new Throughput();
-        public Test Test { get; set; } = new Test();
-        public List<ExitCondition> ExitConditions { get; set; } = new List<ExitCondition>();
+        public Concurrency Concurrency { get; set; } = new();
+        public Throughput Throughput { get; set; } = new();
+        public Test Test { get; set; } = new();
+        public List<ExitCondition> ExitConditions { get; set; } = new();
 
-        public Engine Engine { get; set; } = new Engine();
-        public Listeners Listeners { get; set; } = new Listeners();
+        public Engine Engine { get; set; } = new();
+        public Listeners Listeners { get; set; } = new();
         public string BaseConfig { get; set; }
 
-        public bool ThroughputEnabled => 
-            Throughput != null 
+        public bool ThroughputEnabled =>
+            Throughput != null
             && (Throughput.Tps > 0 || Throughput.Phases.Any(p => p.ToTps > 0 || p.FromTps > 0 || p.Tps > 0));
+
+        public Scripting Scripting { get; set; } = new();
     }
 
     public class Concurrency
@@ -63,14 +65,14 @@ namespace Lupi.Configuration
         public double ToTps { get; set; }
     }
 
-    public class Test 
+    public class Test
     {
         public string AssemblyPath { get; set; }
         public bool SingleTestClassInstance { get; set; }
         public string TestClass { get; set; }
         public string TestMethod { get; set; }
         public string SetupClass { get; set; }
-        public string SetupMethod { get; set; } 
+        public string SetupMethod { get; set; }
         public string TeardownClass { get; set; }
         public string TeardownMethod { get; set; }
     }
@@ -116,5 +118,28 @@ namespace Lupi.Configuration
         public TimeSpan Duration { get; set; }
         public int Periods { get; set; }
         public string PassedFailed { get; set; }
+    }
+
+    public class Scripting
+    {
+        public Dictionary<string, LupiScript> Scripts { get; set; } = new();
+        public Dictionary<string, LupiScript> Globals { get; set; } = new();
+        public Dictionary<string, LupiScript> Teardown { get; set; } = new();
+        public List<string> Scenario { get; set; } = new();
+    }
+
+    public class LupiScript
+    {
+        public string Script { get; set; }
+        public string ScriptPath { get; set; }
+        /// <summary>
+        /// List of namespaces to import.
+        /// </summary>
+        public IEnumerable<string> Imports { get; set; }
+
+        /// <summary>
+        /// List of file paths referencing required DLLs.
+        /// </summary>
+        public IEnumerable<string> References { get; set; }
     }
 }

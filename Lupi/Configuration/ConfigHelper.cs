@@ -10,21 +10,27 @@ namespace Lupi.Configuration
                 .Select(selector)
                 .Where(v => !v?.Equals(defaultValue) ?? false)
                 .FirstOrDefault() ?? defaultValue;
-        
+
         private static readonly Regex _envVarRegex = new Regex(@"\${(?<varname>.+?)}",
               RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
 
-        private static string ReplaceEnvironmentVars(string value) => 
-            _envVarRegex.Replace(value, 
+        private static string ReplaceEnvironmentVars(string value) =>
+            _envVarRegex.Replace(value,
                 m => Environment.GetEnvironmentVariable(m.Groups["varname"].Value) ?? "${" + m.Groups["varname"].Value + "}");
 
-        public static Config MergeConfigs(List<Config> configs) => 
+        public static Config MergeConfigs(List<Config> configs) =>
             new Config
             {
+                Scripting = new Scripting
+                {
+                    Globals = GetConfigValue(v => v.Scripting.Globals, configs, new()),
+                    Scenario = GetConfigValue(v => v.Scripting.Scenario, configs, new()),
+                    Scripts = GetConfigValue(v => v.Scripting.Scripts, configs, new()),
+                },
                 Concurrency = new Concurrency
                 {
                     HoldFor = GetConfigValue(v => v.Concurrency.HoldFor, configs, TimeSpan.Zero),
-                    RampUp = GetConfigValue(v => v.Concurrency.RampUp,configs, TimeSpan.Zero),
+                    RampUp = GetConfigValue(v => v.Concurrency.RampUp, configs, TimeSpan.Zero),
                     RampDown = GetConfigValue(v => v.Concurrency.RampDown, configs, TimeSpan.Zero),
                     MaxThreads = GetConfigValue(v => v.Concurrency.MaxThreads, configs, default),
                     MinThreads = GetConfigValue(v => v.Concurrency.MinThreads, configs, default),
@@ -38,7 +44,7 @@ namespace Lupi.Configuration
                     Phases = GetConfigValue(v => v.Throughput.Phases, configs, Array.Empty<Phase>().ToList()),
                     HoldFor = GetConfigValue(v => v.Throughput.HoldFor, configs, TimeSpan.Zero),
                     RampUp = GetConfigValue(v => v.Throughput.RampUp, configs, TimeSpan.Zero),
-                    RampDown = GetConfigValue(v => v.Throughput.RampDown, configs,TimeSpan.Zero),
+                    RampDown = GetConfigValue(v => v.Throughput.RampDown, configs, TimeSpan.Zero),
                     Iterations = GetConfigValue(v => v.Throughput.Iterations, configs, default),
                     ThinkTime = GetConfigValue(v => v.Throughput.ThinkTime, configs, TimeSpan.Zero),
                     Tps = GetConfigValue(v => v.Throughput.Tps, configs, default)
@@ -98,7 +104,7 @@ namespace Lupi.Configuration
             Config config;
             var path = configFilepath;
             var paths = new List<string>();
-            do 
+            do
             {
                 var fullPath = Path.GetFullPath(path);
                 if (paths.Contains(fullPath))
@@ -125,16 +131,68 @@ namespace Lupi.Configuration
                 {
                     break;
                 }
-            } 
+            }
             while (!string.IsNullOrWhiteSpace(config?.BaseConfig));
             return configs;
         }
 
         public static Config Build(Config config, string configPath)
         {
-            if (!Path.IsPathRooted(config.Test.AssemblyPath))
+            if (!Path.IsPathRooted(config.Test.AssemblyPath) && !config.Scripting.Scripts.Any())
             {
                 config.Test.AssemblyPath = Path.Join(Path.GetDirectoryName(configPath), config.Test.AssemblyPath);
+            }
+
+            if (config.Scripting.Scripts.Any())
+            {
+                var invalidSteps = config.Scripting.Scenario.Where(s => !config.Scripting.Scripts.ContainsKey(s));
+                if (invalidSteps.Any())
+                {
+                    throw new ArgumentException($"Could not find scenario key(s) in scripting.scripts. {string.Join(", ", invalidSteps)}");
+                }
+                var scriptsToLoad = config.Scripting.Scripts
+                    .Where(s => !string.IsNullOrWhiteSpace(s.Value.ScriptPath))
+                    .Where(s => string.IsNullOrWhiteSpace(s.Value.Script));
+                foreach (var script in config.Scripting.Scripts)
+                {
+                    if (scriptsToLoad.Contains(script))
+                    {
+                        var filePath = Path.IsPathRooted(script.Value.ScriptPath)
+                            ? script.Value.ScriptPath
+                            : Path.Join(Path.GetDirectoryName(configPath), script.Value.ScriptPath);
+                        if (!System.IO.File.Exists(filePath))
+                        {
+                            Console.WriteLine($"File not found for script {script.Key} at '{script.Value.ScriptPath}'. Full path {filePath}");
+                            throw new FileNotFoundException($"{script.Value}");
+                        }
+                        var fileContents = System.IO.File.ReadAllText(filePath);
+                        script.Value.Script = fileContents;
+                    }
+                    var fullPathReferences = new List<string>();
+                    foreach (var reference in script.Value.References)
+                    {
+                        var referenceFilePath = Path.GetFullPath(Path.Join(Path.GetFullPath(configPath), reference));
+                        if (Path.EndsInDirectorySeparator(referenceFilePath))
+                        {
+                            if (!System.IO.Directory.Exists(referenceFilePath))
+                            {
+                                Console.WriteLine($"Foldder not found for script {script.Key} reference '{reference}'. Full path '{referenceFilePath}'. Relative to {configPath}");
+                                throw new FileNotFoundException($"{script.Value}");
+                            }
+                            fullPathReferences.AddRange(System.IO.Directory.GetFiles(referenceFilePath, "*.dll"));
+                        }
+                        else
+                        {
+                            if (!System.IO.File.Exists(referenceFilePath))
+                            {
+                                Console.WriteLine($"File not found for script {script.Key} reference '{reference}'. Full path '{referenceFilePath}'. Relative to {configPath}");
+                                throw new FileNotFoundException($"{script.Value}");
+                            }
+                            fullPathReferences.Add(referenceFilePath);
+                        }
+                    }
+                    script.Value.References = fullPathReferences;
+                }
             }
 
             if (!config.Throughput.Phases.Any())

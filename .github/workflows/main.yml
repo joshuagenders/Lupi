@@ -2,7 +2,7 @@
 
 name: DockerHub CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   release:
     types: [published]
@@ -23,7 +23,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: joshuagenders/lupi
-          tags: latest, 0.0.6
+          tags: latest, 0.0.7
 
   push_slim_to_registry:
     name: Push Slim Docker image to Docker Hub
@@ -38,4 +38,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: joshuagenders/lupi
           dockerfile: Slim.Dockerfile
-          tags: slim-latest, slim-0.0.6
+          tags: slim-latest, slim-0.0.7

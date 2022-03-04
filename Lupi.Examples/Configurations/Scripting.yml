@@ -1,0 +1,24 @@
+---
+scripting: 
+  scripts:
+    homepage:
+      script: |
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        var randomNumber = __.helpers.Rand();
+        var data = __.testData.GetNext();
+        await __.httpClient.GetAsync("https://<website>.com/", ct);
+        stopwatch.Stop();
+        return (stopwatch, "success");
+  scenario:
+    - homepage
+
+concurrency:
+  threads: 10
+  rampUp: 2m
+  rampDown: 20s
+
+throughput:
+  thinkTime: 500ms
+
+baseConfig: BaseScripts.yml

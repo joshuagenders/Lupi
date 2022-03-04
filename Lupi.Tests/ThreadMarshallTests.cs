@@ -1,22 +1,23 @@
 using Lupi.Configuration;
 using Lupi.Core;
 
-namespace Lupi.Tests 
+namespace Lupi.Tests
 {
-    public class ThreadMarshallTests 
+    public class ThreadMarshallTests
     {
         [Theory]
         [AutoMoqData]
+        [Trait("Category", "Flaky")]
         public void WhenConcurrencySpecifiedInClosedWorkload_ThenThreadLevelSet(
-            [Frozen]Mock<ITokenManager> tokenManager,
-            [Frozen]Config config,
+            [Frozen] Mock<ITokenManager> tokenManager,
+            [Frozen] Config config,
             ThreadMarshall threadMarshall)
         {
             var cts = new CancellationTokenSource();
-            var startTime = new DateTime(2020,05,02, 13,0,0);
+            var startTime = new DateTime(2020, 05, 02, 13, 0, 0);
             var endTime = startTime.AddMinutes(5);
             config.Concurrency.RampUp = TimeSpan.FromMinutes(1);
-            config.Concurrency.Threads = 20;
+            config.Concurrency.Threads = 10;
             config.Concurrency.HoldFor = TimeSpan.FromMinutes(3);
             config.Concurrency.RampDown = TimeSpan.FromMinutes(1);
             config.Concurrency.OpenWorkload = false;
@@ -35,15 +36,16 @@ namespace Lupi.Tests
 
         [Theory]
         [AutoMoqData]
+        [Trait("Category", "Flaky")]
         public void WhenConcurrencySpecifiedInOpenWorkload_ThenThreadLevelAdjusts(
-            [Frozen]Mock<ITestThreadFactory> testThreadFactory,
+            [Frozen] Mock<ITestThreadFactory> testThreadFactory,
             Mock<TestThread> testThread,
-            [Frozen]Mock<ITokenManager> tokenManager,
-            [Frozen]Config config,
+            [Frozen] Mock<ITokenManager> tokenManager,
+            [Frozen] Config config,
             ThreadMarshall threadMarshall)
         {
             var cts = new CancellationTokenSource();
-            var startTime = new DateTime(2020,05,02, 13,0,0);
+            var startTime = new DateTime(2020, 05, 02, 13, 0, 0);
             var endTime = startTime.AddMinutes(5);
             config.Concurrency.OpenWorkload = true;
             config.Concurrency.MinThreads = 10;

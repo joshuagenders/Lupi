@@ -1,7 +1,6 @@
 ﻿using JustEat.StatsD;
 using Lupi.Configuration;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace Lupi.Results
 {
@@ -21,7 +20,7 @@ namespace Lupi.Results
 
         public SystemMetricsPublisher(IHttpEventListener httpEventListener, IStatsDPublisher stats, Config config)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (OperatingSystem.IsWindows())
             {
                 _counters = PerformanceCounterCategory.GetCategories()
                     .Where(cat => cat.CategoryName.Equals("Processor") || cat.CategoryName.Equals("Memory"))

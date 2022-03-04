@@ -1,0 +1,16 @@
+scripting: 
+  scripts:
+    random:
+      script: |
+        return new Random().Next();
+
+listeners:
+    activeListeners:
+    - file
+    - statsd
+    - console
+    file:
+        path: ${RESULT_PATH}
+    statsd:
+        host: ${STATSD_HOST}
+        port: ${STATSD_PORT}
