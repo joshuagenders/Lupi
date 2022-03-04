@@ -7,7 +7,7 @@ namespace Lupi.Tests
     {
         [Theory]
         [AutoMoqData]
-        public async void WhenConcurrencySpecifiedInClosedWorkload_ThenThreadLevelSet(
+        public void WhenConcurrencySpecifiedInClosedWorkload_ThenThreadLevelSet(
             [Frozen] Mock<ITokenManager> tokenManager,
             [Frozen] Config config,
             ThreadMarshall threadMarshall)
@@ -22,15 +22,12 @@ namespace Lupi.Tests
             config.Concurrency.OpenWorkload = false;
             config.Concurrency.Phases = config.BuildStandardConcurrencyPhases();
             threadMarshall.AdjustThreadLevels(startTime, startTime.AddSeconds(30), cts.Token);
-            await Task.Delay(1);
             threadMarshall.GetThreadCount().Should().BeCloseTo(config.Concurrency.Threads / 2, 1);
 
             threadMarshall.AdjustThreadLevels(startTime, startTime.AddMinutes(2), cts.Token);
-            await Task.Delay(1);
             threadMarshall.GetThreadCount().Should().BeCloseTo(config.Concurrency.Threads, 1);
 
             threadMarshall.AdjustThreadLevels(startTime, startTime.AddMinutes(4).AddSeconds(30), cts.Token);
-            await Task.Delay(1);
             tokenManager.Verify(
                 t => t.RequestTaskDiscontinues(),
                 Times.Between((int)(config.Concurrency.Threads / 2 - 1), (int)(config.Concurrency.Threads / 2 + 1), Moq.Range.Inclusive));
@@ -38,7 +35,7 @@ namespace Lupi.Tests
 
         [Theory]
         [AutoMoqData]
-        public async Task WhenConcurrencySpecifiedInOpenWorkload_ThenThreadLevelAdjusts(
+        public void WhenConcurrencySpecifiedInOpenWorkload_ThenThreadLevelAdjusts(
             [Frozen] Mock<ITestThreadFactory> testThreadFactory,
             Mock<TestThread> testThread,
             [Frozen] Mock<ITokenManager> tokenManager,
@@ -57,12 +54,10 @@ namespace Lupi.Tests
             testThread.Setup(t => t.Run(It.IsAny<CancellationToken>())).Returns(Task.Delay(TimeSpan.FromSeconds(30)));
             testThreadFactory.Setup(t => t.GetTestThread()).Returns(testThread.Object);
             threadMarshall.AdjustThreadLevels(startTime, startTime, cts.Token);
-            await Task.Delay(1);
             threadMarshall.GetThreadCount().Should().Be(10);
 
             tokenManager.Setup(t => t.GetTokenCount()).Returns(1);
             threadMarshall.AdjustThreadLevels(startTime, startTime.AddSeconds(10), cts.Token);
-            await Task.Delay(1);
             threadMarshall.GetThreadCount().Should().Be(11);
         }
     }
