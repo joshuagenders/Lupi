@@ -148,12 +148,18 @@ namespace Lupi.Tests
         }
 
         [Fact]
+        [Trait("Category", "Flaky")]
         public async Task ScriptsRespectCancellationToken()
         {
             var cancellationOccurred = false;
             var scripts = new[] { ("simple", "await Task.Delay(3000, __.ct);") };
             var config = GetConfig(scripts);
             config.Scripting.Scripts.First().Value.Imports.Append("System.Threading.Tasks");
+            config.Scripting.Globals.Add("somevalue", new LupiScript
+            {
+                Script = "Task.CompletedTask",
+                Imports = new List<string>() { "System.Threading.Tasks" }
+            }); // not sure why, but required to get test to pass when running all
             var cts = new CancellationTokenSource();
             var sut = new ScriptPlugin(config, Mock.Of<ILogger>(), cts.Token);
             var timer = new Stopwatch();
