@@ -7,6 +7,7 @@ namespace Lupi.Tests
     {
         [Theory]
         [AutoMoqData]
+        [Trait("Category", "Flaky")]
         public void WhenConcurrencySpecifiedInClosedWorkload_ThenThreadLevelSet(
             [Frozen] Mock<ITokenManager> tokenManager,
             [Frozen] Config config,
@@ -35,6 +36,7 @@ namespace Lupi.Tests
 
         [Theory]
         [AutoMoqData]
+        [Trait("Category", "Flaky")]
         public void WhenConcurrencySpecifiedInOpenWorkload_ThenThreadLevelAdjusts(
             [Frozen] Mock<ITestThreadFactory> testThreadFactory,
             Mock<TestThread> testThread,
