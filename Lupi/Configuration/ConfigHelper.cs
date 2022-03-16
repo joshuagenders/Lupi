@@ -23,9 +23,10 @@ namespace Lupi.Configuration
             {
                 Scripting = new Scripting
                 {
-                    Globals = GetConfigValue(v => v.Scripting.Globals, configs, new()),
+                    Globals = configs.SelectMany(c => c.Scripting.Globals).ToDictionary(k => k.Key, v => v.Value),
                     Scenario = GetConfigValue(v => v.Scripting.Scenario, configs, new()),
-                    Scripts = GetConfigValue(v => v.Scripting.Scripts, configs, new()),
+                    Scripts = configs.SelectMany(c => c.Scripting.Scripts).ToDictionary(k => k.Key, v => v.Value),
+                    Teardown = configs.SelectMany(c => c.Scripting.Teardown).ToDictionary(k => k.Key, v => v.Value)
                 },
                 Concurrency = new Concurrency
                 {
@@ -169,7 +170,7 @@ namespace Lupi.Configuration
                         script.Value.Script = fileContents;
                     }
                     var fullPathReferences = new List<string>();
-                    foreach (var reference in script.Value.References)
+                    foreach (var reference in script.Value.References ?? Enumerable.Empty<string>())
                     {
                         var referenceFilePath = Path.GetFullPath(Path.Join(Path.GetFullPath(configPath), reference));
                         if (Path.EndsInDirectorySeparator(referenceFilePath))

@@ -14,13 +14,13 @@ namespace Lupi.Core
     public class ScriptPlugin : IPlugin
     {
         private readonly Config _config;
-        private readonly ILogger _logger;
+        private readonly ILogger<ScriptPlugin> _logger;
         private readonly CancellationToken _ct;
         private Dictionary<string, Script<object>> _compiledScripts = new();
         private GlobalRefs _globals { get; set; }
         private Dictionary<string, ScriptState<object>> _globalResultState = new();
 
-        public ScriptPlugin(Config config, ILogger logger, CancellationToken ct = default)
+        public ScriptPlugin(Config config, ILogger<ScriptPlugin> logger, CancellationToken ct = default)
         {
             _config = config;
             _logger = logger;

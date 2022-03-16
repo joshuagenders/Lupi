@@ -23,8 +23,9 @@ namespace Lupi.Results
             if (OperatingSystem.IsWindows())
             {
                 _counters = PerformanceCounterCategory.GetCategories()
-                    .Where(cat => cat.CategoryName.Equals("Processor") || cat.CategoryName.Equals("Memory"))
-                    .SelectMany(cat => cat.GetCounters())
+                    .Where(category => category.CategoryName.Equals("Processor") || category.CategoryName.Equals("Memory"))
+                    .SelectMany(category => category.GetInstanceNames().Select(instanceName => new { instanceName, category }))
+                    .SelectMany(o => o.category.GetCounters(o.instanceName))
                     .ToArray();
             }
 

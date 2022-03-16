@@ -19,7 +19,7 @@ namespace Lupi.Tests
             var scripts = new[] { ("simple", "return 1 + 1;") };
             var config = GetConfig(scripts);
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(config, Mock.Of<ILogger>(), cts.Token);
+            var sut = new ScriptPlugin(config, Mock.Of<ILogger<ScriptPlugin>>(), cts.Token);
             await sut.ExecuteSetupMethod();
             var result = await sut.ExecuteTestMethod();
             result.Should().Be(2);
@@ -39,7 +39,7 @@ namespace Lupi.Tests
                 "Step 2"
             };
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(config, Mock.Of<ILogger>(), cts.Token);
+            var sut = new ScriptPlugin(config, Mock.Of<ILogger<ScriptPlugin>>(), cts.Token);
             await sut.ExecuteSetupMethod();
             var result = await sut.ExecuteTestMethod();
             var castedResult = ((IEnumerable<object>)result).ToList();
@@ -60,7 +60,7 @@ namespace Lupi.Tests
             var scripts = new[] { ("createAClass", script) };
             var config = GetConfig(scripts);
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(config, Mock.Of<ILogger>(), cts.Token);
+            var sut = new ScriptPlugin(config, Mock.Of<ILogger<ScriptPlugin>>(), cts.Token);
             await sut.ExecuteSetupMethod();
             var result = await sut.ExecuteTestMethod();
             result.ToString().Should().Be("SomeValue");
@@ -80,7 +80,7 @@ namespace Lupi.Tests
             s.Imports = new[] { "CsvHelper", "System", "System.IO", "System.Text", "System.Globalization" };
             var builtConfig = ConfigHelper.Build(config, ".");
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(builtConfig, Mock.Of<ILogger>(), cts.Token);
+            var sut = new ScriptPlugin(builtConfig, Mock.Of<ILogger<ScriptPlugin>>(), cts.Token);
             await sut.ExecuteSetupMethod();
             var result = await sut.ExecuteTestMethod();
             result.GetType().Name.Should().Be("CsvReader");
@@ -100,7 +100,7 @@ namespace Lupi.Tests
             s.Imports = new[] { "CsvHelper", "System", "System.IO", "System.Text", "System.Globalization" };
             var builtConfig = ConfigHelper.Build(config, ".");
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(builtConfig, Mock.Of<ILogger>(), cts.Token);
+            var sut = new ScriptPlugin(builtConfig, Mock.Of<ILogger<ScriptPlugin>>(), cts.Token);
             await sut.ExecuteSetupMethod();
             var result = await sut.ExecuteTestMethod();
             result.GetType().Name.Should().Be("CsvReader");
@@ -123,7 +123,7 @@ namespace Lupi.Tests
                 { "myVarName", new LupiScript { Script = globalScript, Imports = new List<string> { } } }
             };
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(config, Mock.Of<ILogger>(), cts.Token);
+            var sut = new ScriptPlugin(config, Mock.Of<ILogger<ScriptPlugin>>(), cts.Token);
             await sut.ExecuteSetupMethod();
             var result = await sut.ExecuteTestMethod();
             result.ToString().Should().Be("SomeValue");
@@ -141,7 +141,7 @@ namespace Lupi.Tests
                 { "httpClient", new LupiScript { Script = globalScript, Imports = new List<string> { "System", "System.Net.Http" } } }
             };
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(config, Mock.Of<ILogger>(), cts.Token);
+            var sut = new ScriptPlugin(config, Mock.Of<ILogger<ScriptPlugin>>(), cts.Token);
             await sut.ExecuteSetupMethod();
             var result = await sut.ExecuteTestMethod();
             result.Should().Be("HttpClient");
@@ -161,7 +161,7 @@ namespace Lupi.Tests
                 Imports = new List<string>() { "System.Threading.Tasks" }
             }); // not sure why, but required to get test to pass when running all
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(config, Mock.Of<ILogger>(), cts.Token);
+            var sut = new ScriptPlugin(config, Mock.Of<ILogger<ScriptPlugin>>(), cts.Token);
             var timer = new Stopwatch();
             cts.CancelAfter(TimeSpan.FromMilliseconds(150));
             try
@@ -188,7 +188,7 @@ namespace Lupi.Tests
             var scripts = new[] { ("simple", "return 1 + ;") };
             var config = GetConfig(scripts);
             var cts = new CancellationTokenSource();
-            var sut = new ScriptPlugin(config, Mock.Of<ILogger>(), cts.Token);
+            var sut = new ScriptPlugin(config, Mock.Of<ILogger<ScriptPlugin>>(), cts.Token);
             await sut.ExecuteSetupMethod();
             Func<Task> act = () => sut.ExecuteTestMethod();
             await act.Should().ThrowAsync<CompilationErrorException>();
