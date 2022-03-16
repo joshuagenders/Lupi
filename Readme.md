@@ -21,7 +21,7 @@ scripting:
   scripts:
     homepage: |
       var client = new System.Net.Http.HttpClient();
-      var response = await client.GetAsync("https://<website>.com", ct);
+      var response = await client.GetAsync("https://<website>.com", __.ct);
       return response.IsSuccessStatusCode;
     imports:
       - System.Net.Http
@@ -64,7 +64,7 @@ namespace TestLibrary
     {
         public async Task Get(CancellationToken ct)
         {
-            var result = await new HttpClient().GetAsync(\"https://<website>.com/\", __.ct);
+            var result = await new HttpClient().GetAsync(\"https://<website>.com/\", ct);
             result.EnsureSuccessStatusCode();
         }
     }
