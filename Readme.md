@@ -64,7 +64,7 @@ namespace TestLibrary
     {
         public async Task Get(CancellationToken ct)
         {
-            var result = await new HttpClient().GetAsync(\"https://<website>.com/\", ct);
+            var result = await new HttpClient().GetAsync(\"https://<website>.com/\", __.ct);
             result.EnsureSuccessStatusCode();
         }
     }
