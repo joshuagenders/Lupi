@@ -159,12 +159,16 @@ scripting:
       scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
       imports: # list of namespaces to statically import
         - System.Net.Http
+      references: # list of DLLs to load
+        - Some.dll
   scripts:
     scriptName:
       script: var x = new Random().Next(); # script inline
       scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
       imports: # list of namespaces to statically import
         - System.Math
+      references: # list of DLLs to load
+        - Some.dll
   teardown:
     variableName:
       script: __.variableName.Dispose();
@@ -195,6 +199,8 @@ scripting:
             scriptPath: path/to/scriptfile.cs # path to script, mutually exclusive with script
             imports: # list of namespaces to statically import
                 - System.Math
+            references: # list of DLLs to load
+                - Some.dll
     teardown:
       variableName: __.variableName.Dispose();
     scenarios: # list of scripts to run in order per iteration, not required if there is only one script
