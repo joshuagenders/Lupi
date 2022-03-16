@@ -20,7 +20,7 @@ See the [Examples here](https://github.com/joshuagenders/Lupi/tree/main/Lupi.Exa
 scripting:
   scripts:
     homepage: |
-      var client = new System.Net.Http.HttpClient();
+      var client = new HttpClient();
       var response = await client.GetAsync("https://<website>.com", __.ct);
       return response.IsSuccessStatusCode;
     imports:
