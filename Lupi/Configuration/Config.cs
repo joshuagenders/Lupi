@@ -135,11 +135,11 @@ namespace Lupi.Configuration
         /// <summary>
         /// List of namespaces to import.
         /// </summary>
-        public IEnumerable<string> Imports { get; set; }
+        public IEnumerable<string> Imports { get; set; } = Enumerable.Empty<string>();
 
         /// <summary>
         /// List of file paths referencing required DLLs.
         /// </summary>
-        public IEnumerable<string> References { get; set; }
+        public IEnumerable<string> References { get; set; } = Enumerable.Empty<string>();
     }
 }
